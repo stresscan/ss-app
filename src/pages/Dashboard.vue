@@ -5,7 +5,7 @@
     <!--Stats cards - Places-->
     <div class="row">
       <div class="col-md-6 col-xl-3" style="cursor: pointer" v-for="stats in statsCards" :key="stats.title" @click="onPlaceClick(stats)">
-        <stats-card>
+        <stats-card :class="stats.status.toLowerCase()">
           <div class="icon-big text-center" :class="`icon-${stats.type}`" slot="header">
             <i :class="stats.icon"></i>
           </div>
@@ -14,6 +14,9 @@
             {{stats.value}}
           </div>
           <div class="stats" slot="footer">
+            <div style="display: inline-block; margin-right: 15px">
+              <i class="ti-signal"></i> {{stats.status}}
+            </div>
             <i :class="stats.footerIcon"></i> {{stats.footerText}}
           </div>
         </stats-card>
@@ -38,38 +41,52 @@ export default {
         {
           id: 1,
           type: "warning",
-          icon: "ti-server",
+          icon: "ti-location-pin",
           title: "Capacity",
           value: "105GB",
-          footerText: "Updated now",
-          footerIcon: "ti-reload"
+          footerText: "Atualizado agora",
+          footerIcon: "ti-reload",
+          status: "Ativo"
         },
         {
           id: 2,
           type: "success",
-          icon: "ti-wallet",
+          icon: "ti-location-pin",
           title: "Revenue",
           value: "$1,345",
-          footerText: "Last day",
-          footerIcon: "ti-calendar"
+          footerText: "Atualizado há 1 dia",
+          footerIcon: "ti-calendar",
+          status: "Desativado"
+        },
+        {
+          id: 2,
+          type: "success",
+          icon: "ti-location-pin",
+          title: "Revenue",
+          value: "$1,345",
+          footerText: "Atualizado há mais de 1 dia",
+          footerIcon: "ti-calendar",
+          status: "Desativado"
         },
         {
           id: 3,
           type: "danger",
-          icon: "ti-pulse",
+          icon: "ti-location-pin",
           title: "Errors",
           value: "23",
-          footerText: "In the last hour",
-          footerIcon: "ti-timer"
+          footerText: "Atualizado há algumas horas",
+          footerIcon: "ti-timer",
+          status: "Ativo"
         },
         {
           id: 4,
           type: "info",
-          icon: "ti-twitter-alt",
+          icon: "ti-location-pin",
           title: "Followers",
           value: "+45",
-          footerText: "Updated now",
-          footerIcon: "ti-reload"
+          footerText: "Atualizado há menos de 1 hora",
+          footerIcon: "ti-reload",
+          status: "Ativo"
         }
       ],
       usersChart: {

@@ -1,5 +1,5 @@
 <template>
-  <card>
+  <card :class="status">
     <div>
       <div class="row">
         <div class="col-5" v-if="$slots.header">
@@ -24,8 +24,12 @@ export default {
   name: "stats-card",
   components: {
     Card
-  }
+  },
+  props: ["status"]
 };
 </script>
-<style>
+<style scoped>
+.desativado {
+  opacity: 0.7;
+}
 </style>
