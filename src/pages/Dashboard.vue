@@ -4,7 +4,7 @@
 
     <!--Stats cards - Places-->
     <div class="row">
-      <div class="col-md-6 col-xl-3" style="cursor: pointer" v-for="stats in statsCards" :key="stats.title" @click="onPlaceClick(stats)">
+      <div class="col-md-6 col-xl-4" style="cursor: pointer" v-for="stats in statsCards" :key="stats.title" @click="onPlaceClick(stats)">
         <stats-card>
           <div class="icon-big text-center" :class="`icon-${stats.type}`" slot="header">
             <i :class="stats.icon"></i>
