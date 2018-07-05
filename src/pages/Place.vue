@@ -1,32 +1,62 @@
 <template>
   <div>
-    <h1>Places</h1>
+    <a style="display: block; margin-bottom: 10px" href="#" onclick="javascript:history.go(-1)">Voltar</a>
 
-    <!--Stats cards - Places-->
-    <div class="row">
-      <div class="col-md-6 col-xl-3" style="cursor: pointer" v-for="stats in statsCards" :key="stats.title" @click="onPlaceClick(stats)">
-        <stats-card>
-          <div class="icon-big text-center" :class="`icon-${stats.type}`" slot="header">
-            <i :class="stats.icon"></i>
-          </div>
-          <div class="numbers" slot="content">
-            <p>{{stats.title}}</p>
-            {{stats.value}}
-          </div>
-          <div class="stats" slot="footer">
-            <i :class="stats.footerIcon"></i> {{stats.footerText}}
-          </div>
-        </stats-card>
-      </div>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <strong>Holy guacamole!</strong> You should check in on some of those fields below.
     </div>
+
+    <!--Charts-->
+    <div class="row">
+      <div class="col-12">
+        <chart-card title="Users behavior" sub-title="24 Hours performance" :chart-data="usersChart.data" :chart-options="usersChart.options">
+          <span slot="footer">
+            <i class="ti-reload"></i> Updated 3 minutes ago
+          </span>
+          <div slot="legend">
+            <i class="fa fa-circle text-info"></i> Open
+            <i class="fa fa-circle text-danger"></i> Click
+            <i class="fa fa-circle text-warning"></i> Click Second Time
+          </div>
+        </chart-card>
+      </div>
+
+      <div class="col-md-6 col-12">
+        <chart-card title="Email Statistics" sub-title="Last campaign performance" :chart-data="preferencesChart.data" chart-type="Pie">
+          <span slot="footer">
+            <i class="ti-timer"></i> Campaign set 2 days ago</span>
+          <div slot="legend">
+            <i class="fa fa-circle text-info"></i> Open
+            <i class="fa fa-circle text-danger"></i> Bounce
+            <i class="fa fa-circle text-warning"></i> Unsubscribe
+          </div>
+        </chart-card>
+      </div>
+
+      <div class="col-md-6 col-12">
+        <chart-card title="2015 Sales" sub-title="All products including Taxes" :chart-data="activityChart.data" :chart-options="activityChart.options">
+          <span slot="footer">
+            <i class="ti-check"></i> Data information certified
+          </span>
+          <div slot="legend">
+            <i class="fa fa-circle text-info"></i> Tesla Model S
+            <i class="fa fa-circle text-warning"></i> BMW 5 Series
+          </div>
+        </chart-card>
+      </div>
+
+    </div>
+
   </div>
 </template>
 <script>
-import { StatsCard, ChartCard } from "@/components/index";
+import { ChartCard } from "@/components/index";
 import Chartist from "chartist";
 export default {
   components: {
-    StatsCard,
     ChartCard
   },
   /**
@@ -36,7 +66,6 @@ export default {
     return {
       statsCards: [
         {
-          id: 1,
           type: "warning",
           icon: "ti-server",
           title: "Capacity",
@@ -45,7 +74,6 @@ export default {
           footerIcon: "ti-reload"
         },
         {
-          id: 2,
           type: "success",
           icon: "ti-wallet",
           title: "Revenue",
@@ -54,7 +82,6 @@ export default {
           footerIcon: "ti-calendar"
         },
         {
-          id: 3,
           type: "danger",
           icon: "ti-pulse",
           title: "Errors",
@@ -63,7 +90,6 @@ export default {
           footerIcon: "ti-timer"
         },
         {
-          id: 4,
           type: "info",
           icon: "ti-twitter-alt",
           title: "Followers",
@@ -142,11 +168,6 @@ export default {
         options: {}
       }
     };
-  },
-  methods: {
-    onPlaceClick(stats) {
-      this.$router.push("/place");
-    }
   }
 };
 </script>

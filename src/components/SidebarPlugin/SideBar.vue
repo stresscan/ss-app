@@ -1,7 +1,5 @@
 <template>
-  <div class="sidebar"
-       :data-background-color="backgroundColor"
-       :data-active-color="activeColor">
+  <div class="sidebar" :data-background-color="backgroundColor" :data-active-color="activeColor">
     <!--
             Tip 1: you can change the color of the sidebar's background using: data-background-color="white | black | darkblue"
             Tip 2: you can change the color of the active button using the data-active-color="primary | info | success | warning | danger"
@@ -9,12 +7,13 @@
     <!-- -->
     <div class="sidebar-wrapper" id="style-3">
       <div class="logo">
-        <a href="#" class="simple-text">
-            <div class="logo-img">
-                <img src="@/assets/img/vue-logo.png" alt="">
-            </div>
-          {{title}}
-        </a>
+        <div class="simple-text">
+          <div class="logo-img">
+            <img src="@/assets/img/faces/face-1.jpg" alt="">
+          </div>
+          <span>{{title}}</span>
+          <a href="#">sair</a>
+        </div>
       </div>
       <slot>
 
@@ -22,11 +21,7 @@
       <ul class="nav">
         <!--By default vue-router adds an active class to each route link. This way the links are colored when clicked-->
         <slot name="links">
-          <sidebar-link v-for="(link,index) in sidebarLinks"
-                        :key="index"
-                        :to="link.path"
-                        :name="link.name"
-                        :icon="link.icon">
+          <sidebar-link v-for="(link,index) in sidebarLinks" :key="index" :to="link.path" :name="link.name" :icon="link.icon">
           </sidebar-link>
         </slot>
       </ul>
@@ -43,7 +38,7 @@ export default {
   props: {
     title: {
       type: String,
-      default: "Paper Dashboard"
+      default: "ss_alfa"
     },
     backgroundColor: {
       type: String,

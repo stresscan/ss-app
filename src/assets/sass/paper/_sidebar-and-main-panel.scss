@@ -6,6 +6,7 @@
   z-index: 1;
   background-size: cover;
   background-position: center center;
+
   .sidebar-wrapper {
     position: relative;
     height: 100%;
@@ -13,8 +14,9 @@
     overflow-x: hidden;
     width: 260px;
     z-index: 4;
-    box-shadow: inset -1px 0px 0px 0px $medium-gray;
+    box-shadow: inset -1px 0 0 0 $medium-gray;
   }
+
   .sidebar-background {
     position: absolute;
     z-index: 1;
@@ -41,7 +43,7 @@
     p {
       float: left;
       font-size: 20px;
-      margin: 10px 10px;
+      margin: 10px;
       line-height: 20px;
     }
 
@@ -54,19 +56,27 @@
       line-height: 40px;
       text-align: left;
 
-      .logo-img{
-          width: 40px;
-          display: inline-block;
-          height: 40px;
-          margin-left: 0px;
-          margin-right: 10px;
-          background: white;
-          border-radius: 40px;
-          text-align: center;
+      .logo-img {
+        display: inline-block;
+        margin-left: 0;
+        margin-right: 10px;
 
-        img{
-            max-width: 21px;
+        img {
+          background: white;
+          border: solid 3px white;
+          border-radius: 9px;
+          width: 40px;
         }
+      }
+
+      span {
+        display: inline-block;
+        width: 94px;
+      }
+
+      a {
+        display: block;
+        float: right;
       }
     }
   }
@@ -76,8 +86,9 @@
 
     .nav-item {
       width: 100%;
+
       .nav-link {
-        margin: 10px 0px;
+        margin: 10px 0;
         padding-left: 25px;
         padding-right: 25px;
 
@@ -129,9 +140,11 @@
   &[data-background-color="white"] {
     @include sidebar-background-color($white-background-color, $default-color);
   }
+
   &[data-background-color="black"] {
     @include sidebar-background-color($black-background-color, $white-color);
   }
+
   &[data-background-color="darkblue"] {
     @include sidebar-background-color($darkblue-background-color, $white-color);
   }
@@ -139,15 +152,19 @@
   &[data-active-color="primary"] {
     @include sidebar-active-color($primary-color);
   }
+
   &[data-active-color="info"] {
     @include sidebar-active-color($info-color);
   }
+
   &[data-active-color="success"] {
     @include sidebar-active-color($success-color);
   }
+
   &[data-active-color="warning"] {
     @include sidebar-active-color($warning-color);
   }
+
   &[data-active-color="danger"] {
     @include sidebar-active-color($danger-color);
   }
@@ -177,8 +194,8 @@
   }
 }
 
-.wrapper .sidebar,
-.main-panel {
+.main-panel,
+.wrapper .sidebar {
   -webkit-transition-property: top, bottom;
   transition-property: top, bottom;
   -webkit-transition-duration: .2s, .2s;
