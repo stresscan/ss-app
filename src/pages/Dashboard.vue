@@ -1,22 +1,20 @@
 <template>
   <div>
-    <h1>Places</h1>
+    <h1>Locais</h1>
 
     <!--Stats cards - Places-->
     <div class="row">
       <div class="col-md-6 col-xl-3" style="cursor: pointer" v-for="stats in statsCards" :key="stats.title" @click="onPlaceClick(stats)">
-        <stats-card :class="stats.status.toLowerCase()">
+        <stats-card>
           <div class="icon-big text-center" :class="`icon-${stats.type}`" slot="header">
             <i :class="stats.icon"></i>
           </div>
           <div class="numbers" slot="content">
             <p>{{stats.title}}</p>
-            {{stats.value}}
+            <p>{{stats.address}}</p>
+            {{stats.qntTowers}} torre(s)
           </div>
           <div class="stats" slot="footer">
-            <div style="display: inline-block; margin-right: 15px">
-              <i class="ti-signal"></i> {{stats.status}}
-            </div>
             <i :class="stats.footerIcon"></i> {{stats.footerText}}
           </div>
         </stats-card>
@@ -40,9 +38,11 @@ export default {
       statsCards: [
         {
           id: 1,
-          type: "warning",
+          type: "success",
           icon: "ti-location-pin",
-          title: "Capacity",
+          title: "Fazenda #1",
+          address: "Presidente Prudente/SP",
+          qntTowers: 1,
           value: "105GB",
           footerText: "Atualizado agora",
           footerIcon: "ti-reload",
@@ -52,7 +52,9 @@ export default {
           id: 2,
           type: "success",
           icon: "ti-location-pin",
-          title: "Revenue",
+          title: "Fazenda #2",
+          address: "Presidente Prudente/SP",
+          qntTowers: 1,
           value: "$1,345",
           footerText: "Atualizado há 1 dia",
           footerIcon: "ti-calendar",
@@ -62,7 +64,9 @@ export default {
           id: 2,
           type: "success",
           icon: "ti-location-pin",
-          title: "Revenue",
+          title: "Fazenda #3",
+          address: "Presidente Prudente/SP",
+          qntTowers: 1,
           value: "$1,345",
           footerText: "Atualizado há mais de 1 dia",
           footerIcon: "ti-calendar",
@@ -70,9 +74,11 @@ export default {
         },
         {
           id: 3,
-          type: "danger",
+          type: "warning",
           icon: "ti-location-pin",
-          title: "Errors",
+          title: "Fazenda #4",
+          address: "Presidente Prudente/SP",
+          qntTowers: 1,
           value: "23",
           footerText: "Atualizado há algumas horas",
           footerIcon: "ti-timer",
@@ -80,9 +86,11 @@ export default {
         },
         {
           id: 4,
-          type: "info",
+          type: "danger",
           icon: "ti-location-pin",
-          title: "Followers",
+          title: "Fazenda #5",
+          address: "Presidente Prudente/SP",
+          qntTowers: 1,
           value: "+45",
           footerText: "Atualizado há menos de 1 hora",
           footerIcon: "ti-reload",

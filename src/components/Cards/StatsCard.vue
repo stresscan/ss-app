@@ -1,5 +1,5 @@
 <template>
-  <card :class="status">
+  <card>
     <div>
       <div class="row">
         <div class="col-5" v-if="$slots.header">
@@ -14,7 +14,6 @@
         <slot name="footer"></slot>
       </div>
     </div>
-
   </card>
 </template>
 <script>
@@ -28,8 +27,5 @@ export default {
   props: ["status"]
 };
 </script>
-<style scoped>
-.desativado {
-  opacity: 0.7;
-}
+<style>
 </style>
