@@ -4,7 +4,8 @@ import NotFound from "@/pages/NotFoundPage.vue";
 
 // Admin pages
 import Dashboard from "@/pages/Dashboard.vue";
-import Place from "@/pages/Place.vue";
+import TowersList from "@/pages/TowersList.vue";
+import Tower from "@/pages/Tower.vue";
 import UserProfile from "@/pages/UserProfile.vue";
 import Notifications from "@/pages/Notifications.vue";
 import Icons from "@/pages/Icons.vue";
@@ -24,9 +25,14 @@ const routes = [
         component: Dashboard
       },
       {
-        path: "Place",
-        name: "place",
-        component: Place
+        path: "towers",
+        name: "torres",
+        component: TowersList
+      },
+      {
+        path: "tower",
+        name: "torre",
+        component: Tower
       },
       {
         path: "stats",

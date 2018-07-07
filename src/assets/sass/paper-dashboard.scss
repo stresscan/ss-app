@@ -32,6 +32,34 @@
 @import "paper/chartist";
 @import "paper/responsive";
 
+$online-color: rgb(66, 185, 66);
+$offline-color: #adacac;
 
+.status {
+  display: inline-block;
+  border-radius: 50%;
+  text-indent: -999px;
+  color: transparent;
+  overflow: hidden;
+  width: .5em;
+  height: .5em;
+  position: relative;
+  top: -2px;
+  margin-right: 5px;
 
+  &.online {
+    background: $online-color;
+  }
 
+  &.offline {
+    background: $offline-color;
+  }
+}
+
+.online-color {
+  color: $online-color;
+}
+
+.offline-color {
+  color: $offline-color;
+}

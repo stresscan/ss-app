@@ -1,18 +1,16 @@
 <template>
-  <card>
-    <div>
-      <div class="row">
-        <div class="col-5" v-if="$slots.header">
-          <slot name="header"></slot>
-        </div>
-        <div class="col-7" v-if="$slots.content">
-          <slot name="content"></slot>
-        </div>
+  <card :status="status">
+    <div class="row inside-card">
+      <div class="col-3" v-if="$slots.header">
+        <slot name="header"></slot>
       </div>
-      <div v-if="$slots.footer">
-        <hr/>
-        <slot name="footer"></slot>
+      <div class="col-9" v-if="$slots.content">
+        <slot name="content"></slot>
       </div>
+    </div>
+    <div v-if="$slots.footer">
+      <hr/>
+      <slot name="footer"></slot>
     </div>
   </card>
 </template>
@@ -21,11 +19,67 @@ import Card from "./Card.vue";
 
 export default {
   name: "stats-card",
+  props: {
+    status: Boolean
+  },
   components: {
     Card
-  },
-  props: ["status"]
+  }
 };
 </script>
-<style>
+
+<style lang="scss">
+.small-info {
+  font-size: 0.4em;
+
+  @media (min-width: 320px) {
+    font-size: 0.5em;
+  }
+
+  @media (min-width: 768px) {
+    font-size: 0.4em;
+  }
+
+  @media (min-width: 890px) {
+    font-size: small;
+  }
+}
+
+.big-info {
+  font-size: 2em;
+}
+
+.row.inside-card {
+  padding: 0;
+
+  @media (min-width: 376px) {
+    padding: 3px 34px;
+  }
+
+  @media (min-width: 480px) {
+    padding: 3px 64px;
+  }
+
+  @media (min-width: 575px) {
+    padding: 0;
+  }
+
+  .card-icon {
+    padding-top: 5px;
+
+    @media (min-width: 480px) {
+      padding-top: 10px;
+    }
+  }
+
+  .card-icon-tower {
+    font-size: 12px;
+    position: relative;
+    top: -16px;
+    left: -15px;
+    border-radius: 38%;
+    padding: 5px;
+    color: #666;
+  }
+}
 </style>

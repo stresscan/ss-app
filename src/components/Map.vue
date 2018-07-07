@@ -1,5 +1,5 @@
 <template>
-  <card class="card-map" title="Google Maps">
+  <card class="card-map">
     <div class="map">
       <div id="map"></div>
     </div>
@@ -13,11 +13,11 @@ export default {
     lng: String
   },
   mounted() {
-    var myLatlng = new window.google.maps.LatLng(40.748817, -73.985428);
+    var myLatlng = new window.google.maps.LatLng(this.lat, this.lng);
     var mapOptions = {
       zoom: 13,
       center: myLatlng,
-      scrollwheel: false, // we disable de scroll over the map, it is a really annoing when you scroll through page
+      scrollwheel: true,
       styles: [
         {
           featureType: "water",
@@ -78,7 +78,7 @@ export default {
 
     var marker = new window.google.maps.Marker({
       position: myLatlng,
-      title: "Hello World!"
+      title: this.title
     });
 
     // To add the marker to the map, call setMap();

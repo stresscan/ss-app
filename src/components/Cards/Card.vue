@@ -1,5 +1,5 @@
 <template>
-  <div class="card">
+  <div class="card" :class="{opaque: !status}">
     <div class="card-image" v-if="$slots.image">
       <slot name="image"></slot>
     </div>
@@ -24,9 +24,13 @@ export default {
   name: "card",
   props: {
     title: String,
-    subTitle: String
+    subTitle: String,
+    status: Boolean
   }
 };
 </script>
 <style>
+.opaque {
+  opacity: 0.8;
+}
 </style>

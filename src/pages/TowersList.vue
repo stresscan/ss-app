@@ -1,12 +1,28 @@
 <template>
   <div>
+    <div class="row">
+      <div class="col-12">
+        <card>
+          <div slot="raw-content" style="padding: 20px">
+            <span class="status online">online</span>
+            <span class="status offline">offline</span>
+            Fazenda #1
+            <br />Presidente Prudente/SP
+            <a style="display: block; margin-top: 10px" href="#" onclick="javascript:history.go(-1)">
+              <i class="ti-arrow-left"></i> Voltar
+            </a>
+          </div>
+        </card>
+      </div>
+    </div>
+
     <!--Stats cards - Places-->
     <div class="row">
-      <div class="col-sm-6 col-md-4 col-xl-4" style="cursor: pointer" v-for="stats in statsCards" :key="stats.title" @click="onPlaceClick(stats)">
+      <div class="col-sm-6 col-md-4 col-xl-4" style="cursor: pointer" v-for="stats in statsCards" :key="stats.title" @click="onTowerClick(stats)">
         <stats-card :status="stats.status">
           <div class="card-icon icon-xbig text-center" :class="`icon-${stats.type}`" slot="header">
             <div :class="{'offline-color': !stats.status}">
-              <i :class="stats.icon"></i>
+              <i class="ti-signal"></i>
             </div>
           </div>
           <div class="numbers" slot="content">
@@ -14,11 +30,10 @@
               <span class="status online" v-if="stats.status">online</span>
               <span class="status offline" v-else>offline</span>{{stats.title}}
             </p>
-            <p class="small-info">{{stats.address}}</p>
-            <span class="big-info">
-              {{stats.qntTowers}}
-              <i class="ti-signal card-icon-tower"></i>
-            </span>
+            <p class="small-info">{{stats.culture}}</p>
+            <p class="big-info">
+              {{stats.environmentTemperature}}°
+            </p>
           </div>
           <div class="stats" slot="footer">
             <i :class="stats.footerIcon"></i> {{stats.footerText}}
@@ -28,11 +43,13 @@
     </div>
   </div>
 </template>
+
 <script>
-import { StatsCard, ChartCard } from "@/components/index";
+import { Card, StatsCard, ChartCard } from "@/components/index";
 import Chartist from "chartist";
 export default {
   components: {
+    Card,
     StatsCard,
     ChartCard
   },
@@ -46,9 +63,9 @@ export default {
           id: 1,
           type: "success",
           icon: "ti-location-pin",
-          title: "Fazenda #1",
-          address: "Presidente Prudente/SP",
-          qntTowers: 1,
+          title: "Torre #1",
+          culture: "Laranja",
+          environmentTemperature: 21,
           value: "105GB",
           footerText: "Atualizado agora",
           footerIcon: "ti-reload",
@@ -58,9 +75,9 @@ export default {
           id: 2,
           type: "warning",
           icon: "ti-location-pin",
-          title: "Fazenda #2",
-          address: "Presidente Prudente/SP",
-          qntTowers: 1,
+          title: "Torre #2",
+          culture: "Morango",
+          environmentTemperature: 23,
           value: "$1,345",
           footerText: "Atualizado há 1 dia",
           footerIcon: "ti-calendar",
@@ -68,11 +85,11 @@ export default {
         },
         {
           id: 2,
-          type: "default",
+          type: "success",
           icon: "ti-location-pin",
-          title: "Fazenda #3",
-          address: "Presidente Prudente/SP",
-          qntTowers: 1,
+          title: "Torre #3",
+          culture: "Beterraba",
+          environmentTemperature: 21,
           value: "$1,345",
           footerText: "Atualizado há mais de 1 dia",
           footerIcon: "ti-calendar",
@@ -82,9 +99,9 @@ export default {
           id: 3,
           type: "success",
           icon: "ti-location-pin",
-          title: "Fazenda #4",
-          address: "Presidente Prudente/SP",
-          qntTowers: 1,
+          title: "Torre #4",
+          culture: "Cana",
+          environmentTemperature: 27,
           value: "23",
           footerText: "Atualizado há algumas horas",
           footerIcon: "ti-timer",
@@ -94,9 +111,9 @@ export default {
           id: 4,
           type: "danger",
           icon: "ti-location-pin",
-          title: "Fazenda #5",
-          address: "Presidente Prudente/SP",
-          qntTowers: 1,
+          title: "Torre #5",
+          culture: "Alface",
+          environmentTemperature: 32,
           value: "+45",
           footerText: "Atualizado há menos de 1 hora",
           footerIcon: "ti-reload",
@@ -175,8 +192,8 @@ export default {
     };
   },
   methods: {
-    onPlaceClick(stats) {
-      this.$router.push("/towers");
+    onTowerClick(stats) {
+      this.$router.push("/tower");
     }
   }
 };

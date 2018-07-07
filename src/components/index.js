@@ -10,6 +10,8 @@ import StatsCard from "./Cards/StatsCard.vue";
 
 import SidebarPlugin from "./SidebarPlugin/index";
 
+import LocationMap from "./Map.vue";
+
 let components = {
   FormGroupInput,
   Card,
@@ -17,7 +19,8 @@ let components = {
   StatsCard,
   PaperTable,
   DropDown,
-  SidebarPlugin
+  SidebarPlugin,
+  LocationMap
 };
 
 export default components;
@@ -30,5 +33,6 @@ export {
   PaperTable,
   DropDown,
   Button,
-  SidebarPlugin
+  SidebarPlugin,
+  LocationMap
 };
