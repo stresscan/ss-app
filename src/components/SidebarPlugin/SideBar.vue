@@ -8,10 +8,12 @@
     <div class="sidebar-wrapper" id="style-3">
       <div class="logo">
         <div class="simple-text">
-          <div class="logo-img">
-            <img src="@/assets/img/faces/face-1.jpg" alt="">
+          <div style="cursor: pointer; display: inline-block" onClick="window.location = 'http://www.stresscan.com/'">
+            <div class="logo-img">
+              <img src="@/assets/img/faces/face-1.jpg" alt="">
+            </div>
+            <span>{{title}}</span>
           </div>
-          <span>{{title}}</span>
           <a href="#">sair</a>
         </div>
       </div>

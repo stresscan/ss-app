@@ -1,56 +1,25 @@
 <template>
-  <card class="card-user">
+  <card class="card-user" style="padding-bottom: 20px">
     <div slot="image">
-      <img src="@/assets/img/background.jpg" alt="...">
+      <img src="http://www.assetquest.com/wp-content/uploads/2016/04/Land.jpeg" alt="...">
     </div>
-    <div>
-      <div class="author">
-        <img class="avatar border-white" src="@/assets/img/faces/face-2.jpg" alt="...">
-        <h4 class="title">Chet Faker
-          <br>
-          <a href="#">
-            <small>@chetfaker</small>
-          </a>
-        </h4>
-      </div>
-      <p class="description text-center">
-        "I like the way you work it
-        <br> No diggity
-        <br> I wanna bag it up"
-      </p>
-    </div>
-    <hr>
-    <div class="text-center">
-      <div class="row">
-        <div v-for="(info, index) in details" :key="index" :class="getClasses(index)">
-          <h5>{{info.title}}
-            <br>
-            <small>{{info.subTitle}}</small>
-          </h5>
-        </div>
-      </div>
+    <div class="author">
+      <img class="avatar border-white" src="@/assets/img/faces/face-1.jpg" alt="...">
+      <h4 class="title">Rodrigo Fake
+        <br>
+        <a href="#">
+          <small>@digofake</small>
+        </a>
+      </h4>
+      <div>18 99057-8876</div>
+      <div>rfake@ssalfa.com.br</div>
     </div>
   </card>
 </template>
 <script>
 export default {
   data() {
-    return {
-      details: [
-        {
-          title: "12",
-          subTitle: "Files"
-        },
-        {
-          title: "2GB",
-          subTitle: "Used"
-        },
-        {
-          title: "24,6$",
-          subTitle: "Spent"
-        }
-      ]
-    };
+    return {};
   },
   methods: {
     getClasses(index) {

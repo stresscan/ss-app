@@ -1,12 +1,19 @@
 <template>
   <div>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <strong>Atenção!</strong> Temperatura do ambiente acima do normal.
+    </div>
+
     <div class="row">
       <div class="col-12">
         <card>
           <div slot="raw-content" style="padding: 20px">
             <p>
-              <span class="status online">online</span>
-              <span class="status offline">offline</span>
+              <span class="status online" v-if="status">online</span>
+              <span class="status offline" v-else>offline</span>
               SS0
               <br />Local:
               <a href="/#/towers">Fazenda #1</a>
@@ -36,11 +43,63 @@
       </div>
     </div>
 
-    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-      <strong>Atenção!</strong> Temperatura do hambiente acima do normal.
+    <div class="row">
+      <div class="col-sm-6 col-md-3">
+        <stats-card>
+          <div class="icon-big text-center icon-warning" slot="header">
+            <i class="ti-shine"></i>
+          </div>
+          <div class="numbers" slot="content">
+            <p>Ambiente - Temperatura</p>
+            25°
+          </div>
+          <div class="stats" slot="footer">
+            <i class="ti-reload"></i> Atualizado agora
+          </div>
+        </stats-card>
+      </div>
+      <div class="col-sm-6 col-md-3">
+        <stats-card>
+          <div class="icon-big text-center icon-warning" slot="header">
+            <i class="ti-ink-pen"></i>
+          </div>
+          <div class="numbers" slot="content">
+            <p>Planta - Temperatura</p>
+            23°
+          </div>
+          <div class="stats" slot="footer">
+            <i class="ti-reload"></i> Atualizado agora
+          </div>
+        </stats-card>
+      </div>
+      <div class="col-sm-6 col-md-3">
+        <stats-card>
+          <div class="icon-big text-center icon-warning" slot="header">
+            <i class="ti-cloud"></i>
+          </div>
+          <div class="numbers" slot="content">
+            <p>Ambiente - Umidade</p>
+            60%
+          </div>
+          <div class="stats" slot="footer">
+            <i class="ti-reload"></i> Atualizado agora
+          </div>
+        </stats-card>
+      </div>
+      <div class="col-sm-6 col-md-3">
+        <stats-card>
+          <div class="icon-big text-center icon-warning" slot="header">
+            <i class="ti-loop"></i>
+          </div>
+          <div class="numbers" slot="content">
+            <p>Planta - Umidade</p>
+            80%
+          </div>
+          <div class="stats" slot="footer">
+            <i class="ti-reload"></i> Atualizado agora
+          </div>
+        </stats-card>
+      </div>
     </div>
 
     <!--Charts-->
@@ -51,19 +110,19 @@
             <i class="ti-reload"></i> Atualizado há 3 minutos
           </span>
           <div slot="legend">
-            <i class="fa fa-circle text-info"></i> Hambiente
+            <i class="fa fa-circle text-info"></i> Ambiente
             <i class="fa fa-circle text-warning"></i> Planta
           </div>
         </chart-card>
       </div>
 
       <div class="col-12">
-        <chart-card title="Humidade/Hora" sub-title="Últimas 24 Hours" :chart-data="activityChart.data" :chart-options="activityChart.options">
+        <chart-card title="Umidade/Hora" sub-title="Últimas 24 Hours" :chart-data="activityChart.data" :chart-options="activityChart.options">
           <span slot="footer">
             <i class="ti-reload"></i> Atualizado há 3 minutos
           </span>
           <div slot="legend">
-            <i class="fa fa-circle text-info"></i> Hambiente
+            <i class="fa fa-circle text-info"></i> Ambiente
             <i class="fa fa-circle text-warning"></i> Planta
           </div>
         </chart-card>
@@ -74,10 +133,11 @@
   </div>
 </template>
 <script>
-import { ChartCard, LocationMap } from "@/components/index";
+import { StatsCard, ChartCard, LocationMap } from "@/components/index";
 import Chartist from "chartist";
 export default {
   components: {
+    StatsCard,
     ChartCard,
     LocationMap
   },
@@ -89,6 +149,7 @@ export default {
       showMap: false,
       lat: "-22.125556",
       lng: "-51.388889",
+      status: true,
       statsCards: [
         {
           type: "warning",
@@ -126,14 +187,18 @@ export default {
       usersChart: {
         data: {
           labels: [
-            "9:00AM",
-            "12:00AM",
-            "3:00PM",
-            "6:00PM",
-            "9:00PM",
-            "12:00PM",
-            "3:00AM",
-            "6:00AM"
+            "9h",
+            "12h",
+            "13h",
+            "14h",
+            "15h",
+            "0h",
+            "1h",
+            "2h",
+            "3h",
+            "4h",
+            "5h",
+            "6h"
           ],
           series: [
             [35, 30, 31, 22, 23, 24, 24, 25, 26, 25, 24, 30],
@@ -158,14 +223,18 @@ export default {
       activityChart: {
         data: {
           labels: [
-            "9:00AM",
-            "12:00AM",
-            "3:00PM",
-            "6:00PM",
-            "9:00PM",
-            "12:00PM",
-            "3:00AM",
-            "6:00AM"
+            "9h",
+            "12h",
+            "13h",
+            "14h",
+            "15h",
+            "0h",
+            "1h",
+            "2h",
+            "3h",
+            "4h",
+            "5h",
+            "6h"
           ],
           series: [
             [80, 70, 60, 66, 67, 69, 50, 45, 44, 50, 63, 65],

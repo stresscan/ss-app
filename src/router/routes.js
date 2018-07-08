@@ -7,6 +7,8 @@ import Dashboard from "@/pages/Dashboard.vue";
 import TowersList from "@/pages/TowersList.vue";
 import Tower from "@/pages/Tower.vue";
 import UserProfile from "@/pages/UserProfile.vue";
+import About from "@/pages/About.vue";
+
 import Notifications from "@/pages/Notifications.vue";
 import Icons from "@/pages/Icons.vue";
 import Maps from "@/pages/Maps.vue";
@@ -35,9 +37,14 @@ const routes = [
         component: Tower
       },
       {
-        path: "stats",
-        name: "stats",
+        path: "user-profile",
+        name: "meus dados",
         component: UserProfile
+      },
+      {
+        path: "about",
+        name: "about",
+        component: About
       },
       {
         path: "notifications",

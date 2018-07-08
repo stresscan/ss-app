@@ -3,13 +3,13 @@
     <div>
       <ul class="list-unstyled team-members">
         <li>
-          <div class="row" v-for="member in members" :key="member.name">
+          <div class="row" style="margin-bottom: 5px" v-for="member in members" :key="member.name">
             <div class="col-3">
               <div class="avatar">
-                <img :src="member.image" alt="Circle Image" class="rounded img-fluid">
+                <img :src="member.image" :alt="member.name" class="img-fluid">
               </div>
             </div>
-            <div class="col-6">
+            <div class="col-4">
               {{member.name}}
               <br>
               <span :class="getStatusClass(member.status)">
@@ -17,10 +17,19 @@
               </span>
             </div>
 
-            <div class="col-3">
-              <p-button type="success" outline icon>
-                <i class="fa fa-envelope"></i>
-              </p-button>
+            <div class="col-4">
+              <div class="row">
+                <div class="col-6">
+                  <p-button title="Enviar mensagem" type="success" outline icon>
+                    <i class="fa fa-envelope"></i>
+                  </p-button>
+                </div>
+                <div class="col-6">
+                  <p-button title="Abrir chat" type="success" outline icon>
+                    <i class="fa fa-comment"></i>
+                  </p-button>
+                </div>
+              </div>
             </div>
           </div>
         </li>
@@ -32,22 +41,22 @@
 export default {
   data() {
     return {
-      title: "Team members",
+      title: "Membros do Time",
       members: [
         {
           image: require("@/assets/img/faces/face-0.jpg"),
-          name: "Dj Khaled",
+          name: "Fulano",
           status: "Offline"
         },
         {
-          image: require("@/assets/img/faces/face-1.jpg"),
-          name: "Creative Tim",
-          status: "Available"
+          image: require("@/assets/img/faces/face-2.jpg"),
+          name: "Ciclano",
+          status: "Online"
         },
         {
-          image: require("@/assets/img/faces/face-1.jpg"),
-          name: "Flume",
-          status: "Busy"
+          image: require("@/assets/img/faces/face-3.jpg"),
+          name: "Beltrano",
+          status: "Ocupado"
         }
       ]
     };
@@ -57,10 +66,10 @@ export default {
       switch (status) {
         case "Offline":
           return "text-muted";
-        case "Available":
+        case "Online":
           return "text-success";
-        case "Busy":
-          return "text-danger";
+        case "Ocupado":
+          return "text-warning";
         default:
           return "text-success";
       }
