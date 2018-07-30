@@ -1,6 +1,11 @@
+import UserCreateAndLoginLayout from "@/layout/user/UserCreateAndLogin.vue";
 import DashboardLayout from "@/layout/dashboard/DashboardLayout.vue";
+
 // GeneralViews
 import NotFound from "@/pages/NotFoundPage.vue";
+
+// Unauthenticated pages
+import Login from "@/pages/Login.vue";
 
 // Admin pages
 import Dashboard from "@/pages/Dashboard.vue";
@@ -16,6 +21,17 @@ import Typography from "@/pages/Typography.vue";
 import TableList from "@/pages/TableList.vue";
 
 const routes = [
+  {
+    path: "/user",
+    component: UserCreateAndLoginLayout,
+    children: [
+      {
+        path: "login",
+        name: "login",
+        component: Login
+      }
+    ]
+  },
   {
     path: "/",
     component: DashboardLayout,
