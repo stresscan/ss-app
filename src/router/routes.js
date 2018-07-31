@@ -6,7 +6,6 @@ import NotFound from "@/pages/NotFoundPage.vue";
 
 // Unauthenticated pages
 import Login from "@/pages/Login.vue";
-import NewUser from "@/pages/Signup.vue";
 
 // Admin pages
 import Dashboard from "@/pages/Dashboard.vue";
@@ -30,11 +29,6 @@ const routes = [
         path: "login",
         name: "login",
         component: Login
-      },
-      {
-        path: "signup",
-        name: "nova conta",
-        component: NewUser
       }
     ]
   },
