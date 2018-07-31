@@ -1,13 +1,13 @@
 <template>
   <div class="form-wrapper">
     <form>
-      <h1>Login</h1>
+      <h1>Cadastro</h1>
       <label for="email">email</label>
       <input type="email" id="email">
       <label for="pwd">Senha</label>
       <input type="password" id="pwd">
-      <button type="submit">Entrar</button>
-      <router-link to="signup">novo user</router-link>
+      <button type="submit">Cadastrar</button>
+      <router-link to="login">Voltar para login</router-link>
     </form>
   </div>
 </template>
