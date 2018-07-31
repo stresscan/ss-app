@@ -22,8 +22,9 @@ import TableList from "@/pages/TableList.vue";
 
 const routes = [
   {
-    path: "/user",
+    path: "/app",
     component: UserCreateAndLoginLayout,
+    redirect: "/app/login",
     children: [
       {
         path: "login",
@@ -34,6 +35,9 @@ const routes = [
   },
   {
     path: "/",
+    meta: {
+      requiresAuth: true
+    },
     component: DashboardLayout,
     redirect: "/dashboard",
     children: [

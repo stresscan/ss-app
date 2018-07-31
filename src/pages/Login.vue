@@ -1,16 +1,48 @@
 <template>
   <div class="form-wrapper">
-    <form>
+    <div v-if="loading">Autenticando...</div>
+    <form v-if="!loading" @submit="onLogin">
       <h1>Login</h1>
       <label for="email">email</label>
-      <input type="email" id="email">
+      <input type="email" v-model="email" id="email">
       <label for="pwd">Senha</label>
-      <input type="password" id="pwd">
+      <input type="password" v-model="password" id="pwd">
       <button type="submit">Entrar</button>
-      <router-link to="signup">novo user</router-link>
     </form>
   </div>
 </template>
+
+<script>
+import firebase from "firebase";
+
+export default {
+  data() {
+    return {
+      email: "",
+      password: "",
+      loading: false
+    };
+  },
+  methods: {
+    onLogin() {
+      this.loading = true;
+      firebase
+        .auth()
+        .signInWithEmailAndPassword(this.email, this.password)
+        .then(
+          user => {
+            this.$router.replace("/dashboard");
+          },
+          err => {
+            this.loading = false;
+            alert(`Oops ${err.message}`);
+          }
+        );
+    }
+  }
+};
+</script>
+
 
 <style lang="scss" scoped>
 .form-wrapper {

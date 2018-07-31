@@ -14,7 +14,7 @@
             </div>
             <span>{{title}}</span>
           </div>
-          <a href="#">sair</a>
+          <a href="#" @click.prevent="onLogout">sair</a>
         </div>
       </div>
       <slot>
@@ -36,6 +36,8 @@
 <script>
 import MovingArrow from "./MovingArrow.vue";
 import SidebarLink from "./SidebarLink";
+import firebase from "firebase";
+
 export default {
   props: {
     title: {
@@ -120,6 +122,14 @@ export default {
       if (index > -1) {
         this.links.splice(index, 1);
       }
+    },
+    onLogout() {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          this.$router.replace("/app");
+        });
     }
   },
   mounted() {
