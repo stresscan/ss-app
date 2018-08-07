@@ -41,8 +41,21 @@ export default {
     };
 
     const user = await getUser();
+    console.log(user);
     if (user) {
-      this.$router.replace("/dashboard");
+      firebase
+        .firestore()
+        .collection("users_profile")
+        .doc(user.uid)
+        .get()
+        .then(docSnapshot => {
+          if (docSnapshot.exists) {
+            console.log(docSnapshot.data());
+            this.$router.replace("/dashboard");
+          } else {
+            this.loading = false;
+          }
+        });
     } else {
       this.loading = false;
     }
