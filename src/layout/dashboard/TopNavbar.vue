@@ -10,16 +10,8 @@
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav ml-auto">
           <drop-down class="nav-item" title="1 Notificação" title-classes="nav-link" icon="ti-bell">
-            <a class="dropdown-item" href="#/tower">Temperatura acima do normal</a>
+            <a class="dropdown-item" href="#/dashboard/tower">Temperatura acima do normal</a>
           </drop-down>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="ti-settings"></i>
-              <p>
-                Configurações
-              </p>
-            </a>
-          </li>
         </ul>
       </div>
     </div>

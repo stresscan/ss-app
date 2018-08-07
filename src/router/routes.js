@@ -1,4 +1,4 @@
-import UserCreateAndLoginLayout from "@/layout/user/UserCreateAndLogin.vue";
+import UnauthenticatedLayout from "@/layout/unauthenticated/Unauthenticated.vue";
 import DashboardLayout from "@/layout/dashboard/DashboardLayout.vue";
 
 // GeneralViews
@@ -22,9 +22,65 @@ import TableList from "@/pages/TableList.vue";
 
 const routes = [
   {
-    path: "/app",
-    component: UserCreateAndLoginLayout,
-    redirect: "/app/login",
+    path: "/",
+    component: UnauthenticatedLayout,
+    redirect: "/login",
+    children: [
+      {
+        path: "login",
+        name: "Login",
+        component: Login
+      }
+    ]
+  },
+  {
+    path: "/dashboard",
+    meta: {
+      requiresAuth: true
+    },
+    component: DashboardLayout,
+    redirect: "/dashboard/home",
+    children: [
+      {
+        path: "home",
+        name: "Dashboard",
+        component: Dashboard
+      },
+      {
+        path: "user-profile",
+        name: "Perfil",
+        component: UserProfile
+      },
+      {
+        path: "towers",
+        name: "torres",
+        component: TowersList
+      },
+      {
+        path: "tower",
+        name: "torre",
+        component: Tower
+      },
+      {
+        path: "user-profile",
+        name: "meus dados",
+        component: UserProfile
+      },
+      {
+        path: "about",
+        name: "about",
+        component: About
+      }
+    ]
+  },
+  { path: "*", component: NotFound }
+];
+
+const routess = [
+  {
+    path: "/app/user",
+    component: UnauthenticatedLayout,
+    redirect: "/login",
     children: [
       {
         path: "login",
@@ -34,16 +90,16 @@ const routes = [
     ]
   },
   {
-    path: "/",
+    path: "/app/dashboard",
     meta: {
       requiresAuth: true
     },
     component: DashboardLayout,
-    redirect: "/dashboard",
+    redirect: "/home",
     children: [
       {
-        path: "dashboard",
-        name: "dashboard",
+        path: "home",
+        name: "home",
         component: Dashboard
       },
       {

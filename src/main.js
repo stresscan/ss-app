@@ -17,18 +17,13 @@ var config = {
 
 firebase.initializeApp(config);
 
-firebase.auth().onAuthStateChanged(user => {
-  if (!app) {
-    console.log("started vue app");
-    Vue.use(PaperDashboard);
+Vue.use(PaperDashboard);
 
-    /* eslint-disable no-new */
-    var app = new Vue({
-      router,
-      render: h => h(App)
-    }).$mount("#app");
-  }
-});
+/* eslint-disable no-new */
+new Vue({
+  router,
+  render: h => h(App)
+}).$mount("#app");
 
 // Vue.use(PaperDashboard);
 

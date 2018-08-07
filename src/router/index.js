@@ -7,21 +7,17 @@ Vue.use(VueRouter);
 
 // configure router
 const router = new VueRouter({
+  mode: "history",
   routes, // short for routes: routes
   linkActiveClass: "active"
 });
 
 router.beforeEach((to, from, next) => {
-  console.log("to.fullPath", to.fullPath);
-  console.log("from.fullPath", from.fullPath);
   const currentUser = firebase.auth().currentUser;
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   "requiresAuth", requiresAuth;
 
-  console.log("requiresAuth", requiresAuth);
-  console.log("currentUser", currentUser);
-
-  if (requiresAuth && !currentUser) next("/app/login");
+  if (requiresAuth && !currentUser) next("/login");
   else if (!requiresAuth && currentUser) next("/dashboard");
   else next();
 });

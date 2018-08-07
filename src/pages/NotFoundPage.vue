@@ -12,7 +12,7 @@
           </button>
           <router-link :to="{path:'/'}" class="navbar-brand">Site title</router-link>
         </div>
-  
+
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="navigation-example-2">
           <ul class="nav navbar-nav navbar-right">
@@ -30,8 +30,8 @@
         <div class="container">
           <div class="row">
             <div class="col-md-8 col-md-offset-2 text-center">
-              <h2 class="title text-danger">404 Not Found</h2>
-              <h2 class="title">Oops! It seems that this page does not exist.</h2>
+              <h2 class="title text-danger">Página não encontrada</h2>
+              <h2 class="title">Oops! Parece que essa página não existe.</h2>
             </div>
           </div>
         </div>

@@ -2,9 +2,9 @@
   <div class="wrapper">
     <side-bar>
       <template slot="links">
-        <sidebar-link to="/dashboard" name="Dashboard" icon="ti-panel" />
-        <sidebar-link to="/user-profile" name="Meus Dados" icon="ti-user" />
-        <sidebar-link to="/about" name="Sobre a Stress Scan" icon="ti-view-list-alt" />
+        <sidebar-link to="/dashboard/home" name="Dashboard" icon="ti-panel" />
+        <sidebar-link to="/dashboard/user-profile" name="Meus Dados" icon="ti-user" />
+        <sidebar-link to="/dashboard/about" name="Sobre a Stress Scan" icon="ti-view-list-alt" />
       </template>
       <mobile-menu>
         <li class="nav-item">

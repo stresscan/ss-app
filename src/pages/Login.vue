@@ -1,8 +1,10 @@
 <template>
   <div class="form-wrapper">
-    <div v-if="loading">Autenticando...</div>
-    <form v-if="!loading" @submit="onLogin">
+    <div v-if="loading">Carregando...</div>
+    <div v-if="authenticating">Autenticando...</div>
+    <form v-if="!loading && !authenticating" @submit.prevent="onLogin">
       <h1>Login</h1>
+      <p class="error-message" v-if="errorMessage">{{ errorMessage }}</p>
       <label for="email">email</label>
       <input type="email" v-model="email" id="email">
       <label for="pwd">Senha</label>
@@ -20,12 +22,35 @@ export default {
     return {
       email: "",
       password: "",
-      loading: false
+      loading: true,
+      authenticating: false,
+      errorMessage: ""
     };
+  },
+  async created() {
+    const getUser = () => {
+      return new Promise(resolve => {
+        firebase.auth().onAuthStateChanged(user => {
+          if (user) {
+            resolve(user);
+          } else {
+            resolve(null);
+          }
+        });
+      });
+    };
+
+    const user = await getUser();
+    if (user) {
+      this.$router.replace("/dashboard");
+    } else {
+      this.loading = false;
+    }
   },
   methods: {
     onLogin() {
-      this.loading = true;
+      this.authenticating = true;
+
       firebase
         .auth()
         .signInWithEmailAndPassword(this.email, this.password)
@@ -34,8 +59,8 @@ export default {
             this.$router.replace("/dashboard");
           },
           err => {
-            this.loading = false;
-            alert(`Oops ${err.message}`);
+            this.authenticating = false;
+            this.errorMessage = `Oops ${err.message}`;
           }
         );
     }
@@ -66,6 +91,11 @@ export default {
   label,
   button {
     margin: 10px 0 0;
+  }
+
+  .error-message {
+    color: red;
+    font-size: 14px;
   }
 }
 </style>

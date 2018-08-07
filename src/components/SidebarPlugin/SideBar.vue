@@ -128,7 +128,7 @@ export default {
         .auth()
         .signOut()
         .then(() => {
-          this.$router.replace("/app");
+          this.$router.replace("/login");
         });
     }
   },

@@ -220,6 +220,10 @@
       border: 5px solid $white-color;
     }
 
+    &.backgroud-white {
+      background-color: $white-color;
+    }
+
     &.border-gray {
       border: 5px solid $card-muted-color;
     }

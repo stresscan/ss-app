@@ -4,7 +4,7 @@
       <img src="http://www.assetquest.com/wp-content/uploads/2016/04/Land.jpeg" alt="...">
     </div>
     <div class="author">
-      <img class="avatar border-white" src="@/assets/img/faces/face-1.jpg" alt="...">
+      <img class="avatar border-white backgroud-white" src="@/assets/img/faces/face-1.jpg" alt="...">
       <h4 class="title">Rodrigo Fake
         <br>
         <a href="#">
