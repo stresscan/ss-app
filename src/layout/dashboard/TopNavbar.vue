@@ -9,9 +9,21 @@
       </button>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav ml-auto">
-          <drop-down class="nav-item" title="1 Notificação" title-classes="nav-link" icon="ti-bell">
-            <a class="dropdown-item" href="#/dashboard/tower">Temperatura acima do normal</a>
+          <drop-down class="nav-item" title="5 Notifications" title-classes="nav-link" icon="ti-bell">
+            <a class="dropdown-item" href="#">Notification 1</a>
+            <a class="dropdown-item" href="#">Notification 2</a>
+            <a class="dropdown-item" href="#">Notification 3</a>
+            <a class="dropdown-item" href="#">Notification 4</a>
+            <a class="dropdown-item" href="#">Another notification</a>
           </drop-down>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="ti-settings"></i>
+              <p>
+                Configurações
+              </p>
+            </a>
+          </li>
         </ul>
       </div>
     </div>
