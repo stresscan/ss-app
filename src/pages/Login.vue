@@ -41,7 +41,6 @@ export default {
     };
 
     const user = await getUser();
-    console.log(user);
     if (user) {
       firebase
         .firestore()
@@ -50,9 +49,10 @@ export default {
         .get()
         .then(docSnapshot => {
           if (docSnapshot.exists) {
-            console.log(docSnapshot.data());
+            this.$store.commit("CHANGE_USER_LEVEL", docSnapshot.data().isAdmin);
             this.$router.replace("/dashboard");
           } else {
+            this.errorMessage = "Perfil de usuário não encontrado";
             this.loading = false;
           }
         });
@@ -68,12 +68,28 @@ export default {
         .auth()
         .signInWithEmailAndPassword(this.email, this.password)
         .then(
-          user => {
-            this.$router.replace("/dashboard");
+          userSnapshot => {
+            firebase
+              .firestore()
+              .collection("users_profile")
+              .doc(userSnapshot.user.uid)
+              .get()
+              .then(docSnapshot => {
+                if (docSnapshot.exists) {
+                  this.$store.commit(
+                    "CHANGE_USER_LEVEL",
+                    docSnapshot.data().isAdmin
+                  );
+                  this.$router.replace("/dashboard");
+                } else {
+                  this.authenticating = false;
+                  this.errorMessage = "Perfil de usuário não encontrado";
+                }
+              });
           },
           err => {
             this.authenticating = false;
-            this.errorMessage = `Oops ${err.message}`;
+            this.errorMessage = "Usuário e/ou senha inválido";
           }
         );
     }

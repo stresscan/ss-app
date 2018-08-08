@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter from "vue-router";
 import routes from "./routes";
 import firebase from "firebase";
+import store from "../store";
 
 Vue.use(VueRouter);
 
@@ -14,11 +15,12 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   const currentUser = firebase.auth().currentUser;
+  const isCurrenUserAdmin = store.state.user.isAdmin;
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  "requiresAuth", requiresAuth;
+  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
 
   if (requiresAuth && !currentUser) next("/login");
-  else if (!requiresAuth && currentUser) next("/dashboard");
+  else if (requiresAdmin && !isCurrenUserAdmin) next("/login");
   else next();
 });
 
