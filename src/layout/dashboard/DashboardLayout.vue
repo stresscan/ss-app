@@ -5,7 +5,7 @@
         <sidebar-link to="/dashboard/home" name="Dashboard" icon="ti-panel" />
         <sidebar-link to="/dashboard/user-profile" name="Meus Dados" icon="ti-user" />
         <sidebar-link to="/dashboard/about" name="Sobre a Stress Scan" icon="ti-view-list-alt" />
-        <sidebar-link to="/dashboard/users" name="Usuários" icon="fa fa-users" />
+        <sidebar-link v-if="isAdmin" to="/dashboard/users" name="Usuários" icon="fa fa-users" />
       </template>
       <mobile-menu>
         <li class="nav-item">
@@ -54,6 +54,11 @@ export default {
     ContentFooter,
     DashboardContent,
     MobileMenu
+  },
+  computed: {
+    isAdmin() {
+      return this.$store.state.user.isAdmin;
+    }
   },
   methods: {
     toggleSidebar() {
