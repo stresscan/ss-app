@@ -7,18 +7,15 @@ import NotFound from "@/pages/NotFoundPage.vue";
 // Unauthenticated pages
 import Login from "@/pages/Login.vue";
 
-// Admin pages
+// Authenticated pages
 import Dashboard from "@/pages/Dashboard.vue";
 import TowersList from "@/pages/TowersList.vue";
 import Tower from "@/pages/Tower.vue";
 import UserProfile from "@/pages/UserProfile.vue";
 import About from "@/pages/About.vue";
 
-import Notifications from "@/pages/Notifications.vue";
-import Icons from "@/pages/Icons.vue";
-import Maps from "@/pages/Maps.vue";
-import Typography from "@/pages/Typography.vue";
-import TableList from "@/pages/TableList.vue";
+// Admin pages
+import Users from "@/pages/Admin/Users.vue";
 
 const routes = [
   {
@@ -70,82 +67,14 @@ const routes = [
         path: "about",
         name: "about",
         component: About
-      }
-    ]
-  },
-  { path: "*", component: NotFound }
-];
-
-const routess = [
-  {
-    path: "/app/user",
-    component: UnauthenticatedLayout,
-    redirect: "/login",
-    children: [
-      {
-        path: "login",
-        name: "login",
-        component: Login
-      }
-    ]
-  },
-  {
-    path: "/app/dashboard",
-    meta: {
-      requiresAuth: true
-    },
-    component: DashboardLayout,
-    redirect: "/home",
-    children: [
-      {
-        path: "home",
-        name: "home",
-        component: Dashboard
       },
       {
-        path: "towers",
-        name: "torres",
-        component: TowersList
-      },
-      {
-        path: "tower",
-        name: "torre",
-        component: Tower
-      },
-      {
-        path: "user-profile",
-        name: "meus dados",
-        component: UserProfile
-      },
-      {
-        path: "about",
-        name: "about",
-        component: About
-      },
-      {
-        path: "notifications",
-        name: "notifications",
-        component: Notifications
-      },
-      {
-        path: "icons",
-        name: "icons",
-        component: Icons
-      },
-      {
-        path: "maps",
-        name: "maps",
-        component: Maps
-      },
-      {
-        path: "typography",
-        name: "typography",
-        component: Typography
-      },
-      {
-        path: "table-list",
-        name: "table-list",
-        component: TableList
+        path: "users",
+        meta: {
+          requiresAdmin: true
+        },
+        name: "usuários",
+        component: Users
       }
     ]
   },
