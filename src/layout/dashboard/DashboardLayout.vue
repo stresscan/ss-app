@@ -48,6 +48,8 @@ import TopNavbar from "./TopNavbar.vue";
 import ContentFooter from "./ContentFooter.vue";
 import DashboardContent from "./Content.vue";
 import MobileMenu from "./MobileMenu";
+import { mapState } from "vuex";
+
 export default {
   components: {
     TopNavbar,
@@ -56,9 +58,9 @@ export default {
     MobileMenu
   },
   computed: {
-    isAdmin() {
-      return this.$store.state.user.isAdmin;
-    }
+    ...mapState({
+      isAdmin: state => state.users.user.isAdmin
+    })
   },
   methods: {
     toggleSidebar() {

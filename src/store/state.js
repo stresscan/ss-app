@@ -1,5 +1,6 @@
 export default {
-  user: {
-    isAdmin: false
+  access: {
+    timestamp: "",
+    ip: ""
   }
 };

@@ -16,6 +16,7 @@
 
 <script>
 import firebase from "firebase";
+import { mapActions } from "vuex";
 
 export default {
   data() {
@@ -49,7 +50,7 @@ export default {
         .get()
         .then(docSnapshot => {
           if (docSnapshot.exists) {
-            this.$store.commit("CHANGE_USER_LEVEL", docSnapshot.data().isAdmin);
+            this.changeUserLevel(docSnapshot.data().isAdmin);
             this.$router.replace("/dashboard");
           } else {
             this.errorMessage = "Perfil de usuário não encontrado";
@@ -61,6 +62,7 @@ export default {
     }
   },
   methods: {
+    ...mapActions(["changeUserLevel"]),
     onLogin() {
       this.authenticating = true;
 
@@ -76,10 +78,7 @@ export default {
               .get()
               .then(docSnapshot => {
                 if (docSnapshot.exists) {
-                  this.$store.commit(
-                    "CHANGE_USER_LEVEL",
-                    docSnapshot.data().isAdmin
-                  );
+                  this.changeUserLevel(docSnapshot.data().isAdmin);
                   this.$router.replace("/dashboard");
                 } else {
                   this.authenticating = false;

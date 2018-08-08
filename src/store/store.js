@@ -2,10 +2,16 @@ import Vue from "vue";
 import Vuex from "vuex";
 import state from "./state";
 import mutations from "./mutations";
+import actions from "./actions";
+import users from "./modules/users";
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state,
-  mutations
+  mutations,
+  actions,
+  modules: {
+    users
+  }
 });
