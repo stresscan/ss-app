@@ -1,5 +1,8 @@
 <template>
-  <card class="card" title="Editar Dados">
+  <card class="card" title="Novo Usuário">
+    <a href="#" class="back-link" @click.prevent="onGoBack">
+      <i class="ti-arrow-left"></i> Voltar
+    </a>
     <div>
       <form @submit.prevent>
         <div class="row">
@@ -65,6 +68,8 @@
   </card>
 </template>
 <script>
+import firebase from "firebase";
+
 export default {
   data() {
     return {
@@ -82,11 +87,14 @@ export default {
     };
   },
   methods: {
+    onGoBack() {
+      this.$router.replace("list");
+    },
     onUpdateProfile() {
       alert("Your data: " + JSON.stringify(this.user));
     }
   }
 };
 </script>
-<style>
+<style lang="scss" scoped>
 </style>

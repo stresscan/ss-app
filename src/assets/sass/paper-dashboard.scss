@@ -35,6 +35,15 @@
 $online-color: rgb(66, 185, 66);
 $offline-color: #adacac;
 
+.no-border {
+  border: none;
+}
+
+a.back-link {
+  display: block;
+  margin-bottom: 10px;
+}
+
 .status {
   display: inline-block;
   border-radius: 50%;
