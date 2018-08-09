@@ -8,6 +8,9 @@
         <h4 class="card-title">{{title}}</h4>
         <p class="card-category" v-if="subTitle">{{subTitle}}</p>
       </slot>
+      <div class="card-header-buttons">
+        <slot name="card-header-buttons"></slot>
+      </div>
     </div>
     <div class="card-body" v-if="$slots.default">
       <slot></slot>
@@ -32,5 +35,9 @@ export default {
 <style>
 .opaque {
   opacity: 0.8;
+}
+
+.card-header-buttons {
+  margin: 10px 0;
 }
 </style>

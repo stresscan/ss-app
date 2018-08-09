@@ -1,5 +1,6 @@
 import UnauthenticatedLayout from "@/layout/unauthenticated/Unauthenticated.vue";
 import DashboardLayout from "@/layout/dashboard/DashboardLayout.vue";
+import DashboardEmptyLayout from "@/layout/dashboard/empty/EmptyLayout.vue";
 
 // GeneralViews
 import NotFound from "@/pages/NotFoundPage.vue";
@@ -15,7 +16,8 @@ import UserProfile from "@/pages/UserProfile.vue";
 import About from "@/pages/About.vue";
 
 // Admin pages
-import Users from "@/pages/Admin/Users.vue";
+import UsersList from "@/pages/Admin/Users/List.vue";
+import NewUser from "@/pages/Admin/Users/New.vue";
 
 const routes = [
   {
@@ -73,8 +75,20 @@ const routes = [
         meta: {
           requiresAdmin: true
         },
-        name: "usuários",
-        component: Users
+        component: DashboardEmptyLayout,
+        redirect: "users/list",
+        children: [
+          {
+            path: "list",
+            name: "usuários",
+            component: UsersList
+          },
+          {
+            path: "new",
+            name: "usuários",
+            component: NewUser
+          }
+        ]
       }
     ]
   },
