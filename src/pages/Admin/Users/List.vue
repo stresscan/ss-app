@@ -28,8 +28,7 @@ export default {
     return {
       table: {
         title: "Usuários Cadastrados no Sistema",
-        subTitle: "Here is a subtitle for this table",
-        columns: ["Nome", "Nivel", "Username"],
+        columns: ["Nome", "Username", "Nivel"],
         data: []
       }
     };
