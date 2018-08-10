@@ -3,6 +3,7 @@ import App from "./App";
 import router from "./router/index";
 import firebase from "firebase";
 import store from "./store/store";
+import Vuelidate from "vuelidate";
 
 import PaperDashboard from "./plugins/paperDashboard";
 import "vue-notifyjs/themes/default.css";
@@ -19,6 +20,7 @@ var config = {
 firebase.initializeApp(config);
 
 Vue.use(PaperDashboard);
+Vue.use(Vuelidate);
 
 /* eslint-disable no-new */
 new Vue({

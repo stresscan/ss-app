@@ -1,6 +1,6 @@
 <template>
   <div class="wrapper">
-    <side-bar>
+    <side-bar :title="username">
       <template slot="links">
         <sidebar-link to="/dashboard/home" name="Dashboard" icon="ti-panel" />
         <sidebar-link to="/dashboard/user-profile" name="Meus Dados" icon="ti-user" />
@@ -49,6 +49,7 @@ import ContentFooter from "./ContentFooter.vue";
 import DashboardContent from "./Content.vue";
 import MobileMenu from "./MobileMenu";
 import { mapState } from "vuex";
+import firebase from "firebase";
 
 export default {
   components: {
@@ -58,6 +59,7 @@ export default {
     MobileMenu
   },
   computed: {
+    username: () => firebase.auth().currentUser.displayName,
     ...mapState({
       isAdmin: state => state.users.user.isAdmin
     })

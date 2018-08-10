@@ -1,10 +1,5 @@
 <template>
-  <component
-    :is="tag"
-    :type="nativeType"
-    :disabled="disabled || loading"
-    class="btn"
-    :class="[
+  <component :is="tag" :type="nativeType" :disabled="disabled || loading" class="btn" :class="[
       {'btn-round': round},
       {'btn-block': block},
       {'btn-just-icon': icon},
@@ -21,7 +16,7 @@
 </template>
 <script>
 export default {
-  name: 'p-button',
+  name: "p-button",
   props: {
     tag: {
       type: String,

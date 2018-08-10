@@ -42,7 +42,7 @@ export default {
   props: {
     title: {
       type: String,
-      default: "ss_alfa"
+      default: ""
     },
     backgroundColor: {
       type: String,
