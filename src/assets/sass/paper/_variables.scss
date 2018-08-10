@@ -29,8 +29,10 @@ $medium-gray: #DDDDDD !default;
 $dark-gray: #9A9A9A !default;
 
 $gray-input-bg: #fffcf5 !default;
-$danger-input-bg: #FFC0A4 !default;
+$danger-input-bg: rgb(253, 197, 200) !default;
+$danger-input-border: rgb(240, 6, 18) !default;
 $success-input-bg: #ABF3CB !default;
+$success-input-border: rgb(4, 75, 36) !default;
 $other-medium-gray: #A49E93 !default;
 $transparent-bg: transparent !default;
 
@@ -42,7 +44,8 @@ $primary-color: #7A9E9F !default;
 $primary-bg: #7A9E9F !default;
 $primary-states-color: #427C89 !default;
 
-$success-color: #41B883 !default;   // this is the green color from Vue.js branding
+$success-color: #41B883 !default;
+// this is the green color from Vue.js branding
 $success-bg: #41B883 !default;
 $success-states-color: #229863 !default;
 
@@ -129,7 +132,7 @@ $font-size-h2: 2.6em !default;
 $font-size-h3: 1.825em !default;
 $font-size-h4: 1.5em !default;
 $font-size-h5: 1.25em !default;
-$font-size-h6: 0.9em !default;
+$font-size-h6: .9em !default;
 $font-paragraph: 16px !default;
 $font-size-navbar: 16px !default;
 $font-size-small: 12px !default;
@@ -162,7 +165,7 @@ $transition-bezier: cubic-bezier(0.34, 1.61, 0.7, 1) !default;
 $transition-ease: ease 0s;
 
 $navbar-padding-a: 10px 15px;
-$navbar-margin-a: 15px 0px;
+$navbar-margin-a: 15px 0;
 
 $padding-social-a: 10px 5px;
 
@@ -170,7 +173,7 @@ $navbar-margin-a-btn: 15px 3px;
 $navbar-margin-a-btn-round: 16px 3px;
 
 $navbar-padding-brand: 20px 15px;
-$navbar-margin-brand: 5px 0px;
+$navbar-margin-brand: 5px 0;
 
 $navbar-margin-brand-icons: 12px auto;
 
@@ -217,7 +220,7 @@ $ultra-fast-transition-time: 100ms !default;
 
 $select-coordinates: 50% -40px !default;
 
-$padding-zero: 0px !default;
+$padding-zero: 0 !default;
 
 $sidebar-width: calc(100% - 260px) !default;
 $medium-dark-gray: #AAAAAA !default;
