@@ -3,12 +3,13 @@
     <div class="col-12">
       <card :title="table.title">
         <div slot="card-header-buttons">
-          <p-button type="success" round @click.native.prevent="onNewUser">
+          <p-button type="success" round @click.native.prevent="onCreateUser">
             <i class="ti-user"></i> Novo
           </p-button>
         </div>
         <div slot="raw-content" class="table-responsive no-border">
-          <paper-table :data="table.data" :columns="table.columns">
+          <div style="padding: 10px" v-if="!dataLoaded">Carregando...</div>
+          <paper-table v-if="dataLoaded" :data="table.data" :columns="table.columns">
 
           </paper-table>
         </div>
@@ -26,6 +27,7 @@ export default {
   },
   data() {
     return {
+      dataLoaded: false,
       table: {
         title: "Usuários Cadastrados no Sistema",
         columns: ["Nome", "Username", "Nivel"],
@@ -60,10 +62,11 @@ export default {
     };
 
     this.table.data = await getUsers();
+    this.dataLoaded = true;
   },
   methods: {
-    onNewUser() {
-      this.$router.replace("new");
+    onCreateUser() {
+      this.$router.replace("create");
     }
   }
 };
