@@ -3,13 +3,13 @@
     <div class="col-12">
       <card :title="table.title">
         <div slot="card-header-buttons">
-          <p-button type="success" round @click.native.prevent="onCreateUser">
+          <p-button type="success" round @click.native.prevent="onNewUserClick">
             <i class="ti-user"></i> Novo
           </p-button>
         </div>
         <div slot="raw-content" class="table-responsive no-border">
           <div style="padding: 10px" v-if="!dataLoaded">Carregando...</div>
-          <paper-table :actionButtons="true" @open-data="onOpenUserData" v-if="dataLoaded" :data="table.data" :columns="table.columns">
+          <paper-table :actionButtons="true" @openData="onOpenUserData" v-if="dataLoaded" :data="table.data" :columns="table.columns">
 
           </paper-table>
         </div>
@@ -34,11 +34,6 @@ export default {
         data: []
       }
     };
-  },
-  methods: {
-    onOpenUserData() {
-      console.log("doing something");
-    }
   },
   async created() {
     const getUsers = () => {
@@ -69,9 +64,42 @@ export default {
     this.table.data = await getUsers();
     this.dataLoaded = true;
   },
+  mounted() {
+    if (this.$route.query.edited == 1) {
+      this.notifyVue(
+        "bottom",
+        "right",
+        "success",
+        "Usuário atualizado com sucesso",
+        "ti-thumb-up"
+      );
+    }
+
+    if (this.$route.query.created == 1) {
+      this.notifyVue(
+        "bottom",
+        "right",
+        "success",
+        "Usuário criado com sucesso",
+        "ti-thumb-up"
+      );
+    }
+  },
   methods: {
-    onCreateUser() {
+    onNewUserClick() {
       this.$router.replace("create");
+    },
+    onOpenUserData(id) {
+      this.$router.push(id);
+    },
+    notifyVue(verticalAlign, horizontalAlign, type, message, icon) {
+      this.$notify({
+        message,
+        icon,
+        horizontalAlign,
+        verticalAlign,
+        type
+      });
     }
   }
 };

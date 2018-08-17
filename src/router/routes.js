@@ -18,6 +18,7 @@ import About from "@/pages/About.vue";
 // Admin pages
 import UsersList from "@/pages/Admin/Users/List.vue";
 import CreateUser from "@/pages/Admin/Users/Create.vue";
+import EditUser from "@/pages/Admin/Users/Edit.vue";
 
 const routes = [
   {
@@ -87,6 +88,11 @@ const routes = [
             path: "create",
             name: "usuários",
             component: CreateUser
+          },
+          {
+            path: ":id",
+            name: "usuários",
+            component: EditUser
           }
         ]
       }

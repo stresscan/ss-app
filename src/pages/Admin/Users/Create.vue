@@ -174,6 +174,9 @@
         <div class="clearfix"></div>
       </form>
     </div>
+    <a href="#" class="back-link" @click.prevent="onGoBack">
+      <i class="ti-arrow-left"></i> Voltar
+    </a>
   </card>
 </template>
 <script>
@@ -352,7 +355,6 @@ export default {
             .updateProfile({
               displayName: this.username
             })
-            .then(() => console.log("displayName updated"))
             .catch(e => console.log(`displayname couldn't be updated ${e}`));
 
           const newUser = {
@@ -369,9 +371,8 @@ export default {
             phoneNumber: this.phoneNumber,
             phoneNumber: this.phoneNumber,
             phoneNumberTwo: this.phoneNumberTwo,
-            isAdmin: Boolean(this.isAdmin)
+            isAdmin: Boolean(Number(this.isAdmin))
           };
-          console.log(newUser);
 
           firebase
             .firestore()
@@ -379,8 +380,7 @@ export default {
             .doc(createdUser.user.uid)
             .set(newUser)
             .then(() => {
-              console.log("user profile created");
-              this.$router.replace("list");
+              this.$router.replace("list?created=1");
             })
             .catch(e => {
               console.log(`user profile couldn't be created ${e}`);

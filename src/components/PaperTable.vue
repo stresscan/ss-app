@@ -55,8 +55,7 @@ export default {
       return item[column.toLowerCase()];
     },
     onOpenData(id) {
-      console.log(id);
-      this.$emit("openData");
+      this.$emit("openData", id);
     }
   }
 };
