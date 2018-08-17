@@ -9,7 +9,7 @@
         </div>
         <div slot="raw-content" class="table-responsive no-border">
           <div style="padding: 10px" v-if="!dataLoaded">Carregando...</div>
-          <paper-table v-if="dataLoaded" :data="table.data" :columns="table.columns">
+          <paper-table :actionButtons="true" @open-data="onOpenUserData" v-if="dataLoaded" :data="table.data" :columns="table.columns">
 
           </paper-table>
         </div>
@@ -35,6 +35,11 @@ export default {
       }
     };
   },
+  methods: {
+    onOpenUserData() {
+      console.log("doing something");
+    }
+  },
   async created() {
     const getUsers = () => {
       return new Promise(resolve => {
@@ -46,7 +51,7 @@ export default {
             let users = [];
             querySnapshot.forEach(docSnapshot => {
               users.push({
-                uid: docSnapshot.id,
+                id: docSnapshot.id,
                 nome: `${docSnapshot.data().name} ${
                   docSnapshot.data().surname
                 }`,
