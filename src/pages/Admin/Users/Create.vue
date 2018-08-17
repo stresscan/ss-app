@@ -188,7 +188,6 @@ import {
 import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
-import NotificationTemplate from "../../Notifications/NotificationTemplate";
 
 const touchMap = new WeakMap();
 
