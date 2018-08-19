@@ -144,8 +144,6 @@ export default {
       })
       .catch(e => {
         console.log(`user profile couldn't be find ${e}`);
-        this.buttonText = "Editar usuário";
-        this.creatingUser = false;
         this.notifyVue(
           "bottom",
           "right",

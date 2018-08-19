@@ -291,7 +291,7 @@ export default {
           this.address = "";
           this.city = "";
           this.estate = "";
-          this.number = "";
+          this.district = "";
           this.searchingPostalCode = true;
 
           axios.get(`https://viacep.com.br/ws/${this.postalCode}/json/`).then(

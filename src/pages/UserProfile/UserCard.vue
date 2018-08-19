@@ -1,39 +1,84 @@
 <template>
   <card class="card-user" style="padding-bottom: 20px">
     <div slot="image">
-      <img src="http://www.assetquest.com/wp-content/uploads/2016/04/Land.jpeg" alt="...">
+      <img :src="coverPicture">
     </div>
     <div class="author">
-      <img class="avatar border-white backgroud-white" src="@/assets/img/faces/face-1.jpg" alt="...">
-      <h4 class="title">Rodrigo Fake
-        <br>
-        <a href="#">
-          <small>@digofake</small>
-        </a>
-      </h4>
-      <div>18 99057-8876</div>
-      <div>rfake@ssalfa.com.br</div>
+      <img class="avatar border-white backgroud-white" :src="profilePicture" alt="">
+      <div v-if="dataLoaded">
+        <div class="upload-photos-wrapper el-center">
+          <upload-image class="input-file" :folder="uid" fileName="profile.jpg" @fileUploaded="onFileUploaded" />
+          <div class="btn-upload">alterar foto</div>
+          <upload-image class="input-file second" :folder="uid" fileName="cover.jpg" @fileUploaded="onFileUploaded" />
+          <div class="btn-upload second">alterar capa</div>
+        </div>
+        <h4 class="title">{{ name }} {{ surname }}
+          <br>
+          <small>@{{ username }}</small>
+        </h4>
+        <div>{{ phoneNumber }}</div>
+        <div>{{ email }}</div>
+      </div>
+      <div v-else class="ss-inline-spinner el-center mg-bt-md"></div>
     </div>
   </card>
 </template>
 <script>
+import UploadImage from "./UploadImage.vue";
+
 export default {
-  data() {
-    return {};
+  components: {
+    UploadImage
+  },
+  props: {
+    uid: String,
+    name: String,
+    surname: String,
+    username: String,
+    phoneNumber: String,
+    email: String,
+    dataLoaded: Boolean,
+    profilePicture: String,
+    coverPicture: String
   },
   methods: {
-    getClasses(index) {
-      var remainder = index % 3;
-      if (remainder === 0) {
-        return "col-lg-3 offset-lg-1";
-      } else if (remainder === 2) {
-        return "col-lg-4";
-      } else {
-        return "col-lg-3";
-      }
+    onFileUploaded(data) {
+      this.$emit("newFileUploaded", data);
     }
   }
 };
 </script>
 <style>
+.upload-photos-wrapper {
+  width: 210px;
+  height: 35px;
+}
+
+input[type="file"] {
+  display: block;
+  width: 100px;
+  position: absolute;
+  opacity: 0;
+  z-index: 1;
+}
+
+input[type="file"].second {
+  margin-left: 100px;
+}
+
+.btn-upload {
+  border: solid 1px black;
+  width: 100px;
+  position: absolute;
+  color: white;
+  background-color: rgba(0, 0, 0, 0.9);
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.btn-upload.second {
+  margin-left: 110px;
+}
 </style>

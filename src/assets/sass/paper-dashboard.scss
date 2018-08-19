@@ -39,6 +39,40 @@ $offline-color: #adacac;
   border: none;
 }
 
+.mg-lf-sm {
+  margin-left: 10px;
+}
+
+.mg-bt-md {
+  margin-bottom: 25px !important;
+}
+
+.txt-center {
+  text-align: center;
+}
+
+.el-center {
+  margin: 0 auto;
+}
+
+.ss-inline-spinner {
+  animation: spinnerInlineRotate 1s linear infinite;
+  border: solid 3px transparent;
+  border-top: solid 3px #4db6ac;
+  border-radius: 100%;
+  width: 25px;
+  height: 25px;
+}
+@keyframes spinnerInlineRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
 a.back-link {
   display: inline-block;
   margin-bottom: 10px;
