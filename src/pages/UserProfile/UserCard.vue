@@ -4,22 +4,25 @@
       <img :src="coverPicture">
     </div>
     <div class="author">
-      <img class="avatar border-white backgroud-white" :src="profilePicture" alt="">
-      <div v-if="dataLoaded">
-        <div class="upload-photos-wrapper el-center">
-          <upload-image class="input-file" :folder="uid" fileName="profile.jpg" @fileUploaded="onFileUploaded" />
-          <div class="btn-upload">alterar foto</div>
-          <upload-image class="input-file second" :folder="uid" fileName="cover.jpg" @fileUploaded="onFileUploaded" />
-          <div class="btn-upload second">alterar capa</div>
+      <img slot="initial" class="avatar border-white background-white " :src="profilePicture " alt=" ">
+      <croppa v-model="profilePicCroppa" :width="100" :height="100" :accept="'image/jpeg'" :disable-pinch-to-zoom="true" :disable-rotation="true" :disable-drag-and-drop="true " :placeholder="profilePicCroppaPlaceHolder" remove-button-color="black " :placeholder-font-size="9 "></croppa>
+
+      <div v-if="dataLoaded ">
+        <div class="upload-photos-wrapper el-center ">
+          <upload-image class="input-file " :folder="uid " fileName="profile.jpg " @fileUploaded="onFileUploaded " />
+          <div class="btn-upload ">alterar foto</div>
+          <upload-image class="input-file second " :folder="uid " fileName="cover.jpg " @fileUploaded="onFileUploaded " />
+          <div class="btn-upload second ">alterar capa</div>
         </div>
-        <h4 class="title">{{ name }} {{ surname }}
+        <h4 class="title ">{{ name }} {{ surname }}
           <br>
           <small>@{{ username }}</small>
         </h4>
         <div>{{ phoneNumber }}</div>
         <div>{{ email }}</div>
       </div>
-      <div v-else class="ss-inline-spinner el-center mg-bt-md"></div>
+      <div v-else class="ss-inline-spinner el-center mg-bt-md "></div>
+
     </div>
   </card>
 </template>
@@ -29,6 +32,12 @@ import UploadImage from "./UploadImage.vue";
 export default {
   components: {
     UploadImage
+  },
+  data() {
+    return {
+      profilePicCroppa: {},
+      profilePicCroppaPlaceHolder: ""
+    };
   },
   props: {
     uid: String,
@@ -44,6 +53,15 @@ export default {
   methods: {
     onFileUploaded(data) {
       this.$emit("newFileUploaded", data);
+    },
+    uploadCroppedImage() {
+      this.profilePicCroppa.generateBlob(
+        blob => {
+          // upload the cropedimage
+        },
+        "image/jpg",
+        0.8
+      ); // 80% compressed jpg file
     }
   }
 };
@@ -80,5 +98,14 @@ input[type="file"].second {
 
 .btn-upload.second {
   margin-left: 110px;
+}
+
+.croppa-container {
+  border: none !important;
+  background-color: transparent;
+  position: absolute;
+  z-index: 1;
+  border: solid;
+  margin-left: -106px;
 }
 </style>
