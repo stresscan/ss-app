@@ -35,6 +35,10 @@
 $online-color: rgb(66, 185, 66);
 $offline-color: #adacac;
 
+.border-gray {
+  border: solid 1px gray;
+}
+
 .no-border {
   border: none;
 }
@@ -45,6 +49,14 @@ $offline-color: #adacac;
 
 .mg-bt-md {
   margin-bottom: 25px !important;
+}
+
+.mg-tp-md {
+  margin-top: 25px !important;
+}
+
+.mg-tp-lg {
+  margin-top: 50px !important;
 }
 
 .txt-center {
