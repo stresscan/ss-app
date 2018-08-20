@@ -48,22 +48,19 @@ export default {
   },
   methods: {
     detectFiles(fileList) {
-      console.log("fileName", this.fileName);
-      console.log("file detected", fileList[0]);
-      console.log(fileList[0].size);
       if (fileList[0].size > 5e6) {
         this.$emit("fileIsTooBig", fileList[0].size);
       } else {
         const reader = new FileReader();
 
         reader.onloadend = () => {
-          //Open cropper modal
           this.cropOptions.img = reader.result;
           this.readyToCrop = true;
         };
 
         reader.readAsDataURL(fileList[0]);
       }
+
       this.$refs.inputFile.value = "";
     },
     finishCrop() {
@@ -73,7 +70,7 @@ export default {
       });
     },
     upload(file) {
-      this.$emit("uploading", { state: true, fileName: this.fileName });
+      this.$emit("uploading", { uploading: true, fileName: this.fileName });
 
       firebase
         .storage()
@@ -81,9 +78,10 @@ export default {
         .child(`${this.folder}/${this.fileName}`)
         .put(file)
         .then(snapshot => {
-          this.$emit("fileUploaded", { fileName: this.fileName });
-          console.log("file uploaded", snapshot);
-          this.$emit("uploading", { state: false, fileName: this.fileName });
+          this.$emit("uploading", {
+            uploading: false,
+            fileName: this.fileName
+          });
         });
     }
   }

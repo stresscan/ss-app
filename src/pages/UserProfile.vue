@@ -1,7 +1,7 @@
 <template>
   <div class="row">
     <div class="col-xl-4 col-lg-5 col-md-6">
-      <user-card @fileIsTooBig="onFileUploadingTooBig" @newFileUploaded="onNewFileUploaded" :dataLoaded="userDataLoaded" :uid="uid" :name="name" :surname="surname" :username="username" :phoneNumber="phoneNumber" :email="email" :profilePicture="profilePictureUrl" :coverPicture="coverPictureUrl"></user-card>
+      <user-card @fileIsTooBig="onFileUploadingTooBig" @uploading="onUploading" :dataLoaded="userDataLoaded" :uid="uid" :name="name" :surname="surname" :username="username" :phoneNumber="phoneNumber" :email="email" :profilePicture="profilePictureUrl" :coverPicture="coverPictureUrl"></user-card>
     </div>
     <div class="col-xl-8 col-lg-7 col-md-6">
       <edit-profile-form @notifyVue="notifyVue" @userDataIsLoaded="onUserDataIsLoaded"></edit-profile-form>
@@ -55,18 +55,26 @@ export default {
         icon: "ti-thumb-down"
       });
     },
-    onNewFileUploaded(data) {
-      const editProfileForm = this.$children.find(child => {
-        return child.$options.name === "EditProfileForm";
-      });
-
-      editProfileForm.getImageUrl(this.uid, data.fileName).then(newImgUrl => {
+    onUploading(data) {
+      if (data.uploading) {
         if (data.fileName.includes("cover")) {
-          this.coverPictureUrl = `${newImgUrl}&v=${Date.now()}`;
+          this.coverPictureUrl = "";
         } else {
-          this.profilePictureUrl = `${newImgUrl}&v=${Date.now()}`;
+          this.profilePictureUrl = "";
         }
-      });
+      } else {
+        const editProfileForm = this.$children.find(child => {
+          return child.$options.name === "EditProfileForm";
+        });
+
+        editProfileForm.getImageUrl(this.uid, data.fileName).then(newImgUrl => {
+          if (data.fileName.includes("cover")) {
+            this.coverPictureUrl = `${newImgUrl}&v=${Date.now()}`;
+          } else {
+            this.profilePictureUrl = `${newImgUrl}&v=${Date.now()}`;
+          }
+        });
+      }
     },
     notifyVue(data) {
       this.$notify({

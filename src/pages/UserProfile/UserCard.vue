@@ -1,19 +1,19 @@
 <template>
   <card class="card-user" style="padding-bottom: 20px">
-    <div slot="image" class="cover-pic-wrapper" :class="{'border-gray': coverPicUploading}">
-      <img v-if="!coverPicUploading" :src="coverPicture">
+    <div slot="image" class="cover-pic-wrapper">
+      <img v-if="coverPicture" :src="coverPicture">
       <div v-else class="ss-inline-spinner el-center mg-tp-lg"></div>
     </div>
     <div class="author">
-      <div slot="image" class="profile-pic-wrapper" :class="{'profile-pic-wrapper-loading': profilePicUploading}">
-        <img v-if="!profilePicUploading" class="avatar border-white backgroud-white" :src="profilePicture" alt="">
+      <div slot="image" class="profile-pic-wrapper" :class="{'profile-pic-wrapper-loading': !profilePicture}">
+        <img v-if="profilePicture" class="avatar border-white background-white" :src="profilePicture" alt="">
         <div v-else class="ss-inline-spinner el-center mg-tp-md"></div>
       </div>
       <div v-if="dataLoaded">
         <div class="upload-photos-wrapper el-center">
-          <upload-image @uploading="onFileUploading" @fileIsTooBig="onFileIsTooBig" class="input-file" :folder="uid" fileName="profile.jpg" :format="[3, 3]" @fileUploaded="onFileUploaded" />
+          <upload-image @uploading="onFileUploading" @fileIsTooBig="onFileIsTooBig" class="input-file" :folder="uid" fileName="profile.jpg" :format="[3, 3]" />
           <div class="btn-upload">alterar foto</div>
-          <upload-image @uploading="onFileUploading" @fileIsTooBig="onFileIsTooBig" class="input-file second" :folder="uid" fileName="cover.jpg" :format="[6, 3]" @fileUploaded="onFileUploaded" />
+          <upload-image @uploading="onFileUploading" @fileIsTooBig="onFileIsTooBig" class="input-file second" :folder="uid" fileName="cover.jpg" :format="[6, 3]" />
           <div class="btn-upload second">alterar capa</div>
         </div>
         <h4 class="title">{{ name }} {{ surname }}
@@ -31,12 +31,6 @@
 import UploadImage from "./UploadImage.vue";
 
 export default {
-  data() {
-    return {
-      profilePicUploading: false,
-      coverPicUploading: false
-    };
-  },
   components: {
     UploadImage
   },
@@ -56,15 +50,7 @@ export default {
       this.$emit("fileIsTooBig", data);
     },
     onFileUploading(data) {
-      console.log(data);
-      if (data.fileName.includes("profile")) {
-        this.profilePicUploading = data.state;
-      } else if (data.fileName.includes("cover")) {
-        this.coverPicUploading = data.state;
-      }
-    },
-    onFileUploaded(data) {
-      this.$emit("newFileUploaded", data);
+      this.$emit("uploading", data);
     }
   }
 };
@@ -110,6 +96,7 @@ input[type="file"] {
 .profile-pic-wrapper {
   width: auto;
   height: 100px;
+  margin-bottom: 10px;
 }
 
 .profile-pic-wrapper-loading {
