@@ -396,4 +396,10 @@ export default {
   border: none !important;
   padding: 0 !important;
 }
+
+@media (min-width: 992px) {
+  .fakePostalCode {
+    top: 44px;
+  }
+}
 </style>
