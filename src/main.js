@@ -8,9 +8,9 @@ import Vuelidate from "vuelidate";
 import PaperDashboard from "./plugins/paperDashboard";
 import "vue-notifyjs/themes/default.css";
 
+
 var config = {
   apiKey: "AIzaSyDUC-1jgGVRbBsByLvbGJrtkO_R5pjxJ70",
-  authDomain: "ss-beta.firebaseapp.com",
   databaseURL: "https://ss-beta.firebaseio.com",
   projectId: "ss-beta",
   storageBucket: "ss-beta.appspot.com",

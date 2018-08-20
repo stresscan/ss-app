@@ -1,26 +1,29 @@
 <template>
   <card class="card-user" style="padding-bottom: 20px">
-    <div slot="image">
-      <img :src="coverPicture">
+    <div slot="image" class="cover-pic-wrapper" :class="{'border-gray': coverPicUploading}">
+      <img v-if="!coverPicUploading" :src="coverPicture">
+      <div v-else class="ss-inline-spinner el-center mg-tp-lg"></div>
     </div>
     <div class="author">
-      <img slot="initial" class="avatar border-white background-white " :src="profilePicture " alt=" ">
-      <div v-if="dataLoaded ">
-        <div class="upload-photos-wrapper el-center ">
-          <upload-image class="input-file " :folder="uid " fileName="profile.jpg " @fileUploaded="onFileUploaded " />
-          <div class="btn-upload ">alterar foto</div>
-          <upload-image class="input-file second " :folder="uid " fileName="cover.jpg " @fileUploaded="onFileUploaded " />
-          <div class="btn-upload second ">alterar capa</div>
+      <div slot="image" class="profile-pic-wrapper" :class="{'profile-pic-wrapper-loading': profilePicUploading}">
+        <img v-if="!profilePicUploading" class="avatar border-white backgroud-white" :src="profilePicture" alt="">
+        <div v-else class="ss-inline-spinner el-center mg-tp-md"></div>
+      </div>
+      <div v-if="dataLoaded">
+        <div class="upload-photos-wrapper el-center">
+          <upload-image @uploading="onFileUploading" @fileIsTooBig="onFileIsTooBig" class="input-file" :folder="uid" fileName="profile.jpg" :format="[3, 3]" @fileUploaded="onFileUploaded" />
+          <div class="btn-upload">alterar foto</div>
+          <upload-image @uploading="onFileUploading" @fileIsTooBig="onFileIsTooBig" class="input-file second" :folder="uid" fileName="cover.jpg" :format="[6, 3]" @fileUploaded="onFileUploaded" />
+          <div class="btn-upload second">alterar capa</div>
         </div>
-        <h4 class="title ">{{ name }} {{ surname }}
+        <h4 class="title">{{ name }} {{ surname }}
           <br>
           <small>@{{ username }}</small>
         </h4>
         <div>{{ phoneNumber }}</div>
         <div>{{ email }}</div>
       </div>
-      <div v-else class="ss-inline-spinner el-center mg-bt-md "></div>
-
+      <div v-else class="ss-inline-spinner el-center mg-bt-md"></div>
     </div>
   </card>
 </template>
@@ -28,6 +31,12 @@
 import UploadImage from "./UploadImage.vue";
 
 export default {
+  data() {
+    return {
+      profilePicUploading: false,
+      coverPicUploading: false
+    };
+  },
   components: {
     UploadImage
   },
@@ -43,6 +52,17 @@ export default {
     coverPicture: String
   },
   methods: {
+    onFileIsTooBig(data) {
+      this.$emit("fileIsTooBig", data);
+    },
+    onFileUploading(data) {
+      console.log(data);
+      if (data.fileName.includes("profile")) {
+        this.profilePicUploading = data.state;
+      } else if (data.fileName.includes("cover")) {
+        this.coverPicUploading = data.state;
+      }
+    },
     onFileUploaded(data) {
       this.$emit("newFileUploaded", data);
     }
@@ -63,7 +83,7 @@ input[type="file"] {
   z-index: 1;
 }
 
-input[type="file"].second {
+.second input[type="file"] {
   margin-left: 100px;
 }
 
@@ -81,5 +101,26 @@ input[type="file"].second {
 
 .btn-upload.second {
   margin-left: 110px;
+}
+
+.cover-pic-wrapper {
+  height: 200px;
+}
+
+.profile-pic-wrapper {
+  width: auto;
+  height: 100px;
+}
+
+.profile-pic-wrapper-loading {
+  height: 100px;
+  width: 100px;
+  margin: 0 auto;
+  margin-bottom: 10px;
+  border: solid 6px white;
+  border-radius: 12px;
+  z-index: 3;
+  position: relative;
+  background: #f8f8f8;
 }
 </style>
