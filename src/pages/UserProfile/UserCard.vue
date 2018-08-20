@@ -5,8 +5,6 @@
     </div>
     <div class="author">
       <img slot="initial" class="avatar border-white background-white " :src="profilePicture " alt=" ">
-      <croppa v-model="profilePicCroppa" :width="100" :height="100" :accept="'image/jpeg'" :disable-pinch-to-zoom="true" :disable-rotation="true" :disable-drag-and-drop="true " :placeholder="profilePicCroppaPlaceHolder" remove-button-color="black " :placeholder-font-size="9 "></croppa>
-
       <div v-if="dataLoaded ">
         <div class="upload-photos-wrapper el-center ">
           <upload-image class="input-file " :folder="uid " fileName="profile.jpg " @fileUploaded="onFileUploaded " />
@@ -33,12 +31,6 @@ export default {
   components: {
     UploadImage
   },
-  data() {
-    return {
-      profilePicCroppa: {},
-      profilePicCroppaPlaceHolder: ""
-    };
-  },
   props: {
     uid: String,
     name: String,
@@ -53,15 +45,6 @@ export default {
   methods: {
     onFileUploaded(data) {
       this.$emit("newFileUploaded", data);
-    },
-    uploadCroppedImage() {
-      this.profilePicCroppa.generateBlob(
-        blob => {
-          // upload the cropedimage
-        },
-        "image/jpg",
-        0.8
-      ); // 80% compressed jpg file
     }
   }
 };
@@ -98,14 +81,5 @@ input[type="file"].second {
 
 .btn-upload.second {
   margin-left: 110px;
-}
-
-.croppa-container {
-  border: none !important;
-  background-color: transparent;
-  position: absolute;
-  z-index: 1;
-  border: solid;
-  margin-left: -106px;
 }
 </style>
