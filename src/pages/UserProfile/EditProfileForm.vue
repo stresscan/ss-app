@@ -277,8 +277,6 @@ export default {
     this.phoneNumber = userData.phoneNumber;
     this.phoneNumberTwo = userData.phoneNumberTwo;
     this.isAdmin = Number(userData.isAdmin);
-    this.coverPictureName = userData.coverPictureName;
-    this.profilePictureName = userData.coverPictureName;
 
     this.coverPictureUrl =
       (await this.getImageUrl(uid, "cover.jpg")) + "&v=" + Date.now();
@@ -372,7 +370,17 @@ export default {
           .ref(`${uid}/${fileName}`)
           .getDownloadURL()
           .then(url => resolve(url))
-          .catch(e => console.log(`get img error ${e.message}`));
+          .catch(e => {
+            console.log(`get img ${uid}/${fileName} error ${e.message}`);
+            firebase
+              .storage()
+              .ref(`default/${fileName}`)
+              .getDownloadURL()
+              .then(url => resolve(url))
+              .catch(e =>
+                console.log(`get img default/${fileName} error ${e.message}`)
+              );
+          });
       });
     },
     notifyVue(data) {
