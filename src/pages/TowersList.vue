@@ -193,7 +193,7 @@ export default {
   },
   methods: {
     onTowerClick(stats) {
-      this.$router.push("/tower");
+      this.$router.push("/dashboard/tower");
     }
   }
 };

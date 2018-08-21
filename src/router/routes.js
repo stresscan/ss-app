@@ -13,12 +13,11 @@ import Dashboard from "@/pages/Dashboard.vue";
 import TowersList from "@/pages/TowersList.vue";
 import Tower from "@/pages/Tower.vue";
 import UserProfile from "@/pages/UserProfile.vue";
-import About from "@/pages/About.vue";
 
 // Admin pages
-import UsersList from "@/pages/Admin/Users/List.vue";
-import CreateUser from "@/pages/Admin/Users/Create.vue";
-import EditUser from "@/pages/Admin/Users/Edit.vue";
+import UsersList from "@/pages/Users/List.vue";
+import CreateUser from "@/pages/Users/Create.vue";
+import EditUser from "@/pages/Users/Edit.vue";
 
 const routes = [
   {
@@ -65,11 +64,6 @@ const routes = [
         path: "user-profile",
         name: "meus dados",
         component: UserProfile
-      },
-      {
-        path: "about",
-        name: "about",
-        component: About
       },
       {
         path: "users",

@@ -176,7 +176,7 @@ export default {
   },
   methods: {
     onPlaceClick(stats) {
-      this.$router.push("/towers");
+      this.$router.push("/dashboard/towers");
     }
   }
 };
