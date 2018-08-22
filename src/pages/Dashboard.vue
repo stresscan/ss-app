@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-sm-6 col-md-4 col-xl-4" style="cursor: pointer" v-for="place in placesList" :key="place.name" @click="onPlaceClick(place)">
+      <div class="col-sm-6 col-md-4 col-xl-4" style="cursor: pointer" v-for="(place, index) in placesList" :key="index" @click="onPlaceClick(place)">
         <stats-card :status="place.status == 'online'">
           <div class="card-icon icon-xbig text-center icon-success" slot="header">
             <div>
@@ -10,7 +10,7 @@
           </div>
           <div class="numbers" slot="content">
             <p>
-              {{place.title}}
+              {{place.name}}
             </p>
             <p class="small-info">{{place.city}}/{{place.estate}}</p>
             <span class="big-info">
@@ -30,7 +30,7 @@
 <script>
 import { StatsCard, ChartCard } from "@/components/index";
 import Chartist from "chartist";
-
+import { mapState } from "vuex";
 import firebase from "firebase";
 
 export default {
@@ -42,6 +42,12 @@ export default {
     return {
       placesList: []
     };
+  },
+  computed: {
+    ...mapState({
+      isAdmin: state => state.users.user.isAdmin
+    }),
+    uid: () => firebase.auth().currentUser.uid
   },
   async created() {
     const getPlacesListByUid = uid => {
@@ -59,30 +65,78 @@ export default {
 
     const getAllPlaces = () => {
       return new Promise(resolve => {
-        const collectionRef = firebase.firestore().collection("places");
-        collectionRef.get().then(querySnapshot => {
-          let result = [];
-          querySnapshot.forEach(docSnapshot => {
-            let place = docSnapshot.data();
-            Object.assign(place, { id: docSnapshot.id });
+        firebase
+          .firestore()
+          .collection("places")
+          .get()
+          .then(placesQuerySnapshot => {
+            let places = [];
 
-            collectionRef
-              .doc(place.id)
-              .collection("towers")
-              .get()
-              .then(querySnapshot => {
-                Object.assign(place, { qntTowers: querySnapshot.size });
-                console.log(place);
-                result.push(place);
+            placesQuerySnapshot.forEach(placeDocSnapshot => {
+              let placeData = Object.assign(placeDocSnapshot.data(), {
+                id: placeDocSnapshot.id
               });
-          });
 
-          resolve(result);
-        });
+              places.push(placeData);
+            });
+
+            console.log({ places });
+            resolve(places);
+          });
       });
     };
 
-    this.placesList = await getAllPlaces();
+    const getPlaceTowersQnt = id => {
+      return new Promise(resolve => {
+        firebase
+          .firestore()
+          .collection("places")
+          .doc(id)
+          .collection("towers")
+          .get()
+          .then(towersQuerySnapshot => {
+            resolve(towersQuerySnapshot.size);
+          });
+      });
+    };
+
+    const getUploadIcon = last_upload => {
+      if (last_upload.includes("agora")) {
+        return "ti-reload";
+      } else if (last_upload.includes("dia")) {
+        return "ti-calendar";
+      } else if (last_upload.includes("hora")) {
+        return "ti-timer";
+      }
+    };
+
+    getAllPlaces().then(allPlaces => {
+      allPlaces.map(place => {
+        getPlaceTowersQnt(place.id).then(qnt => {
+          this.placesList.push(
+            Object.assign(place, {
+              qntTowers: qnt,
+              last_uploadIcon: getUploadIcon(place.last_upload)
+            })
+          );
+        });
+      });
+    });
+
+    let placesList = [];
+
+    if (this.isAdmin) {
+      this.placesList = await getAllPlaces();
+      console.log(placesList);
+    } else {
+      placesList = await getPlacesListByUid(thid.uid);
+    }
+
+    this.placesList = placesList.map(place => {
+      console.log({ place });
+      return place;
+    });
+
     console.log(this.placesList);
   },
   methods: {
