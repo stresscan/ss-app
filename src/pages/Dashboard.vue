@@ -1,178 +1,89 @@
 <template>
   <div>
-    <!--Stats cards - Places-->
     <div class="row">
-      <div class="col-sm-6 col-md-4 col-xl-4" style="cursor: pointer" v-for="stats in statsCards" :key="stats.title" @click="onPlaceClick(stats)">
-        <stats-card :status="stats.status">
-          <div class="card-icon icon-xbig text-center" :class="`icon-${stats.type}`" slot="header">
-            <div :class="{'offline-color': !stats.status}">
-              <i :class="stats.icon"></i>
+      <div class="col-sm-6 col-md-4 col-xl-4" style="cursor: pointer" v-for="place in placesList" :key="place.name" @click="onPlaceClick(place)">
+        <stats-card :status="place.status == 'online'">
+          <div class="card-icon icon-xbig text-center icon-success" slot="header">
+            <div>
+              <i class="ti-location-pin"></i>
             </div>
           </div>
           <div class="numbers" slot="content">
             <p>
-              <span class="status online" v-if="stats.status">online</span>
-              <span class="status offline" v-else>offline</span>{{stats.title}}
+              {{place.title}}
             </p>
-            <p class="small-info">{{stats.address}}</p>
+            <p class="small-info">{{place.city}}/{{place.estate}}</p>
             <span class="big-info">
-              {{stats.qntTowers}}
+              {{place.qntTowers}}
               <i class="ti-signal card-icon-tower"></i>
             </span>
           </div>
-          <div class="stats" slot="footer">
-            <i :class="stats.footerIcon"></i> {{stats.footerText}}
+          <div class="place" slot="footer">
+            <i :class="place.last_uploadIcon"></i> {{place.last_upload}}
           </div>
         </stats-card>
       </div>
     </div>
   </div>
 </template>
+
 <script>
 import { StatsCard, ChartCard } from "@/components/index";
 import Chartist from "chartist";
+
+import firebase from "firebase";
+
 export default {
   components: {
     StatsCard,
     ChartCard
   },
-  /**
-   * Chart data used to render stats, charts. Should be replaced with server data
-   */
   data() {
     return {
-      statsCards: [
-        {
-          id: 1,
-          type: "success",
-          icon: "ti-location-pin",
-          title: "Fazenda #1",
-          address: "Presidente Prudente/SP",
-          qntTowers: 1,
-          value: "105GB",
-          footerText: "Atualizado agora",
-          footerIcon: "ti-reload",
-          status: true
-        },
-        {
-          id: 2,
-          type: "warning",
-          icon: "ti-location-pin",
-          title: "Fazenda #2",
-          address: "Presidente Prudente/SP",
-          qntTowers: 1,
-          value: "$1,345",
-          footerText: "Atualizado há 1 dia",
-          footerIcon: "ti-calendar",
-          status: false
-        },
-        {
-          id: 2,
-          type: "default",
-          icon: "ti-location-pin",
-          title: "Fazenda #3",
-          address: "Presidente Prudente/SP",
-          qntTowers: 1,
-          value: "$1,345",
-          footerText: "Atualizado há mais de 1 dia",
-          footerIcon: "ti-calendar",
-          status: false
-        },
-        {
-          id: 3,
-          type: "success",
-          icon: "ti-location-pin",
-          title: "Fazenda #4",
-          address: "Presidente Prudente/SP",
-          qntTowers: 1,
-          value: "23",
-          footerText: "Atualizado há algumas horas",
-          footerIcon: "ti-timer",
-          status: true
-        },
-        {
-          id: 4,
-          type: "danger",
-          icon: "ti-location-pin",
-          title: "Fazenda #5",
-          address: "Presidente Prudente/SP",
-          qntTowers: 1,
-          value: "+45",
-          footerText: "Atualizado há menos de 1 hora",
-          footerIcon: "ti-reload",
-          status: true
-        }
-      ],
-      usersChart: {
-        data: {
-          labels: [
-            "9:00AM",
-            "12:00AM",
-            "3:00PM",
-            "6:00PM",
-            "9:00PM",
-            "12:00PM",
-            "3:00AM",
-            "6:00AM"
-          ],
-          series: [
-            [287, 385, 490, 562, 594, 626, 698, 895, 952],
-            [67, 152, 193, 240, 387, 435, 535, 642, 744],
-            [23, 113, 67, 108, 190, 239, 307, 410, 410]
-          ]
-        },
-        options: {
-          low: 0,
-          high: 1000,
-          showArea: true,
-          height: "245px",
-          axisX: {
-            showGrid: false
-          },
-          lineSmooth: Chartist.Interpolation.simple({
-            divisor: 3
-          }),
-          showLine: true,
-          showPoint: false
-        }
-      },
-      activityChart: {
-        data: {
-          labels: [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "Mai",
-            "Jun",
-            "Jul",
-            "Aug",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"
-          ],
-          series: [
-            [542, 543, 520, 680, 653, 753, 326, 434, 568, 610, 756, 895],
-            [230, 293, 380, 480, 503, 553, 600, 664, 698, 710, 736, 795]
-          ]
-        },
-        options: {
-          seriesBarDistance: 10,
-          axisX: {
-            showGrid: false
-          },
-          height: "245px"
-        }
-      },
-      preferencesChart: {
-        data: {
-          labels: ["62%", "32%", "6%"],
-          series: [62, 32, 6]
-        },
-        options: {}
-      }
+      placesList: []
     };
+  },
+  async created() {
+    const getPlacesListByUid = uid => {
+      return new Promise(resolve => {
+        firebase
+          .firestore()
+          .collection("places")
+          .where("owner", "==", uid)
+          .then(querySnapshot => {
+            console.log(querySnapshot);
+            resolve(null);
+          });
+      });
+    };
+
+    const getAllPlaces = () => {
+      return new Promise(resolve => {
+        const collectionRef = firebase.firestore().collection("places");
+        collectionRef.get().then(querySnapshot => {
+          let result = [];
+          querySnapshot.forEach(docSnapshot => {
+            let place = docSnapshot.data();
+            Object.assign(place, { id: docSnapshot.id });
+
+            collectionRef
+              .doc(place.id)
+              .collection("towers")
+              .get()
+              .then(querySnapshot => {
+                Object.assign(place, { qntTowers: querySnapshot.size });
+                console.log(place);
+                result.push(place);
+              });
+          });
+
+          resolve(result);
+        });
+      });
+    };
+
+    this.placesList = await getAllPlaces();
+    console.log(this.placesList);
   },
   methods: {
     onPlaceClick(stats) {
