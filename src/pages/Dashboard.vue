@@ -1,28 +1,34 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-sm-6 col-md-4 col-xl-4" style="cursor: pointer" v-for="(place, index) in placesList" :key="index" @click="onPlaceClick(place)">
-        <stats-card :status="place.status == 'online'">
-          <div class="card-icon icon-xbig text-center icon-success" slot="header">
-            <div>
-              <i class="ti-location-pin"></i>
+      <div v-if="loading" class="ss-inline-spinner el-center mg-tp-md"></div>
+      <template v-else>
+        <div v-if="noPlacesFound" class="mg-lf-sm">
+          Nenhum local cadastrado para essa conta ainda
+        </div>
+        <div v-else class="col-sm-6 col-md-4 col-xl-4" style="cursor: pointer" v-for="(place, index) in placesList" :key="index" @click="onPlaceClick(place)">
+          <stats-card :status="place.status == 'online'">
+            <div class="card-icon icon-xbig text-center icon-success" slot="header">
+              <div>
+                <i class="ti-location-pin"></i>
+              </div>
             </div>
-          </div>
-          <div class="numbers" slot="content">
-            <p>
-              {{place.name}}
-            </p>
-            <p class="small-info">{{place.city}}/{{place.estate}}</p>
-            <span class="big-info">
-              {{place.qntTowers}}
-              <i class="ti-signal card-icon-tower"></i>
-            </span>
-          </div>
-          <div class="place" slot="footer">
-            <i :class="place.last_uploadIcon"></i> {{place.last_upload}}
-          </div>
-        </stats-card>
-      </div>
+            <div class="numbers" slot="content">
+              <p>
+                {{place.name}}
+              </p>
+              <p class="small-info">{{place.city}}/{{place.estate}}</p>
+              <span class="big-info">
+                {{place.qntTowers}}
+                <i class="ti-signal card-icon-tower"></i>
+              </span>
+            </div>
+            <div class="place" slot="footer">
+              <i :class="place.last_uploadIcon"></i> {{place.last_upload}}
+            </div>
+          </stats-card>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -40,6 +46,8 @@ export default {
   },
   data() {
     return {
+      loading: true,
+      noPlacesFound: false,
       placesList: []
     };
   },
@@ -49,49 +57,40 @@ export default {
     }),
     uid: () => firebase.auth().currentUser.uid
   },
-  async created() {
-    const getPlacesListByUid = uid => {
+  created() {
+    const getPlacesList = uid => {
       return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("places")
-          .where("owner", "==", uid)
-          .then(querySnapshot => {
-            console.log(querySnapshot);
-            resolve(null);
-          });
-      });
-    };
+        const collectionRef = firebase.firestore().collection("places");
+        let query;
 
-    const getAllPlaces = () => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("places")
-          .get()
-          .then(placesQuerySnapshot => {
-            let places = [];
+        if (uid) {
+          query = collectionRef.where("owner", "==", uid).get();
+        } else {
+          query = collectionRef.get();
+        }
 
-            placesQuerySnapshot.forEach(placeDocSnapshot => {
-              let placeData = Object.assign(placeDocSnapshot.data(), {
-                id: placeDocSnapshot.id
-              });
+        query.then(placesQuerySnapshot => {
+          let places = [];
 
-              places.push(placeData);
+          placesQuerySnapshot.forEach(placeDocSnapshot => {
+            let placeData = Object.assign(placeDocSnapshot.data(), {
+              id: placeDocSnapshot.id
             });
 
-            console.log({ places });
-            resolve(places);
+            places.push(placeData);
           });
+
+          resolve(places);
+        });
       });
     };
 
-    const getPlaceTowersQnt = id => {
+    const getPlaceTowersQnt = placeId => {
       return new Promise(resolve => {
         firebase
           .firestore()
           .collection("places")
-          .doc(id)
+          .doc(placeId)
           .collection("towers")
           .get()
           .then(towersQuerySnapshot => {
@@ -101,43 +100,39 @@ export default {
     };
 
     const getUploadIcon = last_upload => {
-      if (last_upload.includes("agora")) {
-        return "ti-reload";
-      } else if (last_upload.includes("dia")) {
-        return "ti-calendar";
-      } else if (last_upload.includes("hora")) {
-        return "ti-timer";
+      if (last_upload) {
+        if (last_upload.includes("agora")) {
+          return "ti-reload";
+        } else if (last_upload.includes("dia")) {
+          return "ti-calendar";
+        } else if (last_upload.includes("hora")) {
+          return "ti-timer";
+        } else {
+          return "ti-time";
+        }
       }
+
+      return "";
     };
 
-    getAllPlaces().then(allPlaces => {
-      allPlaces.map(place => {
-        getPlaceTowersQnt(place.id).then(qnt => {
-          this.placesList.push(
-            Object.assign(place, {
-              qntTowers: qnt,
-              last_uploadIcon: getUploadIcon(place.last_upload)
-            })
-          );
+    getPlacesList(this.isAdmin ? null : this.uid).then(allPlaces => {
+      this.loading = false;
+
+      if (allPlaces.length == 0) {
+        this.noPlacesFound = true;
+      } else {
+        allPlaces.map(place => {
+          getPlaceTowersQnt(place.id).then(qnt => {
+            this.placesList.push(
+              Object.assign(place, {
+                qntTowers: qnt,
+                last_uploadIcon: getUploadIcon(place.last_upload)
+              })
+            );
+          });
         });
-      });
+      }
     });
-
-    let placesList = [];
-
-    if (this.isAdmin) {
-      this.placesList = await getAllPlaces();
-      console.log(placesList);
-    } else {
-      placesList = await getPlacesListByUid(thid.uid);
-    }
-
-    this.placesList = placesList.map(place => {
-      console.log({ place });
-      return place;
-    });
-
-    console.log(this.placesList);
   },
   methods: {
     onPlaceClick(stats) {

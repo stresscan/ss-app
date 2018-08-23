@@ -30,18 +30,14 @@ export default {
 
 <style lang="scss">
 .small-info {
-  font-size: 0.4em;
+  font-size: 0.3em;
 
-  @media (min-width: 320px) {
-    font-size: 0.5em;
-  }
-
-  @media (min-width: 768px) {
+  @media (min-width: 280px) {
     font-size: 0.4em;
   }
 
   @media (min-width: 890px) {
-    font-size: small;
+    font-size: x-small;
   }
 }
 
@@ -65,11 +61,7 @@ export default {
   }
 
   .card-icon {
-    padding-top: 5px;
-
-    @media (min-width: 480px) {
-      padding-top: 10px;
-    }
+    padding-top: 18px;
   }
 
   .card-icon-tower {
