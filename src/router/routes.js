@@ -9,9 +9,9 @@ import NotFound from "@/pages/NotFoundPage.vue";
 import Login from "@/pages/Login.vue";
 
 // Authenticated pages
-import Dashboard from "@/pages/Dashboard.vue";
-import TowersList from "@/pages/TowersList.vue";
-import Tower from "@/pages/Tower.vue";
+import PlacesList from "@/pages/Places/PlacesList.vue";
+import TowersList from "@/pages/Places/TowersList.vue";
+import Tower from "@/pages/Places/Tower.vue";
 import UserProfile from "@/pages/UserProfile.vue";
 
 // Admin pages
@@ -27,7 +27,6 @@ const routes = [
     children: [
       {
         path: "login",
-        name: "Login",
         component: Login
       }
     ]
@@ -38,31 +37,40 @@ const routes = [
       requiresAuth: true
     },
     component: DashboardLayout,
-    redirect: "/dashboard/home",
+    redirect: "/dashboard/index",
     children: [
       {
-        path: "home",
-        name: "Dashboard",
-        component: Dashboard
+        path: "index",
+        component: DashboardEmptyLayout,
+        redirect: "/dashboard/index/places",
+        children: [
+          {
+            path: "places",
+            component: DashboardEmptyLayout,
+            redirect: "/dashboard/index/places/list",
+            children: [
+              {
+                path: "list",
+                name: "dashboard -> locais",
+                component: PlacesList
+              },
+              {
+                path: ":placeId/towers",
+                name: "dashboard -> locais -> torres",
+                component: TowersList
+              },
+              {
+                path: ":placeId/tower/:towerId",
+                name: "dashboard -> locais -> torres",
+                component: Tower
+              }
+            ]
+          }
+        ]
       },
       {
-        path: "user-profile",
+        path: "/dashboard/user-profile",
         name: "Perfil",
-        component: UserProfile
-      },
-      {
-        path: "towers",
-        name: "torres",
-        component: TowersList
-      },
-      {
-        path: "tower",
-        name: "torre",
-        component: Tower
-      },
-      {
-        path: "user-profile",
-        name: "meus dados",
         component: UserProfile
       },
       {

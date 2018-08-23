@@ -2,7 +2,7 @@
   <div class="wrapper">
     <side-bar :title="username">
       <template slot="links">
-        <sidebar-link to="/dashboard/home" name="Dashboard" icon="ti-panel" />
+        <sidebar-link to="/dashboard/index" name="Dashboard" icon="ti-panel" />
         <sidebar-link to="/dashboard/user-profile" name="Meus Dados" icon="ti-user" />
         <sidebar-link v-if="isAdmin" to="/dashboard/users" name="Usuários" icon="fa fa-users" />
       </template>

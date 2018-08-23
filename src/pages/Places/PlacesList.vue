@@ -3,7 +3,7 @@
     <div class="row">
       <div v-if="loading" class="ss-inline-spinner el-center mg-tp-md"></div>
       <template v-else>
-        <div v-if="noPlacesFound" class="mg-lf-sm">
+        <div v-if="noPlacesFound" class="mg-lf-sm text-info">
           Nenhum local cadastrado para essa conta ainda
         </div>
         <div v-else class="col-sm-6 col-md-4 col-xl-4" style="cursor: pointer" v-for="(place, index) in placesList" :key="index" @click="onPlaceClick(place)">
@@ -23,7 +23,7 @@
                 <i class="ti-signal card-icon-tower"></i>
               </span>
             </div>
-            <div class="place" slot="footer">
+            <div class="stats last-upload" slot="footer">
               <i :class="place.last_uploadIcon"></i> {{place.last_upload}}
             </div>
           </stats-card>
@@ -115,13 +115,13 @@ export default {
       return "";
     };
 
-    getPlacesList(this.isAdmin ? null : this.uid).then(allPlaces => {
+    getPlacesList(this.isAdmin ? null : this.uid).then(placesList => {
       this.loading = false;
 
-      if (allPlaces.length == 0) {
+      if (placesList.length == 0) {
         this.noPlacesFound = true;
       } else {
-        allPlaces.map(place => {
+        placesList.map(place => {
           getPlaceTowersQnt(place.id).then(qnt => {
             this.placesList.push(
               Object.assign(place, {
@@ -135,8 +135,8 @@ export default {
     });
   },
   methods: {
-    onPlaceClick(stats) {
-      this.$router.push("/dashboard/towers");
+    onPlaceClick(place) {
+      this.$router.push(`/dashboard/index/places/${place.id}/towers`);
     }
   }
 };
