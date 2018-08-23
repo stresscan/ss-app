@@ -32,6 +32,9 @@
               </div>
             </div>
             <div class="numbers" slot="content">
+              <p>
+                <span class="status online">online</span>{{tower.name}}
+              </p>
               <p class="small-info">{{ tower.culture }}</p>
               <p class="big-info">
                 {{ tower.environmentTemperature }}°
