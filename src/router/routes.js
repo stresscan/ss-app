@@ -1,18 +1,17 @@
-import UnauthenticatedLayout from "@/layout/unauthenticated/Unauthenticated.vue";
+import EmptyLayout from "@/layout/empty/EmptyLayout.vue";
 import DashboardLayout from "@/layout/dashboard/DashboardLayout.vue";
-import DashboardEmptyLayout from "@/layout/dashboard/empty/EmptyLayout.vue";
 
 // GeneralViews
 import NotFound from "@/pages/NotFoundPage.vue";
 
 // Unauthenticated pages
-import Login from "@/pages/Login.vue";
+import Login from "@/pages/Users/Login.vue";
 
 // Authenticated pages
-import PlacesList from "@/pages/Places/PlacesList.vue";
-import TowersList from "@/pages/Places/TowersList.vue";
-import Tower from "@/pages/Places/Tower.vue";
-import UserProfile from "@/pages/UserProfile.vue";
+import PlacesList from "@/pages/Places/List.vue";
+import TowersList from "@/pages/Places/Towers/List.vue";
+import Tower from "@/pages/Places/Towers/Details.vue";
+import UserProfile from "@/pages/Users/UserProfile/Index.vue";
 
 // Admin pages
 import UsersList from "@/pages/Users/List.vue";
@@ -22,7 +21,7 @@ import EditUser from "@/pages/Users/Edit.vue";
 const routes = [
   {
     path: "/",
-    component: UnauthenticatedLayout,
+    component: EmptyLayout,
     redirect: "/login",
     children: [
       {
@@ -41,12 +40,12 @@ const routes = [
     children: [
       {
         path: "index",
-        component: DashboardEmptyLayout,
+        component: EmptyLayout,
         redirect: "/dashboard/index/places",
         children: [
           {
             path: "places",
-            component: DashboardEmptyLayout,
+            component: EmptyLayout,
             redirect: "/dashboard/index/places/list",
             children: [
               {
@@ -78,7 +77,7 @@ const routes = [
         meta: {
           requiresAdmin: true
         },
-        component: DashboardEmptyLayout,
+        component: EmptyLayout,
         redirect: "users/list",
         children: [
           {

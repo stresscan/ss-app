@@ -16,7 +16,7 @@
 <script>
 import firebase from "firebase";
 import VueCropper from "vue-cropper";
-import Modal from "../../components/Modal";
+import Modal from "../../../components/Modal";
 
 export default {
   components: {
