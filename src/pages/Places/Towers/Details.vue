@@ -35,7 +35,7 @@
                 <LocationMap v-if="showMap" :lat="lat" :lng="lng" />
               </transition>
             </p>
-            <a style="display: block; margin-bottom: 10px" href="#" onclick="javascript:history.go(-1)">
+            <a class="back-link" href="#" onclick="javascript:history.go(-1)">
               <i class="ti-arrow-left"></i> Voltar
             </a>
           </div>

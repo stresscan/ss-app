@@ -4,14 +4,12 @@
       <card :title="table.title">
         <div slot="card-header-buttons">
           <p-button type="success" round @click.native.prevent="onNewUserClick">
-            <i class="ti-user"></i> Novo
+            <i class="ti-plus"></i> Adicionar Novo Usuário
           </p-button>
         </div>
         <div slot="raw-content" class="table-responsive no-border">
-          <div style="padding: 10px" v-if="!dataLoaded">Carregando...</div>
-          <paper-table :actionButtons="true" @openData="onOpenUserData" v-if="dataLoaded" :data="table.data" :columns="table.columns">
-
-          </paper-table>
+          <div v-if="!dataLoaded" class="ss-inline-spinner el-center mg-tp-md mg-bt-md"></div>
+          <paper-table :actionButtons="true" @openData="onOpenUserData" v-if="dataLoaded" :data="table.data" :columns="table.columns"></paper-table>
         </div>
       </card>
     </div>

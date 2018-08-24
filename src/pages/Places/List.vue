@@ -1,7 +1,10 @@
 <template>
   <div>
+    <p-button v-if="isAdmin" type="success" class="mg-bt-md" round @click.native.prevent="onNewPlace">
+      <i class="ti-plus"></i> Adicionar Local
+    </p-button>
     <div class="row">
-      <div v-if="loading" class="ss-inline-spinner el-center mg-tp-md"></div>
+      <div v-if="loading" class="ss-inline-spinner el-center mg-tp-md mg-bt-md"></div>
       <template v-else>
         <div v-if="noPlacesFound" class="mg-lf-sm text-info">
           Nenhum local cadastrado para essa conta ainda
@@ -136,7 +139,12 @@ export default {
   },
   methods: {
     onPlaceClick(place) {
-      this.$router.push(`/dashboard/index/places/${place.id}/towers`);
+      this.$router.replace(`${place.id}/towers`);
+    },
+    onNewPlace() {
+      if (this.isAdmin) {
+        this.$router.replace(`create`);
+      }
     }
   }
 };

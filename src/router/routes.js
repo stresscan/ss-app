@@ -11,12 +11,16 @@ import Login from "@/pages/Users/Login.vue";
 import PlacesList from "@/pages/Places/List.vue";
 import TowersList from "@/pages/Places/Towers/List.vue";
 import Tower from "@/pages/Places/Towers/Details.vue";
+import CreateTower from "@/pages/Places/Towers/Create.vue";
 import UserProfile from "@/pages/Users/UserProfile/Index.vue";
 
 // Admin pages
+// Users:
 import UsersList from "@/pages/Users/List.vue";
 import CreateUser from "@/pages/Users/Create.vue";
 import EditUser from "@/pages/Users/Edit.vue";
+// Places and Towers:
+import CreatePlace from "@/pages/Places/Create.vue";
 
 const routes = [
   {
@@ -54,13 +58,29 @@ const routes = [
                 component: PlacesList
               },
               {
+                path: "create",
+                name: "dashboard -> locais -> novo",
+                component: CreatePlace,
+                meta: {
+                  requiresAdmin: true
+                }
+              },
+              {
                 path: ":placeId/towers",
                 name: "dashboard -> locais -> torres",
                 component: TowersList
               },
               {
+                path: ":placeId/towers/create/:ownerId",
+                name: "dashboard -> locais -> torres -> nova",
+                component: CreateTower,
+                meta: {
+                  requiresAdmin: true
+                }
+              },
+              {
                 path: ":placeId/tower/:towerId",
-                name: "dashboard -> locais -> torres",
+                name: "dashboard -> locais -> torres -> detalhes",
                 component: Tower
               }
             ]

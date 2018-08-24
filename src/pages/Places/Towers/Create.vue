@@ -1,18 +1,18 @@
 <template>
   <div>
-    <div v-if="placeCreated">
+    <div v-if="towerCreated">
       <p class="text-success">
         <i class="ti-check"></i>
-        Local cadastrado com sucesso
+        Torre cadastrada com sucesso
       </p>
       <p-button class="mg-rg-sm" type="info" round @click.native.prevent="resetForm">
-        Cadastrar outro
+        Cadastrar outra
       </p-button>
       <a href="#" class="back-link" @click.prevent="onGoBack">
         Voltar para a listagem
       </a>
     </div>
-    <div v-if="!placeCreated">
+    <div v-if="!towerCreated">
       <a href="#" class="back-link" @click.prevent="onGoBack">
         <i class="ti-arrow-left"></i> Voltar
       </a>
@@ -21,17 +21,21 @@
           <div class="col-md-6">
             <div class="form-group">
               <h4>
-                <label class="control-label" for="owner">Cliente</label>
+                Cliente
               </h4>
-              <select id="owner" class="form-control" v-model="owner" :class="{'has-error': $v.owner.$error}">
-                <option disabled value="">Selecione um cliente</option>
-                <option v-for="client in clients" :key="client.id" v-bind:value="client.id">
-                  {{ client.name }}
+              Diego
+              <h4>
+                <label class="control-label" for="owner">Local</label>
+              </h4>
+              <select id="place" class="form-control" v-model="place" :class="{'has-error': $v.place.$error}">
+                <option disabled value="">Selecione um local</option>
+                <option v-for="place in places" :key="place.id" v-bind:value="place.id">
+                  {{ place.name }}
                 </option>
               </select>
-              <ul class="field-error-message" v-if="$v.owner.$error">
-                <li v-if="!$v.owner.required">
-                  Por favor, selecione um cliente
+              <ul class="field-error-message" v-if="$v.place.$error">
+                <li v-if="!$v.place.required">
+                  Por favor, selecione um local
                 </li>
               </ul>
             </div>
@@ -40,7 +44,7 @@
 
         <div class="row">
           <div class="col-md-12">
-            <h4>Informações do Local</h4>
+            <h4>Informações da Torre</h4>
           </div>
         </div>
 
@@ -54,6 +58,21 @@
               </li>
               <li v-if="!$v.name.minLength">
                 Nome precisa ter no mínimo {{ $v.name.$params.minLength.min }} caracteres
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <ss-fg-input :class="{'has-error': $v.culture.$error}" @input="delayTouch($v.culture)" type="text" label="Cultura" placeholder="Cultura" v-model.trim="culture">
+            </ss-fg-input>
+            <ul class="field-error-message" v-if="$v.culture.$error">
+              <li v-if="!$v.culture.required">
+                Campo requerido
+              </li>
+              <li v-if="!$v.culture.minLength">
+                Cultura precisa ter no mínimo {{ $v.culture.$params.minLength.min }} caracteres
               </li>
             </ul>
           </div>
@@ -108,21 +127,29 @@ export default {
   mixins: [validationMixin],
   data() {
     return {
-      clients: [],
       name: "",
+      culture: "",
       city: "",
       estate: "",
-      owner: "",
-      buttonText: "Cadastrar local",
-      creatingPlace: false,
-      placeCreated: false
+      owner: {
+        id: "",
+        name: "",
+        placesList: []
+      },
+      buttonText: "Cadastrar torre",
+      creatingTower: false,
+      towerCreated: false
     };
   },
   validations: {
-    owner: {
+    place: {
       required
     },
     name: {
+      required,
+      minLength: minLength(4)
+    },
+    culture: {
       required,
       minLength: minLength(4)
     },
@@ -137,7 +164,7 @@ export default {
     }
   },
   created() {
-    const getClientsList = () => {
+    const getOwnerData = () => {
       return new Promise(resolve => {
         firebase
           .firestore()
@@ -166,7 +193,7 @@ export default {
   },
   methods: {
     onGoBack() {
-      this.$router.replace("towers");
+      this.$router.replace("list");
     },
     delayTouch($v) {
       $v.$reset();
