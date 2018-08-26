@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper">
+  <div class="wrapper" id="wrapper">
     <side-bar :title="username">
       <template slot="links">
         <sidebar-link to="/dashboard/index" name="Dashboard" icon="ti-panel" />

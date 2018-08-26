@@ -66,7 +66,7 @@ const routes = [
                 }
               },
               {
-                path: ":placeId/towers",
+                path: ":placeId/towers/list",
                 name: "dashboard -> locais -> torres",
                 component: TowersList
               },

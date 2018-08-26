@@ -1,10 +1,20 @@
 <template>
   <div>
-    <p-button v-if="isAdmin" type="success" class="mg-bt-md" round @click.native.prevent="onNewPlace">
+    <div v-if="isAdmin" class="mg-bt-md">
+      <h3>Filtrar por Cliente</h3>
+      <select @change="onChangeClient" id="client" class="form-control" v-model="clientSelect">
+        <option disabled value="" v-if="loadingClientList">Aguarde...</option>
+        <option value="">Todos</option>
+        <option v-for="client in clientsList" :key="client.id" v-bind:value="client.id">
+          {{ client.name }}
+        </option>
+      </select>
+    </div>
+    <p-button v-if="isAdmin && !loadingPlacesList" type="success" class="mg-bt-md" round @click.native.prevent="onNewPlace">
       <i class="ti-plus"></i> Adicionar Local
     </p-button>
     <div class="row">
-      <div v-if="loading" class="ss-inline-spinner el-center mg-tp-md mg-bt-md"></div>
+      <div v-if="loadingPlacesList" class="ss-inline-spinner el-center mg-tp-md mg-bt-md"></div>
       <template v-else>
         <div v-if="noPlacesFound" class="mg-lf-sm text-info">
           Nenhum local cadastrado para essa conta ainda
@@ -40,17 +50,24 @@
 import { StatsCard, ChartCard } from "@/components/index";
 import Chartist from "chartist";
 import { mapState } from "vuex";
-import firebase from "firebase";
+import placeService from "../../services/PlacesService";
+import authService from "../../services/AuthService";
+import basePage from "../../mixins/BasePage.js";
+import getUploadIcon from "../../mixins/PlacesAnTowers/GetUploadIcon.js";
 
 export default {
+  mixins: [basePage, getUploadIcon],
   components: {
     StatsCard,
     ChartCard
   },
   data() {
     return {
-      loading: true,
+      loadingClientList: true,
+      loadingPlacesList: true,
       noPlacesFound: false,
+      clientSelect: "",
+      clientsList: [],
       placesList: []
     };
   },
@@ -58,92 +75,74 @@ export default {
     ...mapState({
       isAdmin: state => state.users.user.isAdmin
     }),
-    uid: () => firebase.auth().currentUser.uid
+    uid: () => authService.getCurrentUserId()
   },
   created() {
-    const getPlacesList = uid => {
-      return new Promise(resolve => {
-        const collectionRef = firebase.firestore().collection("places");
-        let query;
+    this.getClients();
 
-        if (uid) {
-          query = collectionRef.where("owner", "==", uid).get();
-        } else {
-          query = collectionRef.get();
-        }
+    this.clientSelect = this.$route.query.clientId
+      ? this.$route.query.clientId
+      : "";
 
-        query.then(placesQuerySnapshot => {
-          let places = [];
-
-          placesQuerySnapshot.forEach(placeDocSnapshot => {
-            let placeData = Object.assign(placeDocSnapshot.data(), {
-              id: placeDocSnapshot.id
-            });
-
-            places.push(placeData);
-          });
-
-          resolve(places);
-        });
-      });
-    };
-
-    const getPlaceTowersQnt = placeId => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(placeId)
-          .collection("towers")
-          .get()
-          .then(towersQuerySnapshot => {
-            resolve(towersQuerySnapshot.size);
-          });
-      });
-    };
-
-    const getUploadIcon = last_upload => {
-      if (last_upload) {
-        if (last_upload.includes("agora")) {
-          return "ti-reload";
-        } else if (last_upload.includes("dia")) {
-          return "ti-calendar";
-        } else if (last_upload.includes("hora")) {
-          return "ti-timer";
-        } else {
-          return "ti-time";
-        }
-      }
-
-      return "";
-    };
-
-    getPlacesList(this.isAdmin ? null : this.uid).then(placesList => {
-      this.loading = false;
-
-      if (placesList.length == 0) {
-        this.noPlacesFound = true;
-      } else {
-        placesList.map(place => {
-          getPlaceTowersQnt(place.id).then(qnt => {
-            this.placesList.push(
-              Object.assign(place, {
-                qntTowers: qnt,
-                last_uploadIcon: getUploadIcon(place.last_upload)
-              })
-            );
-          });
-        });
-      }
-    });
+    this.getPlacesListByOwner(this.isAdmin ? this.clientSelect : this.uid);
   },
   methods: {
+    getClients() {
+      this.loadingClientList = true;
+      placeService.getClientsList().then(list => {
+        list.map(item => {
+          this.clientsList.push(item);
+        });
+
+        this.loadingClientList = false;
+
+        if (this.$route.query.clientId) {
+          this.clientSelect = this.$route.query.clientId;
+        }
+      });
+    },
+    getPlacesListByOwner(ownerId) {
+      this.placesList = [];
+      this.loadingPlacesList = true;
+      this.noPlacesFound = false;
+
+      if (!ownerId && !this.isAdmin) {
+        this.loadingPlacesList = false;
+      }
+      placeService.getPlacesListByOwner(ownerId).then(placesList => {
+        if (placesList.length == 0) {
+          this.loadingPlacesList = false;
+          this.noPlacesFound = true;
+        } else {
+          let i;
+          const placesListLength = placesList.length;
+
+          for (let i = 0; i < placesListLength; i++) {
+            placeService.getPlaceTowersQnt(placesList[i].id).then(qnt => {
+              this.placesList.push(
+                Object.assign(placesList[i], {
+                  qntTowers: qnt,
+                  last_uploadIcon: this.getUploadIcon(placesList[i].last_upload)
+                })
+              );
+
+              if (i == placesListLength - 1) {
+                this.loadingPlacesList = false;
+              }
+            });
+          }
+        }
+      });
+    },
+    onChangeClient() {
+      this.getPlacesListByOwner(this.clientSelect);
+    },
     onPlaceClick(place) {
-      this.$router.replace(`${place.id}/towers`);
+      this.$router.replace(`${place.id}/towers/list`);
     },
     onNewPlace() {
       if (this.isAdmin) {
-        this.$router.replace(`create`);
+        this.$router.replace(`create?clientId=${this.clientSelect}`);
       }
     }
   }

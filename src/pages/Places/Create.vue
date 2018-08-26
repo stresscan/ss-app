@@ -64,7 +64,7 @@
             <ss-fg-input :class="{'has-error': $v.city.$error}" @input="delayTouch($v.city)" type="text" label="Cidade" placeholder="Cidade" maxlength="50" v-model.trim="city">
             </ss-fg-input>
             <ul class="field-error-message " v-if="$v.city.$error">
-              <li v-if="!$v.city.required ">
+              <li v-if="!$v.city.required">
                 Campo requerido
               </li>
               <li v-if="!$v.city.minLength ">
@@ -76,7 +76,7 @@
             <ss-fg-input :uppercase="true" :class="{'has-error': $v.estate.$error}" @input="delayTouch($v.estate)" type="text" label="UF" maxlength="2" placeholder="UF" v-model.trim="estate">
             </ss-fg-input>
             <ul class="field-error-message " v-if="$v.estate.$error">
-              <li v-if="$v.estate.required">
+              <li v-if="!$v.estate.required">
                 Campo requerido
               </li>
               <li v-if="!$v.estate.minLength || !$v.estate.maxLength">
@@ -101,11 +101,12 @@ import firebase from "firebase";
 import { mapState } from "vuex";
 import { required, minLength, maxLength } from "vuelidate/lib/validators";
 import { validationMixin } from "vuelidate";
+import basePage from "../../mixins/BasePage.js";
 
 const touchMap = new WeakMap();
 
 export default {
-  mixins: [validationMixin],
+  mixins: [validationMixin, basePage],
   data() {
     return {
       clients: [],
@@ -124,7 +125,7 @@ export default {
     },
     name: {
       required,
-      minLength: minLength(4)
+      minLength: minLength(3)
     },
     city: {
       required,
@@ -162,11 +163,12 @@ export default {
 
     getClientsList().then(clients => {
       this.clients = clients;
+      this.owner = this.$route.query.clientId;
     });
   },
   methods: {
     onGoBack() {
-      this.$router.replace("towers");
+      this.$router.replace(`list?clientId=${this.owner}`);
     },
     delayTouch($v) {
       $v.$reset();
@@ -214,7 +216,6 @@ export default {
       this.name = "";
       this.city = "";
       this.estate = "";
-      this.owner = "";
       this.buttonText = "Cadastrar local";
       this.creatingPlace = false;
       this.placeCreated = false;
