@@ -111,6 +111,7 @@
                 </li>
               </ul>
             </div>
+
             <div class="col-md-8">
               <ss-fg-input :class="{'has-error': $v.city.$error}" @input="delayTouch($v.city)" type="text" label="Cidade" placeholder="Cidade" maxlength="50" v-model.trim="city">
               </ss-fg-input>
@@ -133,8 +134,7 @@
               </ul>
             </div>
             <div class="col-md-6">
-              <ss-fg-input :class="{'has-error': $v.address.$error}" @input="delayTouch($v.address)" maxlength="100" type="text" label="Endereço" placeholder="Endereço" v-model.trim="address">
-              </ss-fg-input>
+              <ss-fg-input :class="{'has-error': $v.address.$error}" @input="delayTouch($v.address)" maxlength="100" type="text" label="Endereço" placeholder="Endereço" v-model.trim="address"></ss-fg-input>
               <ul class="field-error-message " v-if="$v.address.$error">
                 <li v-if="!$v.address.minLength ">
                   Endereço precisa ter no mínimo {{ $v.address.$params.minLength.min }} caracteres
@@ -142,8 +142,7 @@
               </ul>
             </div>
             <div class="col-md-2">
-              <ss-fg-input type="text" maxlength="10" label="Número" placeholder="Número" v-model.trim="number">
-              </ss-fg-input>
+              <ss-fg-input type="text" maxlength="10" label="Número" placeholder="Número" v-model.trim="number"></ss-fg-input>
             </div>
           </div>
 
@@ -193,12 +192,13 @@ import {
 import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
+import basePage from "../../mixins/BasePage.js";
 
 const touchMap = new WeakMap();
 
 export default {
   directives: { mask },
-  mixins: [validationMixin],
+  mixins: [validationMixin, basePage],
   data() {
     return {
       username: "",

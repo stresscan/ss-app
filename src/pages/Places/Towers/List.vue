@@ -84,10 +84,10 @@
             </template>
           </div>
         </card>
-        <card v-if="isAdmin " title="Cliente ">
-          <div class="pd-all-md pd-tp-none " slot="raw-content ">
-            <i class="ti-user "></i>
-            <div v-if="loadingOwnerData " class="ss-inline-block-spinner mg-lf-sm "></div>
+        <card v-if="isAdmin" title="Cliente ">
+          <div class="pd-all-md pd-tp-none" slot="raw-content">
+            <i class="ti-user"></i>
+            <div v-if="loadingOwnerData" class="ss-inline-block-spinner mg-lf-sm "></div>
             <span v-else> {{ place.owner.name }}</span>
           </div>
         </card>
@@ -245,6 +245,7 @@ export default {
     };
 
     getPlaceData(this.$route.params.placeId).then(placeData => {
+      console.log({ placeData });
       this.place.owner.id = placeData.owner;
       this.place.name = placeData.name;
       this.place.city = placeData.city;
@@ -259,8 +260,10 @@ export default {
           .collection("users_profile")
           .doc(placeData.owner)
           .get()
-          .then(ownerSnapshot => {
-            this.place.owner.name = ownerSnapshot.data().name;
+          .then(doc => {
+            console.log(doc.data());
+            this.place.owner.name = doc.data().name;
+            console.log(this.place.owner.name);
             this.loadingOwnerData = false;
           });
       }

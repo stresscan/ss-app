@@ -54,12 +54,12 @@ const routes = [
             children: [
               {
                 path: "list",
-                name: "dashboard -> locais",
+                name: "locais",
                 component: PlacesList
               },
               {
                 path: "create",
-                name: "dashboard -> locais -> novo",
+                name: "novo local",
                 component: CreatePlace,
                 meta: {
                   requiresAdmin: true
@@ -67,12 +67,12 @@ const routes = [
               },
               {
                 path: ":placeId/towers/list",
-                name: "dashboard -> locais -> torres",
+                name: "torres",
                 component: TowersList
               },
               {
                 path: ":placeId/towers/create/:ownerId",
-                name: "dashboard -> locais -> torres -> nova",
+                name: "nova torre",
                 component: CreateTower,
                 meta: {
                   requiresAdmin: true
@@ -80,7 +80,7 @@ const routes = [
               },
               {
                 path: ":placeId/tower/:towerId",
-                name: "dashboard -> locais -> torres -> detalhes",
+                name: "detalhes da torre",
                 component: Tower
               }
             ]
