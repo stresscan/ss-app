@@ -7,7 +7,7 @@
       <div class="col-12">
         <card>
           <div slot="raw-content" class="pd-all-md">
-            <a href="#" v-if="isAdmin && !editPlace" @click.prevent="editPlace = true">
+            <a href="#" v-if="isAdmin && !editPlace" @click.prevent="onEditPlace">
               <i class="ti-pencil "></i> Editar
             </a>
 
@@ -26,39 +26,87 @@
                 </ul>
 
                 <template v-if="!editPlace">
-                  <i class="ti-location-pin "></i> {{ place.city }}/{{ place.estate }}
+                  <i class="ti-location-pin "></i> {{ place.location.city }}/{{ place.location.estate }}<br /> {{ place.location.address }}, {{ place.location.number }}<br /> {{ place.location.district }}<br /> {{ place.location.postalCode }}
                 </template>
                 <template v-else>
-                  <div class="row ">
-                    <div class="col-sm-10 ">
-                      <ss-fg-input :class="{ 'has-error': $v.place.city.$error} " @input="delayTouch($v.place.city) " type="text " label="Cidade " placeholder="Cidade " maxlength="50 " v-model.trim="place.city "></ss-fg-input>
-                      <span class="d-none d-sm-block city-estate-slash ">/</span>
-                      <ul class="field-error-message " v-if="$v.place.city.$error ">
-                        <li v-if="!$v.place.city.required ">
+                  <div class="row">
+                    <div class="col-sm-4">
+                      <ss-fg-input :spinner="searchingPostalCode" :class="{'has-error': $v.place.location.postalCode.$error}" @input="delayTouch($v.place.location.postalCode)" type="text" v-mask="'#####-###'" maxlength="9" label="CEP" placeholder="CEP" v-model.trim="place.location.postalCode"></ss-fg-input>
+                      <ul class="field-error-message " v-if="$v.place.location.postalCode.$error">
+                        <li v-if="!$v.place.location.postalCode.required">
                           Campo requerido
                         </li>
-                        <li v-if="!$v.place.city.minLength ">
-                          Cidade precisa ter no mínimo {{ $v.place.city.$params.minLength.min }} caracteres
+                        <li v-if="!$v.place.location.postalCode.isValid ">
+                          Esse CEP não é válido
                         </li>
                       </ul>
-                      <ul class="field-error-message d-none d-sm-block" v-if="$v.place.estate.$error">
-                        <li v-if="!$v.place.estate.required">
+                    </div>
+
+                    <div class="col-md-8">
+                      <ss-fg-input :class="{'has-error': $v.place.location.district.$error}" @input="delayTouch($v.place.location.district)" type="text" label="Bairro" placeholder="Bairro" v-model.trim="place.location.district"></ss-fg-input>
+                      <ul class="field-error-message " v-if="$v.place.location.district.$error">
+                        <li v-if="!$v.place.location.district.required">
+                          Campo requerido
+                        </li>
+                        <li v-if="!$v.place.location.district.minLength ">
+                          Bairro precisa ter no mínimo {{ $v.place.location.district.$params.minLength.min }} caracteres
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-10 ">
+                      <ss-fg-input :class="{ 'has-error': $v.place.location.city.$error} " @input="delayTouch($v.place.location.city) " type="text " label="Cidade " placeholder="Cidade " maxlength="50 " v-model.trim="place.location.city "></ss-fg-input>
+                      <span class="d-none d-sm-block city-estate-slash ">/</span>
+                      <ul class="field-error-message " v-if="$v.place.location.city.$error ">
+                        <li v-if="!$v.place.location.city.required ">
+                          Campo requerido
+                        </li>
+                        <li v-if="!$v.place.location.city.minLength ">
+                          Cidade precisa ter no mínimo {{ $v.place.location.city.$params.minLength.min }} caracteres
+                        </li>
+                      </ul>
+                      <ul class="field-error-message d-none d-sm-block" v-if="$v.place.location.estate.$error">
+                        <li v-if="!$v.place.location.estate.required">
                           Campo UF é requerido
                         </li>
-                        <li v-if="!$v.place.estate.minLength || !$v.place.estate.maxLength">
-                          UF precisa ter {{ $v.place.estate.$params.minLength.min }} caracteres
+                        <li v-if="!$v.place.location.estate.minLength || !$v.place.location.estate.maxLength">
+                          UF precisa ter {{ $v.place.location.estate.$params.minLength.min }} caracteres
                         </li>
                       </ul>
                     </div>
 
                     <div class="col-sm-2">
-                      <ss-fg-input :uppercase="true " :class="{ 'has-error': $v.place.estate.$error} " @input="delayTouch($v.place.estate) " type="text " label="UF " maxlength="2 " placeholder="UF " v-model.trim="place.estate "></ss-fg-input>
-                      <ul class="field-error-message d-sm-none" v-if="$v.place.estate.$error">
-                        <li v-if="!$v.place.estate.required">
+                      <ss-fg-input :uppercase="true " :class="{ 'has-error': $v.place.location.estate.$error} " @input="delayTouch($v.place.location.estate) " type="text " label="UF " maxlength="2 " placeholder="UF " v-model.trim="place.location.estate "></ss-fg-input>
+                      <ul class="field-error-message d-sm-none" v-if="$v.place.location.estate.$error">
+                        <li v-if="!$v.place.location.estate.required">
                           Campo UF é requerido
                         </li>
-                        <li v-if="!$v.place.estate.minLength || !$v.place.estate.maxLength">
-                          UF precisa ter {{ $v.place.estate.$params.minLength.min }} caracteres
+                        <li v-if="!$v.place.location.estate.minLength || !$v.place.location.estate.maxLength">
+                          UF precisa ter {{ $v.place.location.estate.$params.minLength.min }} caracteres
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-md-8">
+                      <ss-fg-input :class="{'has-error': $v.place.location.address.$error}" @input="delayTouch($v.place.location.address)" maxlength="100" type="text" label="Endereço" placeholder="Endereço" v-model.trim="place.location.address"></ss-fg-input>
+                      <ul class="field-error-message " v-if="$v.place.location.address.$error">
+                        <li v-if="!$v.place.location.address.required">
+                          Campo requerido
+                        </li>
+                        <li v-if="!$v.place.location.address.minLength ">
+                          Endereço precisa ter no mínimo {{ $v.place.location.address.$params.minLength.min }} caracteres
+                        </li>
+                      </ul>
+                    </div>
+
+                    <div class="col-md-4">
+                      <ss-fg-input :class="{'has-error': $v.place.location.number.$error}" @input="delayTouch($v.place.location.number)" type="text" maxlength="10" label="Número" placeholder="Número" v-model.trim="place.location.number"></ss-fg-input>
+                      <ul class="field-error-message " v-if="$v.place.location.number.$error">
+                        <li v-if="!$v.place.location.number.required">
+                          Campo requerido
                         </li>
                       </ul>
                     </div>
@@ -68,7 +116,7 @@
                     <p-button type="info" nativeType="submit" :disabled="$v.$invalid || editingPlace" round>
                       {{ editingButtonText }}
                     </p-button>
-                    <a href="#" @click.prevent="editPlace = false" class="mg-lf-sm">Cancelar</a>
+                    <a href="#" @click.prevent="onCancelEditPlace" class="mg-lf-sm">Cancelar</a>
                   </div>
                 </template>
               </form>
@@ -138,11 +186,15 @@ import { mapState } from "vuex";
 import basePage from "../../../mixins/BasePage.js";
 import { required, minLength, maxLength } from "vuelidate/lib/validators";
 import { validationMixin } from "vuelidate";
+import axios from "axios";
+import { mask } from "vue-the-mask";
+import getUploadIcon from "../../../mixins/PlacesAnTowers/GetUploadIcon.js";
 
 const touchMap = new WeakMap();
 
 export default {
-  mixins: [validationMixin, basePage],
+  directives: { mask },
+  mixins: [validationMixin, basePage, getUploadIcon],
   components: {
     Card,
     StatsCard
@@ -156,8 +208,14 @@ export default {
       loadingOwnerData: true,
       place: {
         name: "",
-        city: "",
-        estate: "",
+        location: {
+          postalCode: "",
+          city: "",
+          estate: "",
+          address: "",
+          number: "",
+          district: ""
+        },
         disabled: false,
         owner: {
           id: "",
@@ -168,7 +226,10 @@ export default {
       togglingDisabled: false,
       editPlace: false,
       editingButtonText: "Editar local",
-      editingPlace: false
+      editingPlace: false,
+      searchingPostalCode: false,
+      placeEditingDataBkp: {},
+      placeEditingLocationBkp: {}
     };
   },
   validations: {
@@ -177,14 +238,66 @@ export default {
         required,
         minLength: minLength(3)
       },
-      city: {
-        required,
-        minLength: minLength(4)
-      },
-      estate: {
-        required,
-        minLength: minLength(2),
-        maxLength: minLength(2)
+      location: {
+        postalCode: {
+          required,
+          isValid(value) {
+            if (value === "") return true;
+            return new Promise((resolve, reject) => {
+              this.place.location.city = "";
+              this.place.location.estate = "";
+              this.place.location.address = "";
+              this.place.location.district = "";
+              this.searchingPostalCode = true;
+
+              axios
+                .get(
+                  `https://viacep.com.br/ws/${
+                    this.place.location.postalCode
+                  }/json/`
+                )
+                .then(
+                  address => {
+                    if (address.data.erro) {
+                      this.searchingPostalCode = false;
+                      resolve(false);
+                    }
+
+                    this.place.location.city = address.data.localidade;
+                    this.place.location.estate = address.data.uf;
+                    this.place.location.address = address.data.logradouro;
+                    this.place.location.district = address.data.bairro;
+                    this.searchingPostalCode = false;
+                    resolve(true);
+                  },
+                  e => {
+                    this.searchingPostalCode = false;
+                    resolve(false);
+                  }
+                );
+            });
+          }
+        },
+        city: {
+          required,
+          minLength: minLength(4)
+        },
+        estate: {
+          required,
+          minLength: minLength(2),
+          maxLength: maxLength(2)
+        },
+        address: {
+          required,
+          minLength: minLength(4)
+        },
+        district: {
+          required,
+          minLength: minLength(4)
+        },
+        number: {
+          required
+        }
       }
     }
   },
@@ -201,8 +314,8 @@ export default {
           .collection("places")
           .doc(placeId)
           .get()
-          .then(placeDocSnapshot => {
-            resolve(placeDocSnapshot.data());
+          .then(doc => {
+            resolve(doc.data());
           });
       });
     };
@@ -245,11 +358,14 @@ export default {
     };
 
     getPlaceData(this.$route.params.placeId).then(placeData => {
-      console.log({ placeData });
       this.place.owner.id = placeData.owner;
       this.place.name = placeData.name;
-      this.place.city = placeData.city;
-      this.place.estate = placeData.estate;
+      this.place.location.city = placeData.location.city;
+      this.place.location.estate = placeData.location.estate;
+      this.place.location.address = placeData.location.address;
+      this.place.location.number = placeData.location.number;
+      this.place.location.district = placeData.location.district;
+      this.place.location.postalCode = placeData.location.postalCode;
       this.place.disabled = placeData.disabled;
 
       this.loadingPlaceData = false;
@@ -261,9 +377,7 @@ export default {
           .doc(placeData.owner)
           .get()
           .then(doc => {
-            console.log(doc.data());
             this.place.owner.name = doc.data().name;
-            console.log(this.place.owner.name);
             this.loadingOwnerData = false;
           });
       }
@@ -279,7 +393,7 @@ export default {
         towersList.map(tower => {
           this.towersList.push(
             Object.assign(tower, {
-              last_uploadIcon: getUploadIcon(tower.last_upload)
+              last_uploadIcon: getUploadIcon(tower.last_data.date)
             })
           );
         });
@@ -288,7 +402,36 @@ export default {
   },
   methods: {
     onGoBack() {
-      this.$router.push("/dashboard/index/places");
+      this.$router.push(
+        `/dashboard/index/places?clientId=${this.place.owner.id}`
+      );
+    },
+    onEditPlace() {
+      this.$v.$reset();
+      this.editPlace = true;
+
+      const placeDataBkp = this.place;
+      const placeDataLocationBkp = this.place.location;
+      this.placeEditingDataBkp = { ...placeDataBkp };
+      this.placeEditingLocationBkp = { ...placeDataLocationBkp };
+
+      this.scrollTop();
+    },
+    onCancelEditPlace() {
+      this.$v.$reset();
+      this.editPlace = false;
+
+      this.place = this.placeEditingDataBkp;
+      this.place.location = this.placeEditingLocationBkp;
+      this.scrollTop();
+    },
+    delayTouch($v) {
+      $v.$reset();
+
+      if (touchMap.has($v)) {
+        clearTimeout(touchMap.get($v));
+      }
+      touchMap.set($v, setTimeout($v.$touch, 1000));
     },
     onEditFormSubmit() {
       if (this.isAdmin) {
@@ -302,8 +445,14 @@ export default {
           .doc(this.$route.params.placeId)
           .update({
             name: this.place.name,
-            city: this.place.city,
-            estate: this.place.estate
+            location: {
+              postalCode: this.place.location.postalCode,
+              city: this.place.location.city,
+              estate: this.place.location.estate.toUpperCase(),
+              address: this.place.location.address,
+              number: this.place.location.number,
+              district: this.place.location.district
+            }
           })
           .then(doc => {
             this.editPlace = false;
@@ -311,14 +460,6 @@ export default {
             this.editingButtonText = "Editar local";
           });
       }
-    },
-    delayTouch($v) {
-      $v.$reset();
-
-      if (touchMap.has($v)) {
-        clearTimeout(touchMap.get($v));
-      }
-      touchMap.set($v, setTimeout($v.$touch, 1000));
     },
     onToggleDisabled() {
       if (this.isAdmin) {

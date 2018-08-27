@@ -67,7 +67,7 @@ const routes = [
               },
               {
                 path: ":placeId/towers/list",
-                name: "torres",
+                name: "torres do local",
                 component: TowersList
               },
               {

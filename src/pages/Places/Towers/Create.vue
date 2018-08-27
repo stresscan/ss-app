@@ -175,12 +175,8 @@ export default {
       tower: {
         name: "",
         culture: "",
-        postalCode: "",
-        city: "",
-        estate: "",
-        address: "",
-        number: "",
-        district: ""
+        lat: "",
+        lng: ""
       },
       owner: {
         id: "",
@@ -204,59 +200,10 @@ export default {
         required,
         minLength: minLength(2)
       },
-      postalCode: {
-        required,
-        isValid(value) {
-          if (value === "") return true;
-          return new Promise((resolve, reject) => {
-            this.tower.address = "";
-            this.tower.city = "";
-            this.tower.estate = "";
-            this.tower.district = "";
-            this.searchingPostalCode = true;
-
-            axios
-              .get(`https://viacep.com.br/ws/${this.tower.postalCode}/json/`)
-              .then(
-                address => {
-                  if (address.data.erro) {
-                    this.searchingPostalCode = false;
-                    resolve(false);
-                  }
-
-                  this.tower.address = address.data.logradouro;
-                  this.tower.city = address.data.localidade;
-                  this.tower.estate = address.data.uf;
-                  this.tower.district = address.data.bairro;
-                  this.searchingPostalCode = false;
-                  resolve(true);
-                },
-                e => {
-                  this.searchingPostalCode = false;
-                  resolve(false);
-                }
-              );
-          });
-        }
+      lat: {
+        required
       },
-      city: {
-        required,
-        minLength: minLength(4)
-      },
-      estate: {
-        required,
-        minLength: minLength(2),
-        maxLength: maxLength(2)
-      },
-      address: {
-        required,
-        minLength: minLength(4)
-      },
-      district: {
-        required,
-        minLength: minLength(4)
-      },
-      number: {
+      lng: {
         required
       }
     }
@@ -303,7 +250,6 @@ export default {
     getOwnerData().then(ownerData => {
       this.owner.id = ownerData.id;
       this.owner.name = ownerData.name;
-      console.log("this.owner", this.owner);
     });
   },
   methods: {
@@ -326,49 +272,54 @@ export default {
       const newTower = {
         name: this.tower.name,
         culture: this.tower.culture,
-        postalCode: this.tower.postalCode,
-        city: this.tower.city,
-        estate: this.tower.estate.toUpperCase(),
-        address: this.tower.address,
-        number: this.tower.number,
-        district: this.tower.district,
-        lat: "",
-        lng: "",
+        geolocation: {
+          lat: "",
+          lng: ""
+        },
         last_data: {
-          last_upload: 0,
+          date: 0,
           environmentTemperature: 0,
           environmentHumidity: 0,
           groundTemperature: 0,
           groundHumidity: 0
         },
-        status: "online"
+        status: "online",
+        disabled: false
       };
 
       firebase
         .firestore()
         .collection("places")
-        .add(newPlace)
-        .then(place => {
+        .doc(this.place.id)
+        .collection("towers")
+        .add(newTower)
+        .then(doc => {
           this.towerCreated = true;
         })
         .catch(e => {
           console.log(`tower couldn't be created ${e}`);
           this.buttonText = "Cadastrar torre";
           this.creatingTower = false;
+
           this.notifyVue(
             "bottom",
             "right",
             "danger",
-            "O local não pode ser criado: erro desconhecido",
+            "A torre não pode ser criada: erro desconhecido",
             "ti-thumb-down"
           );
         });
     },
     resetForm() {
-      this.name = "";
-      this.city = "";
-      this.estate = "";
-      this.owner = "";
+      this.tower.name = "";
+      this.tower.culture = "";
+      this.tower.address = "";
+      this.tower.city = "";
+      this.tower.estate = "";
+      this.tower.district = "";
+      this.tower.number = "";
+      this.tower.postalCode = "";
+
       this.buttonText = "Cadastrar local";
       this.creatingTower = false;
       this.towerCreated = false;

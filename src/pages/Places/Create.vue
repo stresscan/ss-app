@@ -61,14 +61,25 @@
 
         <div class="row">
           <div class="col-md-4">
-            <ss-fg-input :spinner="searchingPostalCode" :class="{'has-error': $v.place.postalCode.$error}" @input="delayTouch($v.place.postalCode)" type="text" v-mask="'#####-###'" maxlength="9" label="CEP" placeholder="CEP" v-model.trim="place.postalCode">
-            </ss-fg-input>
-            <ul class="field-error-message " v-if="$v.place.postalCode.$error">
-              <li v-if="!$v.place.postalCode.required">
+            <ss-fg-input :spinner="searchingPostalCode" :class="{'has-error': $v.place.location.postalCode.$error}" @input="delayTouch($v.place.location.postalCode)" type="text" v-mask="'#####-###'" maxlength="9" label="CEP" placeholder="CEP" v-model.trim="place.location.postalCode"></ss-fg-input>
+            <ul class="field-error-message " v-if="$v.place.location.postalCode.$error">
+              <li v-if="!$v.place.location.postalCode.required">
                 Campo requerido
               </li>
-              <li v-if="!$v.place.postalCode.isValid ">
+              <li v-if="!$v.place.location.postalCode.isValid ">
                 Esse CEP não é válido
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-md-8">
+            <ss-fg-input :class="{'has-error': $v.place.location.district.$error}" @input="delayTouch($v.place.location.district)" type="text" label="Bairro" placeholder="Bairro" v-model.trim="place.location.district"></ss-fg-input>
+            <ul class="field-error-message " v-if="$v.place.location.district.$error">
+              <li v-if="!$v.place.location.district.required">
+                Campo requerido
+              </li>
+              <li v-if="!$v.place.location.district.minLength ">
+                Bairro precisa ter no mínimo {{ $v.place.location.district.$params.minLength.min }} caracteres
               </li>
             </ul>
           </div>
@@ -76,24 +87,48 @@
 
         <div class="row">
           <div class="col-md-10">
-            <ss-fg-input :class="{'has-error': $v.place.city.$error}" @input="delayTouch($v.place.city)" type="text" label="Cidade" placeholder="Cidade" maxlength="50" v-model.trim="place.city"></ss-fg-input>
-            <ul class="field-error-message " v-if="$v.place.city.$error">
-              <li v-if="!$v.place.city.required">
+            <ss-fg-input :class="{'has-error': $v.place.location.city.$error}" @input="delayTouch($v.place.location.city)" type="text" label="Cidade" placeholder="Cidade" maxlength="50" v-model.trim="place.location.city"></ss-fg-input>
+            <ul class="field-error-message " v-if="$v.place.location.city.$error">
+              <li v-if="!$v.place.location.city.required">
                 Campo requerido
               </li>
-              <li v-if="!$v.place.city.minLength ">
-                Cidade precisa ter no mínimo {{ $v.place.city.$params.minLength.min }} caracteres
+              <li v-if="!$v.place.location.city.minLength ">
+                Cidade precisa ter no mínimo {{ $v.place.location.city.$params.minLength.min }} caracteres
               </li>
             </ul>
           </div>
+
           <div class="col-md-2">
-            <ss-fg-input :uppercase="true" :class="{'has-error': $v.place.estate.$error}" @input="delayTouch($v.place.estate)" type="text" label="UF" maxlength="2" placeholder="UF" v-model.trim="place.estate"></ss-fg-input>
-            <ul class="field-error-message " v-if="$v.place.estate.$error">
-              <li v-if="!$v.place.estate.required">
+            <ss-fg-input :uppercase="true" :class="{'has-error': $v.place.location.estate.$error}" @input="delayTouch($v.place.location.estate)" type="text" label="UF" maxlength="2" placeholder="UF" v-model.trim="place.location.estate"></ss-fg-input>
+            <ul class="field-error-message " v-if="$v.place.location.estate.$error">
+              <li v-if="!$v.place.location.estate.required">
                 Campo requerido
               </li>
-              <li v-if="!$v.place.estate.minLength || !$v.place.estate.maxLength">
-                UF precisa ter {{ $v.place.estate.$params.minLength.min }} caracteres
+              <li v-if="!$v.place.location.estate.minLength || !$v.place.location.estate.maxLength">
+                UF precisa ter {{ $v.place.location.estate.$params.minLength.min }} caracteres
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-8">
+            <ss-fg-input :class="{'has-error': $v.place.location.address.$error}" @input="delayTouch($v.place.location.address)" maxlength="100" type="text" label="Endereço" placeholder="Endereço" v-model.trim="place.location.address"></ss-fg-input>
+            <ul class="field-error-message " v-if="$v.place.location.address.$error">
+              <li v-if="!$v.place.location.address.required">
+                Campo requerido
+              </li>
+              <li v-if="!$v.place.location.address.minLength ">
+                Endereço precisa ter no mínimo {{ $v.place.location.address.$params.minLength.min }} caracteres
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-md-4">
+            <ss-fg-input :class="{'has-error': $v.place.location.number.$error}" @input="delayTouch($v.place.location.number)" type="text" maxlength="10" label="Número" placeholder="Número" v-model.trim="place.location.number"></ss-fg-input>
+            <ul class="field-error-message " v-if="$v.place.location.number.$error">
+              <li v-if="!$v.place.location.number.required">
+                Campo requerido
               </li>
             </ul>
           </div>
@@ -129,10 +164,15 @@ export default {
       clients: [],
       place: {
         name: "",
-        postalCode: "",
-        city: "",
-        estate: "",
-        owner: ""
+        owner: "",
+        location: {
+          postalCode: "",
+          city: "",
+          estate: "",
+          address: "",
+          number: "",
+          district: ""
+        }
       },
       buttonText: "Cadastrar local",
       creatingPlace: false,
@@ -149,45 +189,66 @@ export default {
         required,
         minLength: minLength(3)
       },
-      postalCode: {
-        required,
-        isValid(value) {
-          if (value === "") return true;
-          return new Promise((resolve, reject) => {
-            this.place.city = "";
-            this.place.estate = "";
-            this.searchingPostalCode = true;
+      location: {
+        postalCode: {
+          required,
+          isValid(value) {
+            if (value === "") return true;
+            return new Promise((resolve, reject) => {
+              this.place.location.city = "";
+              this.place.location.estate = "";
+              this.place.location.address = "";
+              this.place.location.district = "";
+              this.searchingPostalCode = true;
 
-            axios
-              .get(`https://viacep.com.br/ws/${this.place.postalCode}/json/`)
-              .then(
-                address => {
-                  if (address.data.erro) {
+              axios
+                .get(
+                  `https://viacep.com.br/ws/${
+                    this.place.location.postalCode
+                  }/json/`
+                )
+                .then(
+                  address => {
+                    if (address.data.erro) {
+                      this.searchingPostalCode = false;
+                      resolve(false);
+                    }
+
+                    this.place.location.city = address.data.localidade;
+                    this.place.location.estate = address.data.uf;
+                    this.place.location.address = address.data.logradouro;
+                    this.place.location.district = address.data.bairro;
+                    this.searchingPostalCode = false;
+                    resolve(true);
+                  },
+                  e => {
                     this.searchingPostalCode = false;
                     resolve(false);
                   }
-
-                  this.place.city = address.data.localidade;
-                  this.place.estate = address.data.uf;
-                  this.searchingPostalCode = false;
-                  resolve(true);
-                },
-                e => {
-                  this.searchingPostalCode = false;
-                  resolve(false);
-                }
-              );
-          });
+                );
+            });
+          }
+        },
+        city: {
+          required,
+          minLength: minLength(4)
+        },
+        estate: {
+          required,
+          minLength: minLength(2),
+          maxLength: maxLength(2)
+        },
+        address: {
+          required,
+          minLength: minLength(4)
+        },
+        district: {
+          required,
+          minLength: minLength(4)
+        },
+        number: {
+          required
         }
-      },
-      city: {
-        required,
-        minLength: minLength(4)
-      },
-      estate: {
-        required,
-        minLength: minLength(2),
-        maxLength: maxLength(2)
       }
     }
   },
@@ -240,10 +301,16 @@ export default {
       const newPlace = {
         name: this.place.name,
         owner: this.place.owner,
-        postalCode: this.place.postalCode,
-        city: this.place.city,
-        estate: this.place.estate.toUpperCase(),
-        status: "online"
+        location: {
+          postalCode: this.place.location.postalCode,
+          city: this.place.location.city,
+          estate: this.place.location.estate.toUpperCase(),
+          address: this.place.location.address,
+          number: this.place.location.number,
+          district: this.place.location.district
+        },
+        status: "online",
+        disabled: false
       };
 
       firebase
@@ -268,12 +335,17 @@ export default {
     },
     resetForm() {
       this.place.name = "";
-      this.place.postalCode = "";
-      this.place.city = "";
-      this.place.estate = "";
+      this.place.location.postalCode = "";
+      this.place.location.city = "";
+      this.place.location.estate = "";
+      this.place.location.district = "";
+      this.place.location.address = "";
+      this.place.location.number = "";
+
       this.buttonText = "Cadastrar local";
       this.creatingPlace = false;
       this.placeCreated = false;
+
       this.$nextTick(() => {
         this.$v.$reset();
       });
