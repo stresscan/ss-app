@@ -35,7 +35,7 @@
                 <LocationMap v-if="showMap" :lat="lat" :lng="lng" />
               </transition>
             </p>
-            <a class="back-link" href="#" onclick="javascript:history.go(-1)">
+            <a class="back-link" href="#" @click.prevent="onGoBack">
               <i class="ti-arrow-left"></i> Voltar
             </a>
           </div>
@@ -250,6 +250,11 @@ export default {
         }
       }
     };
+  },
+  methods: {
+    onGoBack() {
+      this.$router.push("../towers/list");
+    }
   }
 };
 </script>
