@@ -143,9 +143,9 @@
     </div>
 
     <div class="row ">
-      <div v-if="loading " class="ss-inline-spinner el-center mg-tp-md"></div>
+      <div v-if="loading" class="ss-inline-spinner el-center mg-tp-md"></div>
       <template v-else>
-        <div class="col-sm-12 mg-bt-md mg-lf-sm ">
+        <div v-if="isAdmin" class="col-sm-12 mg-bt-md mg-lf-sm ">
           <p-button type="success " round @click.native.prevent="onNewTower">
             <i class="ti-plus "></i> Adicionar Torre
           </p-button>
