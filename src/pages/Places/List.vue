@@ -36,9 +36,6 @@
                 <i class="ti-signal card-icon-tower"></i>
               </span>
             </div>
-            <div class="stats last-upload" slot="footer">
-              <i :class="place.last_uploadIcon"></i> {{place.last_upload}}
-            </div>
           </stats-card>
         </div>
       </template>
@@ -53,10 +50,9 @@ import { mapState } from "vuex";
 import placeService from "../../services/PlacesService";
 import authService from "../../services/AuthService";
 import basePage from "../../mixins/BasePage.js";
-import getUploadIcon from "../../mixins/PlacesAnTowers/GetUploadIcon.js";
 
 export default {
-  mixins: [basePage, getUploadIcon],
+  mixins: [basePage],
   components: {
     StatsCard,
     ChartCard
@@ -121,8 +117,7 @@ export default {
             placeService.getPlaceTowersQnt(placesList[i].id).then(qnt => {
               this.placesList.push(
                 Object.assign(placesList[i], {
-                  qntTowers: qnt,
-                  last_uploadIcon: this.getUploadIcon(placesList[i].last_upload)
+                  qntTowers: qnt
                 })
               );
 

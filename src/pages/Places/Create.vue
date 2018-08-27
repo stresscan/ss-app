@@ -243,7 +243,6 @@ export default {
         postalCode: this.place.postalCode,
         city: this.place.city,
         estate: this.place.estate.toUpperCase(),
-        last_upload: "Aguardando sincronização",
         status: "online"
       };
 
