@@ -143,34 +143,34 @@
     </div>
 
     <div class="row ">
-      <div v-if="loading " class="ss-inline-spinner el-center mg-tp-md "></div>
+      <div v-if="loading " class="ss-inline-spinner el-center mg-tp-md"></div>
       <template v-else>
         <div class="col-sm-12 mg-bt-md mg-lf-sm ">
-          <p-button type="success " round @click.native.prevent="onNewTower ">
+          <p-button type="success " round @click.native.prevent="onNewTower">
             <i class="ti-plus "></i> Adicionar Torre
           </p-button>
         </div>
-        <div v-if="noTowersFound " class="col-sm-12 mg-lf-sm text-info ">
+        <div v-if="noTowersFound " class="col-sm-12 mg-lf-sm text-info">
           Nenhuma torre cadastrada para este local ainda
         </div>
-        <div class="col-sm-6 col-md-4 col-xl-4 tower-card-wrapper " v-for="(tower, index) in towersList " :key="index " @click="onTowerClick(tower) ">
-          <stats-card :status="tower.status=='online' ">
-            <div class="card-icon icon-xbig text-center icon-success " slot="header ">
+        <div class="col-sm-6 col-md-4 col-xl-4 tower-card-wrapper" v-for="(tower, index) in towersList " :key="index " @click="onTowerClick(tower) ">
+          <stats-card :status="tower.status=='online'">
+            <div class="card-icon icon-xbig text-center icon-success" slot="header">
               <div>
-                <i class="ti-signal "></i>
+                <i class="ti-signal"></i>
               </div>
             </div>
-            <div class="numbers " slot="content ">
+            <div class="numbers" slot="content">
               <p>
-                <span class="status online ">online</span>{{tower.name}}
+                <span class="status online">online</span>{{tower.name}}
               </p>
-              <p class="small-info ">{{ tower.culture }}</p>
-              <p class="big-info ">
-                {{ tower.environmentTemperature }}°
+              <p class="small-info">{{ tower.culture }}</p>
+              <p class="big-info">
+                {{ tower.last_data.environmentTemperature }}°
               </p>
             </div>
-            <div class="stats last-upload " slot="footer ">
-              <i :class="tower.last_uploadIcon "></i> {{tower.last_upload}}
+            <div class="stats last-upload" slot="footer">
+              <i :class="tower.last_upload.icon"></i> {{ tower.last_upload.text }}
             </div>
           </stats-card>
         </div>
@@ -188,7 +188,7 @@ import { required, minLength, maxLength } from "vuelidate/lib/validators";
 import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
-import getUploadIcon from "../../../mixins/PlacesAnTowers/GetUploadIcon.js";
+import getUploadIcon from "../../../mixins/PlacesAndTowers/GetLastUploadInfo.js";
 
 const touchMap = new WeakMap();
 
@@ -341,20 +341,30 @@ export default {
       });
     };
 
-    const getUploadIcon = last_upload => {
-      if (last_upload) {
-        if (last_upload.includes("agora")) {
-          return "ti-reload";
-        } else if (last_upload.includes("dia")) {
-          return "ti-calendar";
-        } else if (last_upload.includes("hora")) {
-          return "ti-timer";
-        } else {
-          return "ti-time";
-        }
+    const getLastUpload = datetime => {
+      if (!datetime) {
+        return {
+          icon: "ti-time",
+          text: "Aguardando sincronização"
+        };
       }
 
-      return "";
+      if (datetime.includes("agora")) {
+        return {
+          icon: "ti-reload",
+          text: "Atualizado agora"
+        };
+      } else if (datetime.includes("dia")) {
+        return {
+          icon: "ti-calendar",
+          text: "Atualizado há mais de 1 dia"
+        };
+      } else {
+        return {
+          icon: "ti-timer",
+          text: "Atualizado há algumas horas"
+        };
+      }
     };
 
     getPlaceData(this.$route.params.placeId).then(placeData => {
@@ -393,10 +403,12 @@ export default {
         towersList.map(tower => {
           this.towersList.push(
             Object.assign(tower, {
-              last_uploadIcon: getUploadIcon(tower.last_data.date)
+              last_upload: getLastUpload(tower.last_data.datetime)
             })
           );
         });
+
+        console.log("this.towersList", this.towersList);
       }
     });
   },

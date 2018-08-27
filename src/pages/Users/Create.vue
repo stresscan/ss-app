@@ -360,6 +360,7 @@ export default {
             .catch(e => console.log(`displayname couldn't be updated ${e}`));
 
           const newUser = {
+            date: Date.now(),
             name: this.name,
             surname: this.surname,
             email: this.email,

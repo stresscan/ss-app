@@ -299,6 +299,7 @@ export default {
       this.$v.$touch();
 
       const newPlace = {
+        date: Date.now(),
         name: this.place.name,
         owner: this.place.owner,
         location: {

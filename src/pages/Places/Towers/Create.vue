@@ -67,77 +67,38 @@
 
         <div class="row">
           <div class="col-md-4">
-            <ss-fg-input :spinner="searchingPostalCode" :class="{'has-error': $v.tower.postalCode.$error}" @input="delayTouch($v.tower.postalCode)" type="text" v-mask="'#####-###'" maxlength="9" label="CEP" placeholder="CEP" v-model.trim="tower.postalCode"></ss-fg-input>
-            <ul class="field-error-message " v-if="$v.tower.postalCode.$error">
-              <li v-if="!$v.tower.postalCode.required">
-                Campo requerido
-              </li>
-              <li v-if="!$v.tower.postalCode.isValid ">
-                Esse CEP não é válido
-              </li>
-            </ul>
+            <ss-fg-input type="text" readonly label="CEP" placeholder="CEP" v-model.trim="place.location.postalCode"></ss-fg-input>
           </div>
 
           <div class="col-md-8">
-            <ss-fg-input :class="{'has-error': $v.tower.district.$error}" @input="delayTouch($v.tower.district)" type="text" label="Bairro" placeholder="Bairro" v-model.trim="tower.district">
-            </ss-fg-input>
-            <ul class="field-error-message " v-if="$v.tower.district.$error">
-              <li v-if="!$v.tower.district.required">
-                Campo requerido
-              </li>
-              <li v-if="!$v.tower.district.minLength ">
-                Bairro precisa ter no mínimo {{ $v.tower.district.$params.minLength.min }} caracteres
-              </li>
-            </ul>
+            <ss-fg-input readonly type="text" label="Bairro" placeholder="Bairro" v-model.trim="place.location.district"></ss-fg-input>
           </div>
         </div>
 
         <div class="row">
           <div class="col-md-10">
-            <ss-fg-input :class="{'has-error': $v.tower.city.$error}" @input="delayTouch($v.tower.city)" type="text" label="Cidade" placeholder="Cidade" maxlength="50" v-model.trim="tower.city"></ss-fg-input>
-            <ul class="field-error-message " v-if="$v.tower.city.$error">
-              <li v-if="!$v.tower.city.required">
-                Campo requerido
-              </li>
-              <li v-if="!$v.tower.city.minLength ">
-                Cidade precisa ter no mínimo {{ $v.tower.city.$params.minLength.min }} caracteres
-              </li>
-            </ul>
+            <ss-fg-input readonly type="text" label="Cidade" placeholder="Cidade" maxlength="50" v-model.trim="place.location.city"></ss-fg-input>
           </div>
 
           <div class="col-md-2">
-            <ss-fg-input :uppercase="true" :class="{'has-error': $v.tower.estate.$error}" @input="delayTouch($v.tower.estate)" type="text" label="UF" maxlength="2" placeholder="UF" v-model.trim="tower.estate"></ss-fg-input>
-            <ul class="field-error-message " v-if="$v.tower.estate.$error">
-              <li v-if="!$v.tower.estate.required">
-                Campo requerido
-              </li>
-              <li v-if="!$v.tower.estate.minLength || !$v.tower.estate.maxLength">
-                UF precisa ter {{ $v.tower.estate.$params.minLength.min }} caracteres
-              </li>
-            </ul>
+            <ss-fg-input :uppercase="true" readonly type="text" label="UF" maxlength="2" placeholder="UF" v-model.trim="place.location.estate"></ss-fg-input>
           </div>
         </div>
 
         <div class="row">
           <div class="col-md-8">
-            <ss-fg-input :class="{'has-error': $v.tower.address.$error}" @input="delayTouch($v.tower.address)" maxlength="100" type="text" label="Endereço" placeholder="Endereço" v-model.trim="tower.address"></ss-fg-input>
-            <ul class="field-error-message " v-if="$v.tower.address.$error">
-              <li v-if="!$v.tower.address.required">
-                Campo requerido
-              </li>
-              <li v-if="!$v.tower.address.minLength ">
-                Endereço precisa ter no mínimo {{ $v.tower.address.$params.minLength.min }} caracteres
-              </li>
-            </ul>
+            <ss-fg-input readonly maxlength="100" type="text" label="Endereço" placeholder="Endereço" v-model.trim="place.location.address"></ss-fg-input>
           </div>
 
           <div class="col-md-4">
-            <ss-fg-input :class="{'has-error': $v.tower.number.$error}" @input="delayTouch($v.tower.number)" type="text" maxlength="10" label="Número" placeholder="Número" v-model.trim="tower.number"></ss-fg-input>
-            <ul class="field-error-message " v-if="$v.tower.number.$error">
-              <li v-if="!$v.tower.number.required">
-                Campo requerido
-              </li>
-            </ul>
+            <ss-fg-input readonly type="text" maxlength="10" label="Número" placeholder="Número" v-model.trim="place.location.number"></ss-fg-input>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-xs-12">
+            <input class="d-none" type="text" v-model="tower.lat">
+            <input class="d-none" type="text" v-model="tower.lng">
           </div>
         </div>
 
@@ -170,13 +131,21 @@ export default {
     return {
       place: {
         id: "",
-        name: ""
+        name: "",
+        location: {
+          postalCode: "",
+          city: "",
+          estate: "",
+          address: "",
+          number: "",
+          district: ""
+        }
       },
       tower: {
         name: "",
         culture: "",
-        lat: "",
-        lng: ""
+        lat: 0,
+        lng: 0
       },
       owner: {
         id: "",
@@ -237,19 +206,12 @@ export default {
 
     getPlaceData(this.$route.params.placeId).then(data => {
       this.gettingPlaceData = false;
-      this.place.id = data.id;
-      this.place.name = data.name;
+      this.place = data;
 
-      getOwnerData(data.owner).then(data => {
+      getOwnerData(data.owner).then(ownerData => {
         this.gettingOwnerData = false;
-        this.owner.id = data.id;
-        this.owner.name = data.name;
+        this.owner = ownerData;
       });
-    });
-
-    getOwnerData().then(ownerData => {
-      this.owner.id = ownerData.id;
-      this.owner.name = ownerData.name;
     });
   },
   methods: {
@@ -270,6 +232,7 @@ export default {
       this.$v.$touch();
 
       const newTower = {
+        date: Date.now(),
         name: this.tower.name,
         culture: this.tower.culture,
         geolocation: {
@@ -277,7 +240,7 @@ export default {
           lng: ""
         },
         last_data: {
-          date: 0,
+          datetime: 0,
           environmentTemperature: 0,
           environmentHumidity: 0,
           groundTemperature: 0,
@@ -295,6 +258,21 @@ export default {
         .add(newTower)
         .then(doc => {
           this.towerCreated = true;
+
+          firebase
+            .firestore()
+            .collection("places")
+            .doc(this.place.id)
+            .collection("towers")
+            .doc(doc.id)
+            .collection("data")
+            .add({
+              datetime: 0,
+              environmentTemperature: 0,
+              environmentHumidity: 0,
+              groundTemperature: 0,
+              groundHumidity: 0
+            });
         })
         .catch(e => {
           console.log(`tower couldn't be created ${e}`);
@@ -313,12 +291,8 @@ export default {
     resetForm() {
       this.tower.name = "";
       this.tower.culture = "";
-      this.tower.address = "";
-      this.tower.city = "";
-      this.tower.estate = "";
-      this.tower.district = "";
-      this.tower.number = "";
-      this.tower.postalCode = "";
+      this.tower.lat = 0;
+      this.tower.lng = 0;
 
       this.buttonText = "Cadastrar local";
       this.creatingTower = false;
