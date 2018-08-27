@@ -30,7 +30,7 @@
               <p>
                 {{place.name}}
               </p>
-              <p class="small-info">{{place.city}}/{{place.estate}}</p>
+              <p class="small-info">{{place.location.city}}/{{place.location.estate}}</p>
               <span class="big-info">
                 {{place.qntTowers}}
                 <i class="ti-signal card-icon-tower"></i>

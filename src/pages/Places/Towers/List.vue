@@ -496,7 +496,7 @@ export default {
       }
     },
     onTowerClick(tower) {
-      this.$router.replace(`tower/${tower.id}`);
+      this.$router.replace(`../tower/${tower.id}`);
     }
   }
 };
