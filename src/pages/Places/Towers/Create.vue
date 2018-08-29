@@ -96,9 +96,14 @@
         </div>
 
         <div class="row">
-          <div class="col-xs-12">
-            <input class="d-none" type="text" v-model="tower.lat">
-            <input class="d-none" type="text" v-model="tower.lng">
+          <div class="col-sm-12">
+            <h4>Localização Geográfica</h4>
+            <div v-if="gettingLatLng" class="ss-inline-spinner"></div>
+            <template v-else>
+              <input class="d-none" type="text" v-model="tower.lat">
+              <input class="d-none" type="text" v-model="tower.lng">
+              <LocationMap class="geolocation-map" :zoom="16" :title="tower.name" :draggable="true" @dragend="onMapDragEnd" :lat="tower.lat" :lng="tower.lng" />
+            </template>
           </div>
         </div>
 
@@ -121,12 +126,16 @@ import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
 import basePage from "../../../mixins/BasePage.js";
+import { LocationMap } from "@/components/index";
 
 const touchMap = new WeakMap();
 
 export default {
   directives: { mask },
   mixins: [validationMixin, basePage],
+  components: {
+    LocationMap
+  },
   data() {
     return {
       place: {
@@ -144,8 +153,8 @@ export default {
       tower: {
         name: "",
         culture: "",
-        lat: 0,
-        lng: 0
+        lat: "",
+        lng: ""
       },
       owner: {
         id: "",
@@ -156,7 +165,8 @@ export default {
       gettingOwnerData: true,
       buttonText: "Cadastrar torre",
       creatingTower: false,
-      towerCreated: false
+      towerCreated: false,
+      gettingLatLng: true
     };
   },
   validations: {
@@ -204,9 +214,49 @@ export default {
       });
     };
 
+    const getAddressLatLng = location => {
+      const gMapsKey = "AIzaSyAamVCoyQ4AuvBpxVRMs9P-HFkfPVQj0Kw";
+      const address = `${location.postalCode},${location.address.replace(
+        " ",
+        "+"
+      )},+${location.number.replace(" ", "+")},+${location.district.replace(
+        " ",
+        "+"
+      )},+${location.city.replace(" ", "+")},+${location.estate.replace(
+        " ",
+        "+"
+      )}`;
+
+      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${gMapsKey}`;
+
+      return new Promise((resolve, reject) => {
+        axios.get(url).then(geolocation => {
+          if (geolocation.data.status === "OK") {
+            resolve(geolocation);
+          } else {
+            reject(new Error(geolocation.data.status));
+          }
+        });
+      });
+    };
+
     getPlaceData(this.$route.params.placeId).then(data => {
       this.gettingPlaceData = false;
       this.place = data;
+
+      getAddressLatLng(data.location).then(
+        geolocation => {
+          this.tower.lat = String(
+            geolocation.data.results[0].geometry.location.lat
+          );
+          this.tower.lng = String(
+            geolocation.data.results[0].geometry.location.lng
+          );
+
+          this.gettingLatLng = false;
+        },
+        e => console.log(e)
+      );
 
       getOwnerData(data.owner).then(ownerData => {
         this.gettingOwnerData = false;
@@ -226,6 +276,10 @@ export default {
       }
       touchMap.set($v, setTimeout($v.$touch, 1000));
     },
+    onMapDragEnd(latlng) {
+      this.tower.lat = String(latlng.lat);
+      this.tower.lng = String(latlng.lng);
+    },
     onFormSubmit() {
       this.buttonText = "Cadastrando torre...";
       this.creatingTower = true;
@@ -236,8 +290,8 @@ export default {
         name: this.tower.name,
         culture: this.tower.culture,
         geolocation: {
-          lat: "",
-          lng: ""
+          lat: this.tower.lat,
+          lng: this.tower.lng
         },
         last_data: {
           datetime: 0,
@@ -315,4 +369,7 @@ export default {
 };
 </script>
 <style>
+.geolocation-map .map {
+  padding-top: 0;
+}
 </style>

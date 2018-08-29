@@ -32,7 +32,7 @@
                 </a>
               </transition>
               <transition name="fade">
-                <LocationMap v-if="showMap" :lat="lat" :lng="lng" />
+                <LocationMap v-if="showMap" :zoom="13" :title="'SSO'" :draggable="false" :lat="lat" :lng="lng" />
               </transition>
             </p>
             <a class="back-link" href="#" @click.prevent="onGoBack">

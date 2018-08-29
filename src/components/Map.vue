@@ -10,12 +10,14 @@ export default {
   props: {
     title: String,
     lat: String,
-    lng: String
+    lng: String,
+    draggable: Boolean,
+    zoom: Number
   },
   mounted() {
     var myLatlng = new window.google.maps.LatLng(this.lat, this.lng);
     var mapOptions = {
-      zoom: 13,
+      zoom: this.zoom,
       center: myLatlng,
       scrollwheel: true,
       styles: [
@@ -77,12 +79,24 @@ export default {
     );
 
     var marker = new window.google.maps.Marker({
+      draggable: this.draggable,
       position: myLatlng,
       title: this.title
     });
 
     // To add the marker to the map, call setMap();
     marker.setMap(map);
+
+    if (this.draggable) {
+      window.google.maps.event.addListener(marker, "dragend", evt => {
+        this.$emit("dragend", {
+          lat: evt.latLng.lat(),
+          lng: evt.latLng.lng()
+        });
+
+        map.setCenter(marker.position);
+      });
+    }
   }
 };
 </script>

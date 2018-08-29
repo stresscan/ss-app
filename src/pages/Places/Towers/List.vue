@@ -121,10 +121,10 @@
                 </template>
               </form>
               <br />
-              <i class="ti-signal "></i> {{ qntTowers }} torre(s)
-              <div v-if="isAdmin " class="mg-tp-md ">
+              <i class="ti-signal"></i> {{ qntTowers }} torre(s)
+              <div v-if="isAdmin" class="mg-tp-md ">
                 <span :class="{ 'text-danger': place.disabled, 'text-success': !place.disabled} ">
-                  <i class="ti-flag "></i> {{ place.disabled ? "Desativado " : "Ativado " }}
+                  <i class="ti-flag"></i> {{ place.disabled ? "Desativado " : "Ativado " }}
                 </span>
                 <a v-if="!togglingDisabled " href="# " @click.prevent="onToggleDisabled ">{{ place.disabled ? "Ativar " : "Desativar " }}</a>
                 <div v-else class="ss-inline-block-spinner mg-lf-sm "></div>
@@ -155,6 +155,11 @@
         </div>
         <div class="col-sm-6 col-md-4 col-xl-4 tower-card-wrapper" v-for="(tower, index) in towersList " :key="index " @click="onTowerClick(tower) ">
           <stats-card :status="tower.status=='online'">
+            <div v-if="isAdmin" slot="header">
+              <a href="#" @click.prevent.stop="onTowerOptionsClick" class="tower-options">
+                <i class="fa fa-ellipsis-v"></i>
+              </a>
+            </div>
             <div class="card-icon icon-xbig text-center icon-success" slot="header">
               <div>
                 <i class="ti-signal"></i>
@@ -407,8 +412,6 @@ export default {
             })
           );
         });
-
-        console.log("this.towersList", this.towersList);
       }
     });
   },
@@ -495,6 +498,9 @@ export default {
         this.$router.push(`create/${this.place.owner.id}`);
       }
     },
+    onTowerOptionsClick() {
+      console.log("ontoweroptionsclick");
+    },
     onTowerClick(tower) {
       this.$router.replace(`../tower/${tower.id}`);
     }
@@ -512,5 +518,10 @@ export default {
   top: -47px;
   left: 15px;
   height: 0;
+}
+
+.tower-options {
+  display: block;
+  padding: 5px;
 }
 </style>
