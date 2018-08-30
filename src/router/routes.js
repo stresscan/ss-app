@@ -12,6 +12,7 @@ import PlacesList from "@/pages/Places/List.vue";
 import TowersList from "@/pages/Places/Towers/List.vue";
 import Tower from "@/pages/Places/Towers/Details.vue";
 import CreateTower from "@/pages/Places/Towers/Create.vue";
+import EditTower from "@/pages/Places/Towers/Edit.vue";
 import UserProfile from "@/pages/Users/UserProfile/Index.vue";
 
 // Admin pages
@@ -71,7 +72,7 @@ const routes = [
                 component: TowersList
               },
               {
-                path: ":placeId/towers/create/:ownerId",
+                path: ":placeId/towers/create",
                 name: "nova torre",
                 component: CreateTower,
                 meta: {
@@ -79,7 +80,15 @@ const routes = [
                 }
               },
               {
-                path: ":placeId/tower/:towerId",
+                path: ":placeId/tower/:towerId/edit",
+                name: "editar torre",
+                component: EditTower,
+                meta: {
+                  requiresAdmin: true
+                }
+              },
+              {
+                path: ":placeId/tower/:towerId/details",
                 name: "detalhes da torre",
                 component: Tower
               }

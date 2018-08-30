@@ -1,18 +1,18 @@
 <template>
   <div>
-    <div v-if="towerCreated">
+    <div v-if="towerEdited">
       <p class="text-success">
         <i class="ti-check"></i>
-        Torre cadastrada com sucesso
+        Torre editada com sucesso
       </p>
       <p-button class="mg-rg-sm" type="info" round @click.native.prevent="resetForm">
-        Cadastrar outra
+        Voltar para o formulário
       </p-button>
       <a href="#" class="back-link" @click.prevent="onGoBack">
         Voltar para a listagem
       </a>
     </div>
-    <div v-if="!towerCreated">
+    <div v-if="!towerEdited">
       <a href="#" class="back-link" @click.prevent="onGoBack">
         <i class="ti-arrow-left"></i> Voltar
       </a>
@@ -98,17 +98,14 @@
         <div class="row">
           <div class="col-sm-12">
             <h4>Localização Geográfica</h4>
-            <div v-if="gettingLatLng" class="ss-inline-spinner"></div>
-            <template v-else>
-              <input class="" type="text" v-model="tower.geolocation.lat">
-              <input class="" type="text" v-model="tower.geolocation.lng">
-              <LocationMap class="geolocation-map" :zoom="16" :title="tower.name" :draggable="true" @dragend="onMapDragEnd" :lat="tower.geolocation.lat" :lng="tower.geolocation.lng" />
-            </template>
+            <input class="" type="text" v-model="tower.geolocation.lat">
+            <input class="" type="text" v-model="tower.geolocation.lng">
+            <LocationMap class="geolocation-map" :zoom="16" :title="tower.name" :draggable="true" @dragend="onMapDragEnd" :lat="tower.geolocation.lat" :lng="tower.geolocation.lng" />
           </div>
         </div>
 
         <div class="text-center ">
-          <p-button type="info" nativeType="submit" :disabled="$v.$invalid || creatingTower" round>
+          <p-button type="info" nativeType="submit" :disabled="$v.$invalid || editingTower" round>
             {{ buttonText }}
           </p-button>
         </div>
@@ -165,9 +162,9 @@ export default {
       },
       gettingPlaceData: true,
       gettingOwnerData: true,
-      buttonText: "Cadastrar torre",
-      creatingTower: false,
-      towerCreated: false,
+      buttonText: "Editar torre",
+      editingTower: false,
+      towerEdited: false,
       gettingLatLng: true
     };
   },
@@ -218,29 +215,18 @@ export default {
       });
     };
 
-    const getAddressLatLng = location => {
-      const gMapsKey = "AIzaSyAamVCoyQ4AuvBpxVRMs9P-HFkfPVQj0Kw";
-      const address = `${location.postalCode},${location.address.replace(
-        " ",
-        "+"
-      )},+${location.number.replace(" ", "+")},+${location.district.replace(
-        " ",
-        "+"
-      )},+${location.city.replace(" ", "+")},+${location.estate.replace(
-        " ",
-        "+"
-      )}`;
-
-      const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${gMapsKey}`;
-
-      return new Promise((resolve, reject) => {
-        axios.get(url).then(geolocation => {
-          if (geolocation.data.status === "OK") {
-            resolve(geolocation);
-          } else {
-            reject(new Error(geolocation.data.status));
-          }
-        });
+    const getTowerData = (placeId, towerId) => {
+      return new Promise(resolve => {
+        firebase
+          .firestore()
+          .collection("places")
+          .doc(placeId)
+          .collection("towers")
+          .doc(towerId)
+          .get()
+          .then(doc => {
+            resolve(Object.assign(doc.data(), { id: doc.id }));
+          });
       });
     };
 
@@ -250,27 +236,19 @@ export default {
 
       getOwnerData(data.owner).then(ownerData => {
         this.gettingOwnerData = false;
-        this.place.owner = ownerData;
+        this.owner = ownerData;
       });
-
-      getAddressLatLng(data.location).then(
-        geolocation => {
-          this.tower.geolocation.lat = String(
-            geolocation.data.results[0].geometry.location.lat
-          );
-          this.tower.geolocation.lng = String(
-            geolocation.data.results[0].geometry.location.lng
-          );
-
-          this.gettingLatLng = false;
-        },
-        e => console.log(e)
-      );
     });
+
+    getTowerData(this.$route.params.placeId, this.$route.params.towerId).then(
+      data => {
+        this.tower = data;
+      }
+    );
   },
   methods: {
     onGoBack() {
-      this.$router.replace("list");
+      this.$router.push("../../towers/list");
     },
     delayTouch($v) {
       $v.$reset();
@@ -285,27 +263,17 @@ export default {
       this.tower.geolocation.lng = String(latlng.lng);
     },
     onFormSubmit() {
-      this.buttonText = "Cadastrando torre...";
-      this.creatingTower = true;
+      this.buttonText = "Editando torre...";
+      this.editingTower = true;
       this.$v.$touch();
 
-      const newTower = {
-        date: Date.now(),
+      const updatedTower = {
         name: this.tower.name,
         culture: this.tower.culture,
         geolocation: {
           lat: this.tower.geolocation.lat,
           lng: this.tower.geolocation.lng
-        },
-        last_data: {
-          datetime: 0,
-          environmentTemperature: 0,
-          environmentHumidity: 0,
-          groundTemperature: 0,
-          groundHumidity: 0
-        },
-        status: "online",
-        disabled: false
+        }
       };
 
       firebase
@@ -313,29 +281,15 @@ export default {
         .collection("places")
         .doc(this.place.id)
         .collection("towers")
-        .add(newTower)
+        .doc(this.$route.params.towerId)
+        .update(updatedTower)
         .then(doc => {
-          this.towerCreated = true;
-
-          firebase
-            .firestore()
-            .collection("places")
-            .doc(this.place.id)
-            .collection("towers")
-            .doc(doc.id)
-            .collection("data")
-            .add({
-              datetime: 0,
-              environmentTemperature: 0,
-              environmentHumidity: 0,
-              groundTemperature: 0,
-              groundHumidity: 0
-            });
+          this.towerEdited = true;
         })
         .catch(e => {
-          console.log(`tower couldn't be created ${e}`);
-          this.buttonText = "Cadastrar torre";
-          this.creatingTower = false;
+          console.log(`tower couldn't be edited ${e}`);
+          this.buttonText = "Editar torre";
+          this.editingTower = false;
 
           this.notifyVue(
             "bottom",
@@ -345,20 +299,6 @@ export default {
             "ti-thumb-down"
           );
         });
-    },
-    resetForm() {
-      this.tower.name = "";
-      this.tower.culture = "";
-      this.tower.geolocation.lat = 0;
-      this.tower.geolocation.lng = 0;
-
-      this.buttonText = "Cadastrar local";
-      this.creatingTower = false;
-      this.towerCreated = false;
-
-      this.$nextTick(() => {
-        this.$v.$reset();
-      });
     },
     notifyVue(verticalAlign, horizontalAlign, type, message, icon) {
       this.$notify({

@@ -512,7 +512,7 @@ export default {
     },
     onNewTower() {
       if (this.isAdmin) {
-        this.$router.push(`create/${this.place.owner.id}`);
+        this.$router.push("create");
       }
     },
     onTowerToggleSuspendedMenu(tower) {
@@ -528,7 +528,6 @@ export default {
     },
     onTowerToggleDisabled(tower) {
       if (this.isAdmin) {
-        console.log({ tower });
         this.togglingTowerDisabled = true;
 
         firebase
@@ -547,10 +546,10 @@ export default {
       }
     },
     onTowerEdit(tower) {
-      console.log({ tower });
+      this.$router.replace(`../tower/${tower.id}/edit`);
     },
     onTowerClick(tower) {
-      this.$router.replace(`../tower/${tower.id}`);
+      this.$router.replace(`../tower/${tower.id}/details`);
     }
   }
 };
