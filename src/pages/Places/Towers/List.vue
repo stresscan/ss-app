@@ -123,10 +123,10 @@
               <br />
               <i class="ti-signal"></i> {{ qntTowers }} torre(s)
               <div v-if="isAdmin" class="mg-tp-md ">
-                <span :class="{ 'text-danger': place.disabled, 'text-success': !place.disabled} ">
+                <span :class="{ 'text-danger': place.disabled, 'text-success': !place.disabled}">
                   <i class="ti-flag"></i> {{ place.disabled ? "Desativado " : "Ativado " }}
                 </span>
-                <a v-if="!togglingDisabled " href="# " @click.prevent="onToggleDisabled ">{{ place.disabled ? "Ativar " : "Desativar " }}</a>
+                <a v-if="!togglingPlaceDisabled" href="#" @click.prevent="onPlaceToggleDisabled">{{ place.disabled ? "Ativar " : "Desativar " }}</a>
                 <div v-else class="ss-inline-block-spinner mg-lf-sm "></div>
               </div>
             </template>
@@ -155,10 +155,24 @@
         </div>
         <div class="col-sm-6 col-md-4 col-xl-4 tower-card-wrapper" v-for="(tower, index) in towersList " :key="index " @click="onTowerClick(tower) ">
           <stats-card :status="tower.status=='online'">
-            <div v-if="isAdmin" slot="header">
-              <a href="#" @click.prevent.stop="onTowerOptionsClick" class="tower-options">
+            <div v-if="isAdmin" slot="header" class="tower-options">
+              <a href="#" @click.prevent.stop="onTowerToggleSuspendedMenu(tower)">
                 <i class="fa fa-ellipsis-v"></i>
               </a>
+              <ul v-if="tower.showSuspendedMenu" class="tower-menu-options">
+                <li>
+                  <div class="seta"></div>
+                </li>
+                <li>
+                  <i class="ti-pencil"></i>
+                  <a href="#" @click.prevent.stop="onTowerEdit(tower)">Editar</a>
+                </li>
+                <li>
+                  <i class="ti-flag" :class="{ 'text-danger': tower.disabled, 'text-success': !tower.disabled}"></i>
+                  <a v-if="!togglingTowerDisabled" href="#" @click.prevent.stop="onTowerToggleDisabled(tower)">{{ tower.disabled ? "Ativar" : "Desativar" }}</a>
+                  <div v-else class="ss-spinner ss-inline-block-spinner mg-lf-sm"></div>
+                </li>
+              </ul>
             </div>
             <div class="card-icon icon-xbig text-center icon-success" slot="header">
               <div>
@@ -167,7 +181,8 @@
             </div>
             <div class="numbers" slot="content">
               <p>
-                <span class="status online">online</span>{{tower.name}}
+                <span v-if="tower.disabled" class="status offline">offline</span>
+                <span v-else class="status online">online</span>{{tower.name}}
               </p>
               <p class="small-info">{{ tower.culture }}</p>
               <p class="big-info">
@@ -228,13 +243,14 @@ export default {
         }
       },
       qntTowers: 0,
-      togglingDisabled: false,
+      togglingPlaceDisabled: false,
       editPlace: false,
       editingButtonText: "Editar local",
       editingPlace: false,
       searchingPostalCode: false,
       placeEditingDataBkp: {},
-      placeEditingLocationBkp: {}
+      placeEditingLocationBkp: {},
+      togglingTowerDisabled: false
     };
   },
   validations: {
@@ -408,7 +424,8 @@ export default {
         towersList.map(tower => {
           this.towersList.push(
             Object.assign(tower, {
-              last_upload: getLastUpload(tower.last_data.datetime)
+              last_upload: getLastUpload(tower.last_data.datetime),
+              showSuspendedMenu: false
             })
           );
         });
@@ -476,9 +493,9 @@ export default {
           });
       }
     },
-    onToggleDisabled() {
+    onPlaceToggleDisabled() {
       if (this.isAdmin) {
-        this.togglingDisabled = true;
+        this.togglingPlaceDisabled = true;
 
         firebase
           .firestore()
@@ -489,7 +506,7 @@ export default {
           })
           .then(doc => {
             this.place.disabled = !this.place.disabled;
-            this.togglingDisabled = false;
+            this.togglingPlaceDisabled = false;
           });
       }
     },
@@ -498,8 +515,39 @@ export default {
         this.$router.push(`create/${this.place.owner.id}`);
       }
     },
-    onTowerOptionsClick() {
-      console.log("ontoweroptionsclick");
+    onTowerToggleSuspendedMenu(tower) {
+      if (this.isAdmin) {
+        this.towersList.map(item => {
+          if (item.id === tower.id) {
+            item.showSuspendedMenu = !tower.showSuspendedMenu;
+          } else {
+            item.showSuspendedMenu = false;
+          }
+        });
+      }
+    },
+    onTowerToggleDisabled(tower) {
+      if (this.isAdmin) {
+        console.log({ tower });
+        this.togglingTowerDisabled = true;
+
+        firebase
+          .firestore()
+          .collection("places")
+          .doc(this.$route.params.placeId)
+          .collection("towers")
+          .doc(tower.id)
+          .update({
+            disabled: !this.place.disabled
+          })
+          .then(doc => {
+            tower.disabled = !tower.disabled;
+            this.togglingTowerDisabled = false;
+          });
+      }
+    },
+    onTowerEdit(tower) {
+      console.log({ tower });
     },
     onTowerClick(tower) {
       this.$router.replace(`../tower/${tower.id}`);
@@ -520,8 +568,68 @@ export default {
   height: 0;
 }
 
-.tower-options {
+.tower-options > a {
   display: block;
   padding: 5px;
+  color: #333;
+  position: absolute;
+  top: -10px;
+  left: 6px;
+  width: 1022px;
+}
+
+.tower-options > ul {
+  display: inline-block;
+  position: absolute;
+  left: 8px;
+  list-style: none;
+  padding: 5px 0 10px;
+  margin-top: 22px;
+  background: #f8f8f8;
+  border: solid 1px #f0f0f0;
+  border-radius: 5px;
+  width: 142px;
+}
+
+.tower-options > ul > li {
+  padding: 8px 19px 9px;
+}
+
+.tower-options > ul > li > i,
+.tower-options > ul > li > .ss-spinner {
+  position: relative;
+  top: 8px;
+}
+
+.tower-options > ul > li:nth-child(1) {
+  position: absolute;
+  top: -15px;
+  left: -11px;
+  padding: 8px 19px 9px;
+}
+
+.tower-options > ul > li:nth-child(1) > .seta {
+  border: solid #f0f0f0;
+  width: 12px;
+  border-bottom-width: 6px;
+  border-top: none;
+  border-left-width: 6px;
+  border-left-color: transparent;
+  border-right-width: 6px;
+  border-right-color: transparent;
+  position: absolute;
+}
+
+.tower-options > ul > li > a {
+  position: absolute;
+  z-index: 2;
+  margin-left: 5px;
+  margin-bottom: 5px;
+  padding: 5px;
+  width: 100px;
+}
+
+.tower-options > ul > li > a:hover {
+  text-decoration: underline;
 }
 </style>
