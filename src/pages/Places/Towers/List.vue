@@ -208,13 +208,13 @@ import { required, minLength, maxLength } from "vuelidate/lib/validators";
 import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
-import getUploadIcon from "../../../mixins/PlacesAndTowers/GetLastUploadInfo.js";
+import getLastUploadMixin from "../../../mixins/PlacesAndTowers/GetLastUploadInfo.js";
 
 const touchMap = new WeakMap();
 
 export default {
   directives: { mask },
-  mixins: [validationMixin, basePage, getUploadIcon],
+  mixins: [validationMixin, basePage, getLastUploadMixin],
   components: {
     Card,
     StatsCard
@@ -362,32 +362,6 @@ export default {
       });
     };
 
-    const getLastUpload = datetime => {
-      if (!datetime) {
-        return {
-          icon: "ti-time",
-          text: "Aguardando sincronização"
-        };
-      }
-
-      if (datetime.includes("agora")) {
-        return {
-          icon: "ti-reload",
-          text: "Atualizado agora"
-        };
-      } else if (datetime.includes("dia")) {
-        return {
-          icon: "ti-calendar",
-          text: "Atualizado há mais de 1 dia"
-        };
-      } else {
-        return {
-          icon: "ti-timer",
-          text: "Atualizado há algumas horas"
-        };
-      }
-    };
-
     getPlaceData(this.$route.params.placeId).then(placeData => {
       this.place.owner.id = placeData.owner;
       this.place.name = placeData.name;
@@ -424,7 +398,7 @@ export default {
         towersList.map(tower => {
           this.towersList.push(
             Object.assign(tower, {
-              last_upload: getLastUpload(tower.last_data.datetime),
+              last_upload: this.getLastUpload(tower.last_data.datetime),
               showSuspendedMenu: false
             })
           );
@@ -574,7 +548,7 @@ export default {
   position: absolute;
   top: -10px;
   left: 6px;
-  width: 1022px;
+  width: 122px;
 }
 
 .tower-options > ul {
