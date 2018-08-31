@@ -67,7 +67,7 @@
     <!--Charts-->
     <div class="row">
       <div class="col-12">
-        <chart-card title="Temperatura/Hora" sub-title="Últimas 24 Hours" :chart-data="usersChart.data" :chart-options="usersChart.options">
+        <chart-card title="Temperatura/Hora" sub-title="Últimas 24 Hours" :chart-data="temperatureChart.data" :chart-options="temperatureChart.options">
           <span slot="footer">
             <i class="ti-reload"></i> Atualizado há 3 minutos
           </span>
@@ -79,7 +79,7 @@
       </div>
 
       <div class="col-12">
-        <chart-card title="Umidade/Hora" sub-title="Últimas 24 Hours" :chart-data="activityChart.data" :chart-options="activityChart.options">
+        <chart-card title="Umidade/Hora" sub-title="Últimas 24 Hours" :chart-data="humidityChart.data" :chart-options="humidityChart.options">
           <span slot="footer">
             <i class="ti-reload"></i> Atualizado há 3 minutos
           </span>
@@ -173,7 +173,7 @@ export default {
           showPoint: false
         }
       },
-      activityChart: {
+      humidityChart: {
         data: {
           labels: [
             "9h",
