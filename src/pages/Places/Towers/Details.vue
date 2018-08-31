@@ -10,93 +10,55 @@
     <div class="row">
       <div class="col-12">
         <card>
-          <div slot="raw-content" style="padding: 20px">
+          <div slot="raw-content" class="pd-all-md">
+            <a class="back-link" href="#" @click.prevent="onGoBack">
+              <i class="ti-arrow-left"></i> Voltar
+            </a>
             <p>
-              <span class="status online" v-if="status">online</span>
-              <span class="status offline" v-else>offline</span>
-              SS0
-              <br />Local:
-              <a href="/#/towers">Fazenda #1</a>
-              <br />Cultura: Laranja
-              <span class="stats" style="margin-top: 15px; display: block">
-                <i class="ti-calendar"></i>
-                Atualizado há menos de 1h
-              </span>
-              <span v-if="!showMap" class="stats" style="margin-top: 5px; display: block">
+              <div v-if="gettingTowerData" class="ss-inline-spinner mg-bt-md"></div>
+              <h5 v-else>
+                <span class="status online" v-if="!tower.disabled">online</span>
+                <span class="status offline" v-else>offline</span>
+                {{ tower.name }}
+              </h5>
+              Local:
+              <div v-if="gettingPlaceData" class="ss-inline-block-spinner mg-lf-sm "></div>
+              <a href="#" v-else @click.prevent="onGoBack">{{ place.name }}</a>
+              <br />Cultura: {{ tower.culture }}
+              <div class="stats mg-tp-sm d-block">
+                <i :class="tower.last_upload.icon"></i> {{ tower.last_upload.text }}
+              </div>
+              <span v-if="!showMap" class="stats mg-tp-md d-block">
                 <i class="ti-map-alt"></i>
                 <a href="#" @click="showMap = !showMap">Mostrar no mapa</a>
               </span>
+              <transition name="fade">
+                <LocationMap v-if="showMap" :zoom="16" :title="tower.name" :draggable="false" :lat="tower.geolocation.lat" :lng="tower.geolocation.lng" />
+              </transition>
               <transition name="fade">
                 <a href="#" @click="showMap = !showMap" v-if="showMap" style="margin-top: 20px" class="btn btn-round btn-danger">
                   <i class="ti ti-close" /> Fechar Mapa
                 </a>
               </transition>
-              <transition name="fade">
-                <LocationMap v-if="showMap" :zoom="13" :title="'SSO'" :draggable="false" :lat="lat" :lng="lng" />
-              </transition>
-            </p>
-            <a class="back-link" href="#" @click.prevent="onGoBack">
-              <i class="ti-arrow-left"></i> Voltar
-            </a>
           </div>
         </card>
       </div>
     </div>
 
     <div class="row">
-      <div class="col-sm-6 col-md-3">
-        <stats-card>
-          <div class="icon-big text-center icon-warning" slot="header">
-            <i class="ti-shine"></i>
-          </div>
-          <div class="numbers" slot="content">
-            <p>Ambiente - Temperatura</p>
-            25°
-          </div>
-          <div class="stats" slot="footer">
-            <i class="ti-reload"></i> Atualizado agora
-          </div>
-        </stats-card>
-      </div>
-      <div class="col-sm-6 col-md-3">
-        <stats-card>
-          <div class="icon-big text-center icon-warning" slot="header">
-            <i class="ti-ink-pen"></i>
-          </div>
-          <div class="numbers" slot="content">
-            <p>Planta - Temperatura</p>
-            23°
+      <div class="col-sm-6 col-md-3" v-for="(stats, index) in tower.stats" :key="index">
+        <stats-card :title="stats.title">
+          <div class="tower-data-card-content-wrapper" slot="raw-content">
+            <div class="tower-data-card-content-icon text-center icon-warning">
+              <i :class="`fa fa-${stats.icon}`"></i>
+            </div>
+            <div v-if="gettingTowerData" class="ss-inline-spinner mg-tp-md mg-lf-md"></div>
+            <div v-else class="tower-data-card-numbers">
+              {{ stats.number }}{{ stats.numberSign }}
+            </div>
           </div>
           <div class="stats" slot="footer">
-            <i class="ti-reload"></i> Atualizado agora
-          </div>
-        </stats-card>
-      </div>
-      <div class="col-sm-6 col-md-3">
-        <stats-card>
-          <div class="icon-big text-center icon-warning" slot="header">
-            <i class="ti-cloud"></i>
-          </div>
-          <div class="numbers" slot="content">
-            <p>Ambiente - Umidade</p>
-            60%
-          </div>
-          <div class="stats" slot="footer">
-            <i class="ti-reload"></i> Atualizado agora
-          </div>
-        </stats-card>
-      </div>
-      <div class="col-sm-6 col-md-3">
-        <stats-card>
-          <div class="icon-big text-center icon-warning" slot="header">
-            <i class="ti-loop"></i>
-          </div>
-          <div class="numbers" slot="content">
-            <p>Planta - Umidade</p>
-            80%
-          </div>
-          <div class="stats" slot="footer">
-            <i class="ti-reload"></i> Atualizado agora
+            <i :class="tower.last_upload.icon"></i> {{ tower.last_upload.text }}
           </div>
         </stats-card>
       </div>
@@ -135,56 +97,47 @@
 <script>
 import { StatsCard, ChartCard, LocationMap } from "@/components/index";
 import Chartist from "chartist";
+import firebase from "firebase";
+import basePage from "../../../mixins/BasePage.js";
+import getLastUploadMixin from "../../../mixins/PlacesAndTowers/GetLastUploadInfo.js";
+
 export default {
+  mixins: [basePage, getLastUploadMixin],
   components: {
     StatsCard,
     ChartCard,
     LocationMap
   },
-  /**
-   * Chart data used to render stats, charts. Should be replaced with server data
-   */
   data() {
     return {
-      showMap: false,
-      lat: "-22.125556",
-      lng: "-51.388889",
-      status: true,
-      statsCards: [
-        {
-          type: "warning",
-          icon: "ti-server",
-          title: "Capacity",
-          value: "105GB",
-          footerText: "Updated now",
-          footerIcon: "ti-reload"
+      gettingPlaceData: true,
+      place: {
+        name: ""
+      },
+      gettingTowerData: true,
+      tower: {
+        name: "",
+        culture: "",
+        geolocation: {
+          lat: "",
+          lng: ""
         },
-        {
-          type: "success",
-          icon: "ti-wallet",
-          title: "Revenue",
-          value: "$1,345",
-          footerText: "Last day",
-          footerIcon: "ti-calendar"
+        disabled: false,
+        last_data: {
+          datetime: 0,
+          environmentHumidity: 0,
+          environmentTemperature: 0,
+          groundHumidity: 0,
+          groundTemperature: 0
         },
-        {
-          type: "danger",
-          icon: "ti-pulse",
-          title: "Errors",
-          value: "23",
-          footerText: "In the last hour",
-          footerIcon: "ti-timer"
-        },
-        {
-          type: "info",
-          icon: "ti-twitter-alt",
-          title: "Followers",
-          value: "+45",
-          footerText: "Updated now",
-          footerIcon: "ti-reload"
+        stats: [],
+        last_upload: {
+          icon: "",
+          text: ""
         }
-      ],
-      usersChart: {
+      },
+      showMap: false,
+      temperatureChart: {
         data: {
           labels: [
             "9h",
@@ -251,14 +204,154 @@ export default {
       }
     };
   },
+  created() {
+    const getPlaceData = placeId => {
+      return new Promise(resolve => {
+        firebase
+          .firestore()
+          .collection("places")
+          .doc(placeId)
+          .get()
+          .then(doc => {
+            resolve(Object.assign(doc.data(), { id: doc.id }));
+          });
+      });
+    };
+
+    const getOwnerData = ownerId => {
+      return new Promise(resolve => {
+        firebase
+          .firestore()
+          .collection("users_profile")
+          .doc(ownerId)
+          .get()
+          .then(doc => {
+            resolve(Object.assign(doc.data(), { id: doc.id }));
+          });
+      });
+    };
+
+    const getTowerData = (placeId, towerId) => {
+      return new Promise(resolve => {
+        firebase
+          .firestore()
+          .collection("places")
+          .doc(placeId)
+          .collection("towers")
+          .doc(towerId)
+          .get()
+          .then(doc => {
+            resolve(Object.assign(doc.data(), { id: doc.id }));
+          });
+      });
+    };
+
+    const getStats = numbers => {
+      let stats = [];
+
+      stats.push({
+        title: "Planta",
+        icon: "thermometer-full",
+        number: numbers.groundTemperature,
+        numberSign: "°"
+      });
+
+      stats.push({
+        title: "Planta",
+        icon: "umbrella",
+        number: numbers.groundHumidity,
+        numberSign: "%"
+      });
+
+      stats.push({
+        title: "Ambiente",
+        icon: "thermometer-full",
+        number: numbers.environmentTemperature,
+        numberSign: "°"
+      });
+
+      stats.push({
+        title: "Ambiente",
+        icon: "umbrella",
+        number: numbers.environmentHumidity,
+        numberSign: "%"
+      });
+
+      return stats;
+    };
+
+    getPlaceData(this.$route.params.placeId).then(data => {
+      this.gettingPlaceData = false;
+      this.place = data;
+    });
+
+    getTowerData(this.$route.params.placeId, this.$route.params.towerId).then(
+      data => {
+        this.gettingTowerData = false;
+
+        Object.assign(data, {
+          last_upload: this.getLastUpload(data.last_data.datetime),
+          stats: getStats(data.last_data)
+        });
+
+        this.tower = data;
+      }
+    );
+  },
   methods: {
     onGoBack() {
-      this.$router.push("../towers/list");
+      this.$router.push("../../towers/list");
     }
   }
 };
 </script>
 <style scoped lang="scss">
+.tower-data-card-content-wrapper {
+  display: flex;
+
+  .tower-data-card-content-icon {
+    flex-grow: 2;
+    font-size: 5em;
+
+    @media (min-width: 576px) {
+      font-size: 4em;
+    }
+
+    @media (min-width: 768px) {
+      font-size: 3em;
+    }
+
+    @media (min-width: 991px) {
+      font-size: 2em;
+    }
+
+    @media (min-width: 1100px) {
+      font-size: 3em;
+    }
+  }
+
+  .tower-data-card-numbers {
+    flex-grow: 1;
+    font-size: 4em;
+    margin-left: 10px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+
+    @media (min-width: 576px) {
+      font-size: 3em;
+    }
+
+    @media (min-width: 768px) {
+      font-size: 2em;
+    }
+
+    @media (min-width: 1100px) {
+      font-size: 3em;
+    }
+  }
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s;

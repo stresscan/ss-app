@@ -1,12 +1,12 @@
 <template>
   <card>
     <template slot="header">
-      <h4 v-if="$slots.title || title" class="card-title">
+      <h4 v-if="$slots.title || title" class="card-title" :class="{'text-center': centerTitle}">
         <slot name="title">
           {{title}}
         </slot>
       </h4>
-      <p class="card-category">
+      <p class="card-category" :class="{'text-center': centerTitle}">
         <slot name="subTitle">
           {{subTitle}}
         </slot>
@@ -49,6 +49,10 @@ export default {
       type: String,
       default: ""
     },
+    centerTitle: {
+      type: Boolean,
+      default: false
+    },
     chartType: {
       type: String,
       default: "Line" // Line | Pie | Bar
@@ -80,11 +84,7 @@ export default {
      */
     initChart(Chartist) {
       const chartIdQuery = `#${this.chartId}`;
-      Chartist[this.chartType](
-        chartIdQuery,
-        this.chartData,
-        this.chartOptions
-      );
+      Chartist[this.chartType](chartIdQuery, this.chartData, this.chartOptions);
     },
     /***
      * Assigns a random id to the chart
@@ -100,8 +100,8 @@ export default {
   },
   mounted() {
     this.updateChartId();
-    import('chartist').then((Chartist) => {
-      let ChartistLib = Chartist.default || Chartist ;
+    import("chartist").then(Chartist => {
+      let ChartistLib = Chartist.default || Chartist;
       this.$nextTick(() => {
         this.initChart(ChartistLib);
       });

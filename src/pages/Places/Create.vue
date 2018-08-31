@@ -310,7 +310,6 @@ export default {
           number: this.place.location.number,
           district: this.place.location.district
         },
-        status: "online",
         disabled: false
       };
 

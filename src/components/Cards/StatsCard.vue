@@ -1,6 +1,7 @@
 <template>
-  <card :status="status">
-    <div class="row inside-card">
+  <card :disabled="disabled" :title="title" :centerTitle="centerTitle">
+    <slot name="raw-content" />
+    <div class="row inside-card" v-if="$slots.header || $slots.content">
       <div class="col-3" v-if="$slots.header">
         <slot name="header"></slot>
       </div>
@@ -20,7 +21,9 @@ import Card from "./Card.vue";
 export default {
   name: "stats-card",
   props: {
-    status: Boolean
+    title: String,
+    centerTitle: Boolean,
+    disabled: Boolean
   },
   components: {
     Card

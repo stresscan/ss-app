@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @click.stop="onOutsideClick">
     <a class="back-link" href="#" @click="onGoBack">
       <i class="ti-arrow-left"></i> Voltar
     </a>
@@ -14,7 +14,10 @@
             <div v-if="loadingPlaceData" class="ss-inline-spinner el-center mg-tp-md "></div>
             <template v-else>
               <form @submit.prevent="onEditFormSubmit">
-                <h3 v-if="!editPlace">{{ place.name }}</h3>
+                <h3 v-if="!editPlace">
+                  <span class="status online" v-if="!place.disabled">online</span>
+                  <span class="status offline" v-else>offline</span>{{ place.name }}
+                </h3>
                 <ss-fg-input v-else :class="{ 'has-error': $v.place.name.$error} " @input="delayTouch($v.place.name) " type="text " label="Nome " placeholder="Nome " v-model.trim="place.name "></ss-fg-input>
                 <ul class="field-error-message " v-if="$v.place.name.$error ">
                   <li v-if="!$v.place.name.required ">
@@ -142,7 +145,7 @@
       </div>
     </div>
 
-    <div class="row ">
+    <div class="row">
       <div v-if="loading" class="ss-inline-spinner el-center mg-tp-md"></div>
       <template v-else>
         <div v-if="isAdmin" class="col-sm-12 mg-bt-md mg-lf-sm ">
@@ -154,7 +157,7 @@
           Nenhuma torre cadastrada para este local ainda
         </div>
         <div class="col-sm-6 col-md-4 col-xl-4 tower-card-wrapper" v-for="(tower, index) in towersList " :key="index " @click="onTowerClick(tower) ">
-          <stats-card :status="tower.status=='online'">
+          <stats-card :disabled="tower.disabled">
             <div v-if="isAdmin" slot="header" class="tower-options">
               <a href="#" @click.prevent.stop="onTowerToggleSuspendedMenu(tower)">
                 <i class="fa fa-ellipsis-v"></i>
@@ -363,15 +366,8 @@ export default {
     };
 
     getPlaceData(this.$route.params.placeId).then(placeData => {
-      this.place.owner.id = placeData.owner;
-      this.place.name = placeData.name;
-      this.place.location.city = placeData.location.city;
-      this.place.location.estate = placeData.location.estate;
-      this.place.location.address = placeData.location.address;
-      this.place.location.number = placeData.location.number;
-      this.place.location.district = placeData.location.district;
-      this.place.location.postalCode = placeData.location.postalCode;
-      this.place.disabled = placeData.disabled;
+      this.place = placeData;
+      this.place.owner = { id: placeData.owner };
 
       this.loadingPlaceData = false;
 
@@ -379,7 +375,7 @@ export default {
         firebase
           .firestore()
           .collection("users_profile")
-          .doc(placeData.owner)
+          .doc(placeData.owner.id)
           .get()
           .then(doc => {
             this.place.owner.name = doc.data().name;
@@ -407,6 +403,16 @@ export default {
     });
   },
   methods: {
+    onOutsideClick() {
+      if (this.isAdmin) {
+        this.closeAllSuspendedMenu();
+      }
+    },
+    closeAllSuspendedMenu() {
+      this.towersList.map(item => {
+        item.showSuspendedMenu = false;
+      });
+    },
     onGoBack() {
       this.$router.push(
         `/dashboard/index/places?clientId=${this.place.owner.id}`
@@ -491,11 +497,10 @@ export default {
     },
     onTowerToggleSuspendedMenu(tower) {
       if (this.isAdmin) {
+        this.closeAllSuspendedMenu();
         this.towersList.map(item => {
           if (item.id === tower.id) {
             item.showSuspendedMenu = !tower.showSuspendedMenu;
-          } else {
-            item.showSuspendedMenu = false;
           }
         });
       }
@@ -511,7 +516,7 @@ export default {
           .collection("towers")
           .doc(tower.id)
           .update({
-            disabled: !this.place.disabled
+            disabled: !tower.disabled
           })
           .then(doc => {
             tower.disabled = !tower.disabled;

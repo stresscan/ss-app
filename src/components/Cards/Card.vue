@@ -1,12 +1,12 @@
 <template>
-  <div class="card" :class="{opaque: !status}">
+  <div class="card" :class="{opaque: disabled}">
     <div class="card-image" v-if="$slots.image">
       <slot name="image"></slot>
     </div>
     <div class="card-header" v-if="$slots.header || title">
       <slot name="header">
-        <h4 class="card-title" :class="{'txt-center': centerTitle}">{{title}}</h4>
-        <p class="card-category" v-if="subTitle">{{subTitle}}</p>
+        <h4 class="card-title" :class="{'txt-center': centerTitle}">{{ title }}</h4>
+        <p class="card-category" v-if="subTitle">{{ subTitle }}</p>
       </slot>
       <div class="card-header-buttons">
         <slot name="card-header-buttons"></slot>
@@ -28,17 +28,24 @@ export default {
   props: {
     title: String,
     subTitle: String,
-    status: Boolean,
+    disabled: Boolean,
     centerTitle: Boolean
   }
 };
 </script>
 <style>
 .opaque {
-  opacity: 0.8;
+  opacity: 0.5;
 }
 
 .card-header-buttons {
   margin: 10px 0;
+}
+
+.card-title {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

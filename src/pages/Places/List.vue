@@ -20,7 +20,7 @@
           Nenhum local cadastrado para essa conta ainda
         </div>
         <div v-else class="col-sm-6 col-md-4 col-xl-4" style="cursor: pointer" v-for="(place, index) in placesList" :key="index" @click="onPlaceClick(place)">
-          <stats-card :status="place.status == 'online'">
+          <stats-card :disabled="place.disabled">
             <div class="card-icon icon-xbig text-center icon-success" slot="header">
               <div>
                 <i class="ti-location-pin"></i>
@@ -28,6 +28,8 @@
             </div>
             <div class="numbers" slot="content">
               <p>
+                <span class="status online" v-if="!place.disabled">online</span>
+                <span class="status offline" v-else>offline</span>
                 {{place.name}}
               </p>
               <p class="small-info">{{place.location.city}}/{{place.location.estate}}</p>

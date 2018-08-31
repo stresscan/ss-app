@@ -11,13 +11,11 @@
 <script>
 import EditProfileForm from "./EditProfileForm.vue";
 import UserCard from "./UserCard.vue";
-import MembersCard from "./MembersCard.vue";
 
 export default {
   components: {
     EditProfileForm,
-    UserCard,
-    MembersCard
+    UserCard
   },
   data() {
     return {

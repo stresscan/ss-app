@@ -1,7 +1,6 @@
-const getDateDiffInHours = (dt1, dt2) => {
+const getDateDiffInSeconds = (dt1, dt2) => {
   var diff = (dt2 - dt1) / 1000;
-  diff /= 60 * 60;
-  return diff;
+  return diff / 60;
 };
 
 export default {
@@ -14,58 +13,42 @@ export default {
         };
       }
 
-      const diff = getDateDiffInHours(new Date(datetime).getTime(), Date.now());
+      const diff = getDateDiffInSeconds(
+        new Date(datetime).getTime(),
+        Date.now()
+      );
 
-      console.log({ diff });
-
-      if (diff < 0.1) {
+      if (diff <= 1) {
         return {
           icon: "ti-reload",
           text: "Atualizado agora"
         };
-      } else if (diff < 0.2) {
+      } else if (diff < 45) {
         return {
           icon: "ti-reload",
-          text: "Atualizado há poucos minutos"
+          text: `Atualizado há ${Math.round(diff)} minutos`
         };
-      } else if (diff < 0) {
+      } else if (diff < 60) {
         return {
           icon: "ti-time",
           text: "Atualizado há menos de 1 hora"
         };
-      } else if (diff > 0 && diff < 12) {
-        return {
-          icon: "ti-time",
-          text: "Atualizado há menos de 12 horas"
-        };
-      } else if (diff < 24) {
+      } else if (diff >= 60 && diff / 60 <= 24) {
         return {
           icon: "ti-timer",
-          text: "Atualizado há mais de 12 horas"
+          text: "Atualizado há algumas horas"
+        };
+      } else if (diff / 60 > 24 && diff / 60 <= 24 * 5) {
+        return {
+          icon: "ti-calendar",
+          text: "Atualizado há mais de 1 dia"
+        };
+      } else {
+        return {
+          icon: "ti-calendar",
+          text: "Atualizado há mais de 5 dia"
         };
       }
-
-      return {
-        icon: "ti-calendar",
-        text: "Atualizado há mais de 1 dia"
-      };
-
-      // if (datetime.includes("agora")) {
-      //   return {
-      //     icon: "ti-reload",
-      //     text: "Atualizado agora"
-      //   };
-      // } else if (datetime.includes("dia")) {
-      //   return {
-      //     icon: "ti-calendar",
-      //     text: "Atualizado há mais de 1 dia"
-      //   };
-      // } else {
-      //   return {
-      //     icon: "ti-timer",
-      //     text: "Atualizado há algumas horas"
-      //   };
-      // }
     }
   }
 };

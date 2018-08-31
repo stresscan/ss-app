@@ -304,7 +304,6 @@ export default {
           groundTemperature: 0,
           groundHumidity: 0
         },
-        status: "online",
         disabled: false
       };
 
