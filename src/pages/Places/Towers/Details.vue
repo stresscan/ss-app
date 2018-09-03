@@ -14,6 +14,9 @@
             <a class="back-link" href="#" @click.prevent="onGoBack">
               <i class="ti-arrow-left"></i> Voltar
             </a>
+            <a class="back-link" href="#" @click.prevent="onAddData">
+              Inserir dados aleatorios
+            </a>
             <p>
               <div v-if="gettingTowerData" class="ss-inline-spinner mg-bt-md"></div>
               <h5 v-else>
@@ -301,6 +304,29 @@ export default {
   methods: {
     onGoBack() {
       this.$router.push("../../towers/list");
+    },
+    onAddData() {
+      for (let i = 0; i <= 23; i++) {
+        const time = new Date(new Date().setHours(i)).getTime();
+        let newData = {
+          datetime: time,
+          environmentHumidity: Math.floor(Math.random() * 20) + 60,
+          environmentTemperature: Math.floor(Math.random() * 10) + 25,
+          groundHumidity: Math.floor(Math.random() * 60) + 40,
+          groundTemperature: Math.floor(Math.random() * 18) + 30
+        };
+
+        console.log({ time: new Date(time).toLocaleTimeString() });
+
+        firebase
+          .firestore()
+          .collection("places")
+          .doc(this.$route.params.placeId)
+          .collection("towers")
+          .doc(this.$route.params.towerId)
+          .collection("data")
+          .add(newData);
+      }
     }
   }
 };
