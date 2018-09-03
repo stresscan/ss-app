@@ -35,7 +35,7 @@ export default {
 </script>
 <style>
 .opaque {
-  opacity: 0.5;
+  background-color: rgba(248, 248, 248, 0.5);
 }
 
 .card-header-buttons {

@@ -46,7 +46,7 @@
     </div>
 
     <div class="row">
-      <div class="col-sm-6 col-md-3" v-for="(stats, index) in tower.stats" :key="index">
+      <div class="col-sm-6 col-md-3" v-for="(stats, index) in tower.stats_cards" :key="index">
         <stats-card :title="stats.title">
           <div class="tower-data-card-content-wrapper" slot="raw-content">
             <div class="tower-data-card-content-icon text-center icon-warning">
@@ -123,7 +123,7 @@ export default {
           lng: ""
         },
         disabled: false,
-        last_data: {
+        last_stats: {
           datetime: 0,
           environmentHumidity: 0,
           environmentTemperature: 0,
@@ -246,38 +246,26 @@ export default {
       });
     };
 
-    const getStats = numbers => {
-      let stats = [];
+    const getTowerStats = (placeId, towerId) => {
+      return new Promise(resolve => {
+        firebase
+          .firestore()
+          .collection("places")
+          .doc(placeId)
+          .collection("towers")
+          .doc(towerId)
+          .collection("stats")
+          .get()
+          .then(querySnapshot => {
+            let result = [];
 
-      stats.push({
-        title: "Planta",
-        icon: "thermometer-full",
-        number: numbers.groundTemperature,
-        numberSign: "°"
+            querySnapshot.forEach(doc => {
+              result.push(doc.data());
+            });
+
+            resolve(result);
+          });
       });
-
-      stats.push({
-        title: "Planta",
-        icon: "umbrella",
-        number: numbers.groundHumidity,
-        numberSign: "%"
-      });
-
-      stats.push({
-        title: "Ambiente",
-        icon: "thermometer-full",
-        number: numbers.environmentTemperature,
-        numberSign: "°"
-      });
-
-      stats.push({
-        title: "Ambiente",
-        icon: "umbrella",
-        number: numbers.environmentHumidity,
-        numberSign: "%"
-      });
-
-      return stats;
     };
 
     getPlaceData(this.$route.params.placeId).then(data => {
@@ -289,12 +277,50 @@ export default {
       data => {
         this.gettingTowerData = false;
 
-        Object.assign(data, {
-          last_upload: this.getLastUpload(data.last_data.datetime),
-          stats: getStats(data.last_data)
+        let statsCardsData = [];
+
+        statsCardsData.push({
+          title: "Planta",
+          icon: "thermometer-full",
+          number: data.last_stats.groundTemperature,
+          sign: "°"
         });
 
-        this.tower = data;
+        statsCardsData.push({
+          title: "Planta",
+          icon: "umbrella",
+          number: data.last_stats.groundHumidity,
+          sign: "%"
+        });
+
+        statsCardsData.push({
+          title: "Ambiente",
+          icon: "thermometer-full",
+          number: data.last_stats.environmentTemperature,
+          sign: "°"
+        });
+
+        statsCardsData.push({
+          title: "Ambiente",
+          icon: "umbrella",
+          number: data.last_stats.environmentHumidity,
+          sign: "°"
+        });
+
+        Object.assign(data, {
+          last_upload: this.getLastUpload(data.last_stats.datetime),
+          stats_cards: statsCardsData
+        });
+
+        this.tower = Object.assign(this.tower, data);
+        console.log("this.tower after getTowerData", this.tower);
+      }
+    );
+
+    getTowerStats(this.$route.params.placeId, this.$route.params.towerId).then(
+      stats => {
+        this.tower = Object.assign(this.tower, stats);
+        console.log("this.tower after getTowerStats", this.tower);
       }
     );
   },

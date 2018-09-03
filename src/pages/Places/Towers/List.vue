@@ -189,7 +189,7 @@
               </p>
               <p class="small-info">{{ tower.culture }}</p>
               <p class="big-info">
-                {{ tower.last_data.environmentTemperature }}°
+                {{ tower.last_stats.environmentTemperature }}°
               </p>
             </div>
             <div class="stats last-upload" slot="footer">
@@ -394,7 +394,7 @@ export default {
         towersList.map(tower => {
           this.towersList.push(
             Object.assign(tower, {
-              last_upload: this.getLastUpload(tower.last_data.datetime),
+              last_upload: this.getLastUpload(tower.last_stats.datetime),
               showSuspendedMenu: false
             })
           );

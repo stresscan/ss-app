@@ -100,8 +100,8 @@
             <h4>Localização Geográfica</h4>
             <div v-if="gettingLatLng" class="ss-inline-spinner"></div>
             <template v-else>
-              <input class="" type="text" v-model="tower.geolocation.lat">
-              <input class="" type="text" v-model="tower.geolocation.lng">
+              <input class="d-none" type="text" v-model="tower.geolocation.lat">
+              <input class="d-none" type="text" v-model="tower.geolocation.lng">
               <LocationMap class="geolocation-map" :zoom="16" :title="tower.name" :draggable="true" @dragend="onMapDragEnd" :lat="tower.geolocation.lat" :lng="tower.geolocation.lng" />
             </template>
           </div>
@@ -161,6 +161,13 @@ export default {
         geolocation: {
           lat: "",
           lng: ""
+        },
+        last_stats: {
+          datetime: 0,
+          environmentHumidity: 0,
+          environmentTemperature: 0,
+          groundHumidity: 0,
+          groundTemperature: 0
         }
       },
       gettingPlaceData: true,
@@ -297,7 +304,7 @@ export default {
           lat: this.tower.geolocation.lat,
           lng: this.tower.geolocation.lng
         },
-        last_data: {
+        last_stats: {
           datetime: 0,
           environmentTemperature: 0,
           environmentHumidity: 0,
@@ -322,7 +329,7 @@ export default {
             .doc(this.place.id)
             .collection("towers")
             .doc(doc.id)
-            .collection("data")
+            .collection("stats")
             .add({
               datetime: 0,
               environmentTemperature: 0,
