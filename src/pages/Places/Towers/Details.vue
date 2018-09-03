@@ -130,78 +130,14 @@ export default {
           groundHumidity: 0,
           groundTemperature: 0
         },
-        stats: [],
         last_upload: {
           icon: "",
           text: ""
         }
       },
       showMap: false,
-      temperatureChart: {
-        data: {
-          labels: [
-            "9h",
-            "12h",
-            "13h",
-            "14h",
-            "15h",
-            "0h",
-            "1h",
-            "2h",
-            "3h",
-            "4h",
-            "5h",
-            "6h"
-          ],
-          series: [
-            [35, 30, 31, 22, 23, 24, 24, 25, 26, 25, 24, 30],
-            [22, 22, 23, 24, 25, 26, 26, 27, 28, 27, 26, 26]
-          ]
-        },
-        options: {
-          low: 0,
-          high: 35,
-          showArea: true,
-          height: "245px",
-          axisX: {
-            showGrid: false
-          },
-          lineSmooth: Chartist.Interpolation.simple({
-            divisor: 3
-          }),
-          showLine: true,
-          showPoint: false
-        }
-      },
-      humidityChart: {
-        data: {
-          labels: [
-            "9h",
-            "12h",
-            "13h",
-            "14h",
-            "15h",
-            "0h",
-            "1h",
-            "2h",
-            "3h",
-            "4h",
-            "5h",
-            "6h"
-          ],
-          series: [
-            [80, 70, 60, 66, 67, 69, 50, 45, 44, 50, 63, 65],
-            [22, 22, 23, 24, 25, 26, 26, 27, 28, 27, 26, 26]
-          ]
-        },
-        options: {
-          seriesBarDistance: 10,
-          axisX: {
-            showGrid: false
-          },
-          height: "245px"
-        }
-      }
+      temperatureChart: {},
+      humidityChart: {}
     };
   },
   created() {
@@ -312,17 +248,88 @@ export default {
           stats_cards: statsCardsData
         });
 
-        this.tower = Object.assign(this.tower, data);
-        console.log("this.tower after getTowerData", this.tower);
+        Object.assign(this.tower, data);
       }
     );
 
     getTowerStats(this.$route.params.placeId, this.$route.params.towerId).then(
       stats => {
-        this.tower = Object.assign(this.tower, stats);
-        console.log("this.tower after getTowerStats", this.tower);
+        console.log(stats);
+        buildTemperatureChart(stats);
+        buildHumidityChart(stats);
       }
     );
+
+    const buildTemperatureChart = stats => {
+      this.temperatureChart = {
+        data: {
+          labels: [
+            "9h",
+            "12h",
+            "13h",
+            "14h",
+            "15h",
+            "0h",
+            "1h",
+            "2h",
+            "3h",
+            "4h",
+            "5h",
+            "6h"
+          ],
+          series: [
+            [35, 30, 31, 22, 23, 24, 24, 25, 26, 25, 24, 30],
+            [22, 22, 23, 24, 25, 26, 26, 27, 28, 27, 26, 26]
+          ]
+        },
+        options: {
+          low: 0,
+          high: 35,
+          showArea: true,
+          height: "245px",
+          axisX: {
+            showGrid: false
+          },
+          lineSmooth: Chartist.Interpolation.simple({
+            divisor: 3
+          }),
+          showLine: true,
+          showPoint: false
+        }
+      };
+    };
+
+    const buildHumidityChart = stats => {
+      this.humidityChart = {
+        data: {
+          labels: [
+            "9h",
+            "12h",
+            "13h",
+            "14h",
+            "15h",
+            "0h",
+            "1h",
+            "2h",
+            "3h",
+            "4h",
+            "5h",
+            "6h"
+          ],
+          series: [
+            [80, 70, 60, 66, 67, 69, 50, 45, 44, 50, 63, 65],
+            [22, 22, 23, 24, 25, 26, 26, 27, 28, 27, 26, 26]
+          ]
+        },
+        options: {
+          seriesBarDistance: 10,
+          axisX: {
+            showGrid: false
+          },
+          height: "245px"
+        }
+      };
+    };
   },
   methods: {
     onGoBack() {

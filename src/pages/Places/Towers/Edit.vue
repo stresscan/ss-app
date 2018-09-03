@@ -98,8 +98,8 @@
         <div class="row">
           <div class="col-sm-12">
             <h4>Localização Geográfica</h4>
-            <input class="" type="text" v-model="tower.geolocation.lat">
-            <input class="" type="text" v-model="tower.geolocation.lng">
+            <input class="d-none" type="text" v-model="tower.geolocation.lat">
+            <input class="d-none" type="text" v-model="tower.geolocation.lng">
             <LocationMap class="geolocation-map" :zoom="16" :title="tower.name" :draggable="true" @dragend="onMapDragEnd" :lat="tower.geolocation.lat" :lng="tower.geolocation.lng" />
           </div>
         </div>
