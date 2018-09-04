@@ -38,7 +38,10 @@
         </div>
 
         <div class="row">
-          <div class="col-md-12">
+          <div class="col-md-6">
+            <ss-fg-input readonly type="text" label="Código da Torre" placeholder="Código da Torre" v-model.trim="tower.id"></ss-fg-input>
+          </div>
+          <div class="col-md-6">
             <ss-fg-input :class="{'has-error': $v.tower.name.$error}" @input="delayTouch($v.tower.name)" type="text" label="Nome" placeholder="Nome" v-model.trim="tower.name"></ss-fg-input>
             <ul class="field-error-message" v-if="$v.tower.name.$error">
               <li v-if="!$v.tower.name.required">
