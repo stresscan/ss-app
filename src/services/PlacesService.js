@@ -1,13 +1,17 @@
 import firebase from "firebase";
 
 export default {
-  getPlacesListByOwner: uid => {
+  getPlacesListByOwner: (uid, includeDisables) => {
+    const collectionRef = firebase.firestore().collection("places");
+    let query = collectionRef;
+
+    query = uid ? query.where("owner", "==", uid) : query;
+
+    if (!includeDisables) {
+      query = query.where("disabled", "==", false);
+    }
+
     return new Promise(resolve => {
-      const collectionRef = firebase.firestore().collection("places");
-      let query;
-
-      query = uid ? collectionRef.where("owner", "==", uid) : collectionRef;
-
       query.get().then(placesQuerySnapshot => {
         let places = [];
 
@@ -23,17 +27,23 @@ export default {
       });
     });
   },
-  getPlaceTowersQnt: placeId => {
+  getPlaceTowersQnt: (placeId, includeDisables) => {
+    const collectionRef = firebase
+      .firestore()
+      .collection("places")
+      .doc(placeId)
+      .collection("towers");
+
+    let query = collectionRef;
+
+    if (!includeDisables) {
+      query = query.where("disabled", "==", false);
+    }
+
     return new Promise(resolve => {
-      firebase
-        .firestore()
-        .collection("places")
-        .doc(placeId)
-        .collection("towers")
-        .get()
-        .then(towersQuerySnapshot => {
-          resolve(towersQuerySnapshot.size);
-        });
+      query.get().then(towersQuerySnapshot => {
+        resolve(towersQuerySnapshot.size);
+      });
     });
   },
   getClientsList: () => {

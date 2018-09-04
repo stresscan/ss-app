@@ -154,7 +154,8 @@
           </p-button>
         </div>
         <div v-if="noTowersFound " class="col-sm-12 mg-lf-sm text-info">
-          Nenhuma torre cadastrada para este local ainda
+          <i class="fa fa-close"></i>
+          <b>Nenhuma torre cadastrada para este local ainda</b>
         </div>
         <div class="col-sm-6 col-md-4 col-xl-4 tower-card-wrapper" v-for="(tower, index) in towersList " :key="index " @click="onTowerClick(tower) ">
           <stats-card :disabled="tower.disabled">
@@ -344,24 +345,30 @@ export default {
       });
     };
 
-    const getTowersList = placeId => {
+    const getTowersList = (placeId, includeDisables) => {
       return new Promise(resolve => {
-        firebase
+        const collectionRef = firebase
           .firestore()
           .collection("places")
           .doc(placeId)
-          .collection("towers")
-          .get()
-          .then(towersQuerySnapshot => {
-            let towers = [];
-            towersQuerySnapshot.forEach(towerDocSnapshot => {
-              let towerData = Object.assign(towerDocSnapshot.data(), {
-                id: towerDocSnapshot.id
-              });
-              towers.push(towerData);
+          .collection("towers");
+
+        let query = collectionRef;
+
+        if (!includeDisables) {
+          query = query.where("disabled", "==", false);
+        }
+
+        query.get().then(towersQuerySnapshot => {
+          let towers = [];
+          towersQuerySnapshot.forEach(towerDocSnapshot => {
+            let towerData = Object.assign(towerDocSnapshot.data(), {
+              id: towerDocSnapshot.id
             });
-            resolve(towers);
+            towers.push(towerData);
           });
+          resolve(towers);
+        });
       });
     };
 
@@ -384,9 +391,13 @@ export default {
       }
     });
 
-    getTowersList(this.$route.params.placeId).then(towersList => {
+    getTowersList(this.$route.params.placeId, this.isAdmin).then(towersList => {
       this.loading = false;
       this.qntTowers = towersList.length;
+
+      console.log({ isAdmin: this.isAdmin });
+
+      console.log({ towersList });
 
       if (this.qntTowers == 0) {
         this.noTowersFound = true;

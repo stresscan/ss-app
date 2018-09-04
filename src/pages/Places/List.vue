@@ -17,7 +17,8 @@
       <div v-if="loadingPlacesList" class="ss-inline-spinner el-center mg-tp-md mg-bt-md"></div>
       <template v-else>
         <div v-if="noPlacesFound" class="mg-lf-sm text-info">
-          Nenhum local cadastrado para essa conta ainda
+          <i class="fa fa-close"></i>
+          <b>Nenhum local cadastrado para essa conta ainda</b>
         </div>
         <div v-else class="col-sm-6 col-md-4 col-xl-4" style="cursor: pointer" v-for="(place, index) in placesList" :key="index" @click="onPlaceClick(place)">
           <stats-card :disabled="place.disabled">
@@ -106,30 +107,35 @@ export default {
 
       if (!ownerId && !this.isAdmin) {
         this.loadingPlacesList = false;
-      }
-      placeService.getPlacesListByOwner(ownerId).then(placesList => {
-        if (placesList.length == 0) {
-          this.loadingPlacesList = false;
-          this.noPlacesFound = true;
-        } else {
-          let i;
-          const placesListLength = placesList.length;
+      } else {
+        placeService
+          .getPlacesListByOwner(ownerId, this.isAdmin)
+          .then(placesList => {
+            if (placesList.length == 0) {
+              this.loadingPlacesList = false;
+              this.noPlacesFound = true;
+            } else {
+              let i;
+              const placesListLength = placesList.length;
 
-          for (let i = 0; i < placesListLength; i++) {
-            placeService.getPlaceTowersQnt(placesList[i].id).then(qnt => {
-              this.placesList.push(
-                Object.assign(placesList[i], {
-                  qntTowers: qnt
-                })
-              );
+              for (let i = 0; i < placesListLength; i++) {
+                placeService
+                  .getPlaceTowersQnt(placesList[i].id, this.isAdmin)
+                  .then(qnt => {
+                    this.placesList.push(
+                      Object.assign(placesList[i], {
+                        qntTowers: qnt
+                      })
+                    );
 
-              if (i == placesListLength - 1) {
-                this.loadingPlacesList = false;
+                    if (i == placesListLength - 1) {
+                      this.loadingPlacesList = false;
+                    }
+                  });
               }
-            });
-          }
-        }
-      });
+            }
+          });
+      }
     },
     onChangeClient() {
       this.getPlacesListByOwner(this.clientSelect);
