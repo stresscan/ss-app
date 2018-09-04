@@ -2,8 +2,8 @@
   <div>
     <div v-if="towerCreated">
       <p class="text-success">
-        <i class="ti-check"></i>
-        Torre cadastrada com sucesso
+        <i class="ti-check mg-rg-xxs"></i>
+        <b>Torre cadastrada com sucesso</b>
       </p>
       <p-button class="mg-rg-sm" type="info" round @click.native.prevent="resetForm">
         Cadastrar outra
@@ -38,7 +38,19 @@
         </div>
 
         <div class="row">
-          <div class="col-md-12">
+          <div class="col-md-6">
+            <ss-fg-input :class="{'has-error': $v.tower.id.$error}" @input="delayTouch($v.tower.id)" type="text" label="Código da Torre" placeholder="Código da Torre" v-model.trim="tower.id"></ss-fg-input>
+            <ul class="field-error-message" v-if="$v.tower.id.$error">
+              <li v-if="!$v.tower.id.required">
+                Campo requerido
+              </li>
+              <li v-if="!$v.tower.id.minLength">
+                Código da Torre precisa ter no mínimo {{ $v.tower.id.$params.minLength.min }} caracteres
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-md-6">
             <ss-fg-input :class="{'has-error': $v.tower.name.$error}" @input="delayTouch($v.tower.name)" type="text" label="Nome" placeholder="Nome" v-model.trim="tower.name"></ss-fg-input>
             <ul class="field-error-message" v-if="$v.tower.name.$error">
               <li v-if="!$v.tower.name.required">
@@ -156,6 +168,7 @@ export default {
         }
       },
       tower: {
+        id: "",
         name: "",
         culture: "",
         geolocation: {
@@ -180,6 +193,10 @@ export default {
   },
   validations: {
     tower: {
+      id: {
+        required,
+        minLength: minLength(3)
+      },
       name: {
         required,
         minLength: minLength(3)
@@ -314,13 +331,17 @@ export default {
         disabled: false
       };
 
+      console.log(this.tower.id);
+      console.log({ newTower });
+
       firebase
         .firestore()
         .collection("places")
         .doc(this.place.id)
         .collection("towers")
-        .add(newTower)
-        .then(doc => {
+        .doc(this.tower.id)
+        .set(newTower)
+        .then(() => {
           this.towerCreated = true;
 
           firebase
@@ -328,7 +349,7 @@ export default {
             .collection("places")
             .doc(this.place.id)
             .collection("towers")
-            .doc(doc.id)
+            .doc(this.tower.id)
             .collection("stats")
             .add({
               datetime: 0,
@@ -353,6 +374,7 @@ export default {
         });
     },
     resetForm() {
+      this.tower.id = "";
       this.tower.name = "";
       this.tower.culture = "";
       this.tower.geolocation.lat = 0;

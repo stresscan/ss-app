@@ -20,6 +20,7 @@
                 <span class="status online" v-if="!tower.disabled">online</span>
                 <span class="status offline" v-else>offline</span>
                 {{ tower.name }}
+                <small class="d-block text-muted">{{ tower.id }}</small>
               </h5>
               Local:
               <div v-if="gettingPlaceData" class="ss-inline-block-spinner mg-lf-sm "></div>

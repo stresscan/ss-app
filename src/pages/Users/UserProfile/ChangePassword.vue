@@ -13,7 +13,8 @@
       </div>
       <div v-if="emailSent">
         <p class="text-success">
-          E-mail enviado com sucesso.
+          <i class="ti-check mg-rg-xxs"></i>
+          <b>E-mail enviado com sucesso</b>
         </p>
         <a href="#" @click.prevent="onResendEmail">Reenviar e-mail</a>
       </div>

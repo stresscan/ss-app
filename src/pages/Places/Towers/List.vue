@@ -188,6 +188,9 @@
                 <span v-if="tower.disabled" class="status offline">offline</span>
                 <span v-else class="status online">online</span>{{tower.name}}
               </p>
+              <p class="small-info text-muted tower-code">
+                <span>{{ tower.id }}</span>
+              </p>
               <p class="small-info">{{ tower.culture }}</p>
               <p class="big-info">
                 {{ tower.last_stats.environmentTemperature }}°
@@ -555,6 +558,19 @@ export default {
   top: -47px;
   left: 15px;
   height: 0;
+}
+
+.tower-code {
+  width: 100%;
+  text-align: right;
+}
+
+.tower-code span {
+  display: inline-block;
+  width: 90px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .tower-options > a {

@@ -2,8 +2,8 @@
   <div>
     <div v-if="placeCreated">
       <p class="text-success">
-        <i class="ti-check"></i>
-        Local cadastrado com sucesso
+        <i class="ti-check mg-rg-xxs"></i>
+        <b>Local cadastrado com sucesso</b>
       </p>
       <p-button class="mg-rg-sm" type="info" round @click.native.prevent="resetForm">
         Cadastrar outro

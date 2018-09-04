@@ -2,8 +2,8 @@
   <div>
     <div v-if="towerEdited">
       <p class="text-success">
-        <i class="ti-check"></i>
-        Torre editada com sucesso
+        <i class="ti-check mg-rg-xxs"></i>
+        <b>Torre editada com sucesso</b>
       </p>
       <p-button class="mg-rg-sm" type="info" round @click.native.prevent="resetForm">
         Voltar para o formulário
