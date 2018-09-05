@@ -1,7 +1,4 @@
-const getDateDiffInSeconds = (dt1, dt2) => {
-  var diff = (dt2 - dt1) / 1000;
-  return diff / 60;
-};
+import { getDateDiffInMinutes } from "../../utils/Dates/getDateDiffs";
 
 export default {
   methods: {
@@ -13,7 +10,7 @@ export default {
         };
       }
 
-      const diff = getDateDiffInSeconds(
+      const diff = getDateDiffInMinutes(
         new Date(datetime).getTime(),
         Date.now()
       );

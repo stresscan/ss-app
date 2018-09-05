@@ -398,10 +398,6 @@ export default {
       this.loading = false;
       this.qntTowers = towersList.length;
 
-      console.log({ isAdmin: this.isAdmin });
-
-      console.log({ towersList });
-
       if (this.qntTowers == 0) {
         this.noTowersFound = true;
       } else {

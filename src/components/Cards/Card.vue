@@ -12,7 +12,7 @@
         <slot name="card-header-buttons"></slot>
       </div>
     </div>
-    <div class="card-body" v-if="$slots.default">
+    <div class="card-body" v-if="$slots.default" :class="{'card-body-negative-top': cardBodyNegativeTop}">
       <slot></slot>
     </div>
     <slot name="raw-content"></slot>
@@ -29,7 +29,8 @@ export default {
     title: String,
     subTitle: String,
     disabled: Boolean,
-    centerTitle: Boolean
+    centerTitle: Boolean,
+    cardBodyNegativeTop: Boolean
   }
 };
 </script>
@@ -40,6 +41,10 @@ export default {
 
 .card-header-buttons {
   margin: 10px 0;
+}
+
+.card-body-negative-top {
+  margin-top: -30px;
 }
 
 .card-title {

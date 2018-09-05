@@ -1,5 +1,5 @@
 <template>
-  <card>
+  <card :cardBodyNegativeTop="cardBodyNegativeTop">
     <template slot="header">
       <h4 v-if="$slots.title || title" class="card-title" :class="{'text-center': centerTitle}">
         <slot name="title">
@@ -63,6 +63,12 @@ export default {
         return {};
       }
     },
+    chartResponsiveOptions: {
+      type: Array,
+      default: () => {
+        return [];
+      }
+    },
     chartData: {
       type: Object,
       default: () => {
@@ -71,7 +77,8 @@ export default {
           series: []
         };
       }
-    }
+    },
+    cardBodyNegativeTop: Boolean
   },
   data() {
     return {
@@ -84,7 +91,12 @@ export default {
      */
     initChart(Chartist) {
       const chartIdQuery = `#${this.chartId}`;
-      Chartist[this.chartType](chartIdQuery, this.chartData, this.chartOptions);
+      Chartist[this.chartType](
+        chartIdQuery,
+        this.chartData,
+        this.chartOptions,
+        this.chartResponsiveOptions
+      );
     },
     /***
      * Assigns a random id to the chart
@@ -106,8 +118,76 @@ export default {
         this.initChart(ChartistLib);
       });
     });
+
+    this.$nextTick(() => {
+      setTimeout(() => {
+        const ctPoints = document.querySelectorAll(
+          ".chart-temperature .ct-point"
+        );
+
+        const length = ctPoints.length;
+
+        for (let i = 0; i < length; i++) {
+          ctPoints[i].onmouseover = () => {
+            document.querySelector(".chart-tooltip").style.opacity = 1;
+          };
+
+          ctPoints[i].onmouseout = () => {
+            document.querySelector(".chart-tooltip").style.opacity = 0;
+          };
+        }
+
+        const ctPointsHumidity = document.querySelectorAll(
+          ".chart-humidity .ct-point"
+        );
+
+        const lengthHumidity = ctPointsHumidity.length;
+
+        for (let i = 0; i < lengthHumidity; i++) {
+          ctPointsHumidity[i].onmouseover = () => {
+            document.querySelector(".chart-tooltip-humidity").style.opacity = 1;
+          };
+
+          ctPointsHumidity[i].onmouseout = () => {
+            document.querySelector(".chart-tooltip-humidity").style.opacity = 0;
+          };
+        }
+      }, 1000);
+    });
   }
 };
 </script>
 <style>
+.ct-point:hover {
+  stroke-width: 15px !important;
+}
+
+.chart-tooltip {
+  border-radius: 6px;
+  position: relative;
+  width: max-content;
+  padding: 4px 8px;
+  color: #fff;
+  background: #333;
+  transition: all 0.25s;
+  height: 29px;
+  opacity: 0;
+}
+
+.chart-tooltip br,
+.chart-tooltip-humidity br {
+  display: none;
+}
+
+.chart-tooltip-humidity {
+  border-radius: 6px;
+  position: relative;
+  width: max-content;
+  padding: 4px 8px;
+  color: #fff;
+  background: #333;
+  transition: all 0.25s;
+  height: 29px;
+  opacity: 0;
+}
 </style>
