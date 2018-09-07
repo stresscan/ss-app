@@ -72,9 +72,9 @@ export default {
   },
   computed: {
     ...mapState({
+      uid: state => state.users.user.uid,
       isAdmin: state => state.users.user.isAdmin
-    }),
-    uid: () => authService.getCurrentUserId()
+    })
   },
   created() {
     this.getClients();

@@ -193,6 +193,8 @@ import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
 import basePage from "../../mixins/BasePage.js";
+import { mapState } from "vuex";
+import logService from "../../services/LogService.js";
 
 const touchMap = new WeakMap();
 
@@ -332,6 +334,11 @@ export default {
       minLength: minLength(4)
     }
   },
+  computed: {
+    ...mapState({
+      stateUid: state => state.users.user.uid
+    })
+  },
   methods: {
     onGoBack() {
       this.$router.replace("list");
@@ -357,7 +364,16 @@ export default {
             .updateProfile({
               displayName: this.username
             })
-            .catch(e => console.log(`displayname couldn't be updated ${e}`));
+            .catch(e => {
+              console.log(`displayname couldn't be updated ${e}`);
+              logService.logError(
+                new Date().getTime(),
+                `displayname couldn't be updated (fail or catch): ${e.message}`,
+                "createUser",
+                "update displayName",
+                this.stateUid
+              );
+            });
 
           const newUser = {
             date: Date.now(),
@@ -382,32 +398,50 @@ export default {
             .collection("users_profile")
             .doc(createdUser.user.uid)
             .set(newUser)
-            .then(() => {
-              this.$router.replace("list?created=1");
-            })
-            .catch(e => {
-              console.log(`user profile couldn't be created ${e}`);
-              this.buttonText = "Criar usuário";
-              this.creatingUser = false;
-              this.notifyVue(
-                "bottom",
-                "right",
-                "danger",
-                "O perfil do usuário não pode ser criado: erro desconhecido",
-                "ti-thumb-down"
-              );
-            });
+            .then(
+              () => {
+                this.$router.replace("list?created=1");
+              },
+              e => {
+                this.buttonText = "Criar usuário";
+                this.creatingUser = false;
+
+                this.notifyVue(
+                  "bottom",
+                  "right",
+                  "danger",
+                  "O perfil do usuário não pode ser criado: erro desconhecido",
+                  "ti-thumb-down"
+                );
+
+                logService.logError(
+                  new Date().getTime(),
+                  `create user profile fail: ${e.message}`,
+                  "createUser",
+                  "create user profile",
+                  this.stateUid
+                );
+              }
+            );
         })
         .catch(e => {
-          console.log(`user couldn't be created ${e}`);
           this.buttonText = "Criar usuário";
           this.creatingUser = false;
+
           this.notifyVue(
             "bottom",
             "right",
             "danger",
             "O usuário não pode ser criado: erro inesperado",
             "ti-thumb-down"
+          );
+
+          logService.logError(
+            new Date().getTime(),
+            `user account create fail or catch: ${e.message}`,
+            "createUser",
+            "create user account",
+            this.stateUid
           );
         });
     },

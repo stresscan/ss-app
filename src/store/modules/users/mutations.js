@@ -1,5 +1,11 @@
 export default {
-  CHANGE_USER_LEVEL(state, payload) {
+  UPDATE_USER_LEVEL(state, payload) {
     state.user.isAdmin = payload;
+  },
+  UPDATE_USERNAME(state, payload) {
+    state.user.username = payload;
+  },
+  UPDATE_UID(state, payload) {
+    state.user.uid = payload;
   }
 };

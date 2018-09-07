@@ -1,5 +1,11 @@
 export default {
-  changeUserLevel(context, payload) {
-    context.commit("CHANGE_USER_LEVEL", payload);
+  updateUserLevel(context, payload) {
+    context.commit("UPDATE_USER_LEVEL", payload);
+  },
+  updateUsername(context, payload) {
+    context.commit("UPDATE_USERNAME", payload);
+  },
+  updateUID(context, payload) {
+    context.commit("UPDATE_UID", payload);
   }
 };

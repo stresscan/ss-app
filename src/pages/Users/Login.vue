@@ -50,7 +50,9 @@ export default {
         .get()
         .then(docSnapshot => {
           if (docSnapshot.exists) {
-            this.changeUserLevel(docSnapshot.data().isAdmin);
+            this.updateUserLevel(docSnapshot.data().isAdmin);
+            this.updateUsername(docSnapshot.data().username);
+            this.updateUID(docSnapshot.id);
             this.$router.replace("/dashboard");
           } else {
             this.errorMessage = "Perfil de usuário não encontrado";
@@ -62,7 +64,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["changeUserLevel"]),
+    ...mapActions(["updateUserLevel", "updateUsername", "updateUID"]),
     onLogin() {
       this.authenticating = true;
 
@@ -78,7 +80,9 @@ export default {
               .get()
               .then(docSnapshot => {
                 if (docSnapshot.exists) {
-                  this.changeUserLevel(docSnapshot.data().isAdmin);
+                  this.updateUserLevel(docSnapshot.data().isAdmin);
+                  this.updateUsername(docSnapshot.data().username);
+                  this.updateUID(docSnapshot.id);
                   this.$router.replace("/dashboard");
                 } else {
                   this.authenticating = false;
