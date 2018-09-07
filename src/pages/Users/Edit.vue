@@ -1,5 +1,5 @@
 <template>
-  <card class="card" title="Novo Usuário">
+  <card class="card" title="Editar Usuário">
     <a href="#" class="back-link" @click.prevent="onGoBack">
       <i class="ti-arrow-left"></i> Voltar
     </a>
