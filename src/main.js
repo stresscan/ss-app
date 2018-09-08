@@ -4,6 +4,8 @@ import router from "./router/index";
 import store from "./store/store";
 import Vuelidate from "vuelidate";
 import VueScrollTo from "vue-scrollto";
+import VuejsDialog from "vuejs-dialog";
+//import "vuejs-dialog/dist/vuejs-dialog.min.css";
 
 import PaperDashboard from "./plugins/paperDashboard";
 import "vue-notifyjs/themes/default.css";
@@ -12,14 +14,21 @@ import { initializeFirebase } from "./config/firebaseConfig";
 
 initializeFirebase();
 
+Vue.use(Vuelidate);
+
 Vue.use(VueScrollTo, {
   container: ".main-panel",
   duration: 500,
   easing: "ease"
 });
 
+Vue.use(VuejsDialog, {
+  okText: "Confirmar",
+  cancelText: "Cancelar",
+  animation: "fade"
+});
+
 Vue.use(PaperDashboard);
-Vue.use(Vuelidate);
 
 /* eslint-disable no-new */
 new Vue({

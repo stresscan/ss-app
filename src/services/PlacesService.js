@@ -67,5 +67,19 @@ export default {
           resolve(clients);
         });
     });
+  },
+  getTowerData: (placeId, towerId) => {
+    const ref = firebase
+      .firestore()
+      .collection("places")
+      .doc(placeId)
+      .collection("towers")
+      .doc(towerId);
+
+    return new Promise(resolve => {
+      ref.get().then(doc => {
+        resolve(Object.assign(doc.data(), { id: doc.id }));
+      });
+    });
   }
 };

@@ -23,7 +23,7 @@
 <script>
 export default {
   inheritAttrs: false,
-  name: "fg-input",
+  name: "ss-fg-input",
   props: {
     label: String,
     value: [String, Number],

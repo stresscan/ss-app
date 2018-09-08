@@ -1,10 +1,13 @@
 export const scrollTopMixin = {
   created() {
-    this.$scrollTo("#wrapper");
+    this.scrollTop("#wrapper");
   },
   methods: {
     scrollTop() {
       this.$scrollTo("#wrapper");
+    },
+    scrollTopFast() {
+      this.$scrollTo("#wrapper", { duration: 25 });
     }
   }
 };

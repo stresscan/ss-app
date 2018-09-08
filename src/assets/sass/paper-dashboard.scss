@@ -43,6 +43,10 @@ $offline-color: #adacac;
   border: none;
 }
 
+.no-margin {
+  margin: 0;
+}
+
 .mg-lf-xs {
   margin-left: 10px;
 }
@@ -91,12 +95,21 @@ $offline-color: #adacac;
   padding-top: 0;
 }
 
-.txt-center {
-  text-align: center;
-}
-
 .el-center {
   margin: 0 auto;
+}
+
+.icon-big {
+  font-size: 3em;
+  min-height: 64px;
+}
+
+.icon-xbig {
+  font-size: 5em;
+}
+
+.overflow-hidden {
+  overflow: hidden !important;
 }
 
 .ss-inline-spinner {

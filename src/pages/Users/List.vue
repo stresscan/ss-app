@@ -9,7 +9,7 @@
         </div>
         <div slot="raw-content" class="table-responsive no-border">
           <div v-if="!dataLoaded" class="ss-inline-spinner el-center mg-tp-md mg-bt-md"></div>
-          <paper-table :actionButtons="true" @openData="onOpenUserData" v-if="dataLoaded" :data="table.data" :columns="table.columns"></paper-table>
+          <paper-table :editButton="true" @editData="onEditUserData" v-if="dataLoaded" :data="table.data" :columns="table.columns"></paper-table>
         </div>
       </card>
     </div>
@@ -87,7 +87,7 @@ export default {
     onNewUserClick() {
       this.$router.replace("create");
     },
-    onOpenUserData(id) {
+    onEditUserData(id) {
       this.$router.push(id);
     },
     notifyVue(verticalAlign, horizontalAlign, type, message, icon) {

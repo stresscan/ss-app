@@ -1,6 +1,6 @@
 <template>
   <card class="card" :centerTitle="true" title="Alterar Senha">
-    <div class="txt-center">
+    <div class="text-center">
       <div v-if="sendingEmail" class="ss-inline-spinner el-center mg-bt-md"></div>
       <div v-if="!sendingEmail && !emailSent">
         <p>

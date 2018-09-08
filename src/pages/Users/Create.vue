@@ -19,8 +19,7 @@
           </div>
           <div class="row">
             <div class="col-md-6">
-              <ss-fg-input :class="{'has-error': $v.name.$error}" @input="delayTouch($v.name)" type="text" label="Nome" placeholder="Nome" v-model.trim="name">
-              </ss-fg-input>
+              <ss-fg-input :class="{'has-error': $v.name.$error}" @input="delayTouch($v.name)" type="text" label="Nome" placeholder="Nome" v-model.trim="name"></ss-fg-input>
               <ul class="field-error-message" v-if="$v.name.$error">
                 <li v-if="!$v.name.required">
                   Campo requerido
@@ -31,8 +30,7 @@
               </ul>
             </div>
             <div class="col-md-6">
-              <ss-fg-input :class="{'has-error': $v.surname.$error}" @input="delayTouch($v.surname)" type="text" label="Sobrenome" placeholder="Sobrenome" v-model.trim="surname">
-              </ss-fg-input>
+              <ss-fg-input :class="{'has-error': $v.surname.$error}" @input="delayTouch($v.surname)" type="text" label="Sobrenome" placeholder="Sobrenome" v-model.trim="surname"></ss-fg-input>
               <ul class="field-error-message" v-if="$v.surname.$error">
                 <li v-if="!$v.surname.required">
                   Campo requerido

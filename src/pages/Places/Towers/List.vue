@@ -7,7 +7,7 @@
       <div class="col-12">
         <card>
           <div slot="raw-content" class="pd-all-md">
-            <a href="#" v-if="isAdmin && !editPlace" @click.prevent="onEditPlace">
+            <a href="#" v-if="stateIsAdmin && !editPlace" @click.prevent="onEditPlace">
               <i class="ti-pencil "></i> Editar
             </a>
 
@@ -125,7 +125,7 @@
               </form>
               <br />
               <i class="ti-signal"></i> {{ qntTowers }} torre(s)
-              <div v-if="isAdmin" class="mg-tp-md ">
+              <div v-if="stateIsAdmin" class="mg-tp-md ">
                 <span :class="{ 'text-danger': place.disabled, 'text-success': !place.disabled}">
                   <i class="ti-flag"></i> {{ place.disabled ? "Desativado " : "Ativado " }}
                 </span>
@@ -135,7 +135,7 @@
             </template>
           </div>
         </card>
-        <card v-if="isAdmin" title="Cliente ">
+        <card v-if="stateIsAdmin" title="Cliente ">
           <div class="pd-all-md pd-tp-none" slot="raw-content">
             <i class="ti-user"></i>
             <div v-if="loadingOwnerData" class="ss-inline-block-spinner mg-lf-sm "></div>
@@ -148,7 +148,7 @@
     <div class="row">
       <div v-if="loading" class="ss-inline-spinner el-center mg-tp-md"></div>
       <template v-else>
-        <div v-if="isAdmin" class="col-sm-12 mg-bt-md mg-lf-sm ">
+        <div v-if="stateIsAdmin" class="col-sm-12 mg-bt-md mg-lf-sm ">
           <p-button type="success " round @click.native.prevent="onNewTower">
             <i class="ti-plus "></i> Adicionar Torre
           </p-button>
@@ -159,7 +159,7 @@
         </div>
         <div class="col-sm-6 col-md-4 col-xl-4 tower-card-wrapper" v-for="(tower, index) in towersList " :key="index " @click="onTowerClick(tower) ">
           <stats-card :disabled="tower.disabled">
-            <div v-if="isAdmin" slot="header" class="tower-options">
+            <div slot="header" class="tower-options">
               <a href="#" @click.prevent.stop="onTowerToggleSuspendedMenu(tower)">
                 <i class="fa fa-ellipsis-v"></i>
               </a>
@@ -167,14 +167,18 @@
                 <li>
                   <div class="seta"></div>
                 </li>
-                <li>
+                <li v-if="stateIsAdmin">
                   <i class="ti-pencil"></i>
                   <a href="#" @click.prevent.stop="onTowerEdit(tower)">Editar</a>
                 </li>
-                <li>
+                <li v-if="stateIsAdmin">
                   <i class="ti-flag" :class="{ 'text-danger': tower.disabled, 'text-success': !tower.disabled}"></i>
                   <a v-if="!togglingTowerDisabled" href="#" @click.prevent.stop="onTowerToggleDisabled(tower)">{{ tower.disabled ? "Ativar" : "Desativar" }}</a>
                   <div v-else class="ss-spinner ss-inline-block-spinner mg-lf-sm"></div>
+                </li>
+                <li>
+                  <i class="ti-settings"></i>
+                  <a href="#" @click.prevent.stop="onTowerSettings(tower)">Configurações</a>
                 </li>
               </ul>
             </div>
@@ -331,7 +335,7 @@ export default {
   },
   computed: {
     ...mapState({
-      isAdmin: state => state.users.user.isAdmin
+      stateIsAdmin: state => state.users.user.isAdmin
     })
   },
   created() {
@@ -381,7 +385,7 @@ export default {
 
       this.loadingPlaceData = false;
 
-      if (this.isAdmin) {
+      if (this.stateIsAdmin) {
         firebase
           .firestore()
           .collection("users_profile")
@@ -394,27 +398,29 @@ export default {
       }
     });
 
-    getTowersList(this.$route.params.placeId, this.isAdmin).then(towersList => {
-      this.loading = false;
-      this.qntTowers = towersList.length;
+    getTowersList(this.$route.params.placeId, this.stateIsAdmin).then(
+      towersList => {
+        this.loading = false;
+        this.qntTowers = towersList.length;
 
-      if (this.qntTowers == 0) {
-        this.noTowersFound = true;
-      } else {
-        towersList.map(tower => {
-          this.towersList.push(
-            Object.assign(tower, {
-              last_upload: this.getLastUpload(tower.last_stats.datetime),
-              showSuspendedMenu: false
-            })
-          );
-        });
+        if (this.qntTowers == 0) {
+          this.noTowersFound = true;
+        } else {
+          towersList.map(tower => {
+            this.towersList.push(
+              Object.assign(tower, {
+                last_upload: this.getLastUpload(tower.last_stats.datetime),
+                showSuspendedMenu: false
+              })
+            );
+          });
+        }
       }
-    });
+    );
   },
   methods: {
     onOutsideClick() {
-      if (this.isAdmin) {
+      if (this.stateIsAdmin) {
         this.closeAllSuspendedMenu();
       }
     },
@@ -456,7 +462,7 @@ export default {
       touchMap.set($v, setTimeout($v.$touch, 1000));
     },
     onEditFormSubmit() {
-      if (this.isAdmin) {
+      if (this.stateIsAdmin) {
         this.editingPlace = true;
         this.editingButtonText = "Editando...";
         this.$v.$touch();
@@ -484,7 +490,7 @@ export default {
       }
     },
     onPlaceToggleDisabled() {
-      if (this.isAdmin) {
+      if (this.stateIsAdmin) {
         this.togglingPlaceDisabled = true;
 
         firebase
@@ -501,12 +507,12 @@ export default {
       }
     },
     onNewTower() {
-      if (this.isAdmin) {
+      if (this.stateIsAdmin) {
         this.$router.push("create");
       }
     },
     onTowerToggleSuspendedMenu(tower) {
-      if (this.isAdmin) {
+      if (this.stateIsAdmin) {
         this.closeAllSuspendedMenu();
         this.towersList.map(item => {
           if (item.id === tower.id) {
@@ -516,7 +522,7 @@ export default {
       }
     },
     onTowerToggleDisabled(tower) {
-      if (this.isAdmin) {
+      if (this.stateIsAdmin) {
         this.togglingTowerDisabled = true;
 
         firebase
@@ -536,6 +542,9 @@ export default {
     },
     onTowerEdit(tower) {
       this.$router.replace(`../tower/${tower.id}/edit`);
+    },
+    onTowerSettings(tower) {
+      this.$router.replace(`../tower/${tower.id}/settings`);
     },
     onTowerClick(tower) {
       this.$router.replace(`../tower/${tower.id}/details`);
@@ -579,9 +588,28 @@ export default {
   width: 122px;
 }
 
+@media (min-width: 375px) {
+  .tower-options > a {
+    left: -30px;
+  }
+}
+
+@media (min-width: 480px) {
+  .tower-options > a {
+    left: -59px;
+  }
+}
+
+@media (min-width: 575px) {
+  .tower-options > a {
+    left: 6px;
+  }
+}
+
 .tower-options > ul {
   display: inline-block;
   position: absolute;
+  z-index: 2;
   left: 8px;
   list-style: none;
   padding: 5px 0 10px;
@@ -589,11 +617,29 @@ export default {
   background: #f8f8f8;
   border: solid 1px #f0f0f0;
   border-radius: 5px;
-  width: 142px;
+  width: 170px;
+}
+
+@media (min-width: 375px) {
+  .tower-options > ul {
+    left: -30px;
+  }
+}
+
+@media (min-width: 480px) {
+  .tower-options > ul {
+    left: -59px;
+  }
+}
+
+@media (min-width: 575px) {
+  .tower-options > ul {
+    left: 6px;
+  }
 }
 
 .tower-options > ul > li {
-  padding: 8px 19px 9px;
+  padding: 11px 19px 9px;
 }
 
 .tower-options > ul > li > i,
@@ -627,7 +673,6 @@ export default {
   margin-left: 5px;
   margin-bottom: 5px;
   padding: 5px;
-  width: 100px;
 }
 
 .tower-options > ul > li > a:hover {

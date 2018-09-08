@@ -8,6 +8,7 @@ import "es6-promise/auto";
 import "bootstrap/dist/css/bootstrap.css";
 import "@/assets/sass/paper-dashboard.scss";
 import "@/assets/css/themify-icons.css";
+import "@/assets/css/vuejs-dialog.css";
 
 export default {
   install(Vue) {
