@@ -15,6 +15,7 @@ import TowerSettings from "@/pages/Places/Towers/Settings.vue";
 import CreateTower from "@/pages/Places/Towers/Create.vue";
 import EditTower from "@/pages/Places/Towers/Edit.vue";
 import UserProfile from "@/pages/Users/UserProfile/Index.vue";
+import AppSettings from "@/pages/AppSettings.vue";
 
 // Admin pages
 // Users:
@@ -99,6 +100,11 @@ const routes = [
                 component: Tower
               }
             ]
+          },
+          {
+            path: "settings",
+            name: "configurações",
+            component: AppSettings
           }
         ]
       },

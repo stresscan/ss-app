@@ -125,7 +125,7 @@ import { required, minLength, maxLength } from "vuelidate/lib/validators";
 import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
-import basePage from "../../../mixins/BasePage.js";
+import basePage from "@/mixins/BasePage.js";
 import { LocationMap } from "@/components/index";
 
 const touchMap = new WeakMap();

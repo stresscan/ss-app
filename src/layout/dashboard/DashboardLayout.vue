@@ -4,15 +4,9 @@
       <template slot="links">
         <sidebar-link to="/dashboard/index" name="Dashboard" icon="ti-panel" />
         <sidebar-link to="/dashboard/user-profile" name="Meus Dados" icon="ti-user" />
-        <sidebar-link v-if="isAdmin" to="/dashboard/users" name="Usuários" icon="fa fa-users" />
+        <sidebar-link v-if="stateIsAdmin" to="/dashboard/users" name="Usuários" icon="fa fa-users" />
       </template>
       <mobile-menu>
-        <li class="nav-item">
-          <a class="nav-link">
-            <i class="ti-panel"></i>
-            <p>Stats</p>
-          </a>
-        </li>
         <drop-down class="nav-item" title="5 Notifications" title-classes="nav-link" icon="ti-bell">
           <a class="dropdown-item">Notification 1</a>
           <a class="dropdown-item">Notification 2</a>
@@ -21,9 +15,9 @@
           <a class="dropdown-item">Another notification</a>
         </drop-down>
         <li class="nav-item">
-          <a class="nav-link">
+          <a href="#" @click="onGoToSettings" class="nav-link">
             <i class="ti-settings"></i>
-            <p>Settings</p>
+            <p>Configurações</p>
           </a>
         </li>
         <li class="divider"></li>
@@ -31,11 +25,7 @@
     </side-bar>
     <div class="main-panel">
       <top-navbar></top-navbar>
-
-      <dashboard-content @click.native="toggleSidebar">
-
-      </dashboard-content>
-
+      <dashboard-content @click.native="toggleSidebar"></dashboard-content>
       <content-footer></content-footer>
     </div>
   </div>
@@ -60,7 +50,7 @@ export default {
   computed: {
     username: () => firebase.auth().currentUser.displayName,
     ...mapState({
-      isAdmin: state => state.users.user.isAdmin
+      stateIsAdmin: state => state.users.user.isAdmin
     })
   },
   methods: {
@@ -68,6 +58,10 @@ export default {
       if (this.$sidebar.showSidebar) {
         this.$sidebar.displaySidebar(false);
       }
+    },
+    onGoToSettings() {
+      this.$sidebar.displaySidebar(false);
+      this.$router.replace("/dashboard/index/settings");
     }
   }
 };

@@ -5,14 +5,15 @@ import store from "./store/store";
 import Vuelidate from "vuelidate";
 import VueScrollTo from "vue-scrollto";
 import VuejsDialog from "vuejs-dialog";
-//import "vuejs-dialog/dist/vuejs-dialog.min.css";
 
 import PaperDashboard from "./plugins/paperDashboard";
 import "vue-notifyjs/themes/default.css";
 
 import { initializeFirebase } from "./config/firebaseConfig";
+import { registerServiceWorker } from "./serviceWorkerRegistration";
 
 initializeFirebase();
+registerServiceWorker();
 
 Vue.use(Vuelidate);
 

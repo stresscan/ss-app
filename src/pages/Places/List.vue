@@ -50,9 +50,9 @@
 import { StatsCard, ChartCard } from "@/components/index";
 import Chartist from "chartist";
 import { mapState } from "vuex";
-import placeService from "../../services/PlacesService";
-import authService from "../../services/AuthService";
-import basePage from "../../mixins/BasePage.js";
+import placeService from "@/services/PlacesService";
+import authService from "@/services/AuthService";
+import basePage from "@/mixins/BasePage.js";
 
 export default {
   mixins: [basePage],

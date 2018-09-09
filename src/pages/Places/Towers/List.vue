@@ -214,12 +214,12 @@
 import { Card, StatsCard } from "@/components/index";
 import firebase from "firebase";
 import { mapState } from "vuex";
-import basePage from "../../../mixins/BasePage.js";
+import basePage from "@/mixins/BasePage.js";
 import { required, minLength, maxLength } from "vuelidate/lib/validators";
 import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
-import getLastUploadMixin from "../../../mixins/PlacesAndTowers/GetLastUploadInfo.js";
+import getLastUploadMixin from "@/mixins/PlacesAndTowers/GetLastUploadInfo.js";
 
 const touchMap = new WeakMap();
 

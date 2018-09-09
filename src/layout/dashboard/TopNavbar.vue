@@ -17,7 +17,7 @@
             <a class="dropdown-item" href="#">Another notification</a>
           </drop-down>
           <li class="nav-item">
-            <a href="#" class="nav-link">
+            <a href="#" @click="onGoToSettings" class="nav-link">
               <i class="ti-settings"></i>
               <p>
                 Configurações
@@ -57,6 +57,9 @@ export default {
     },
     hideSidebar() {
       this.$sidebar.displaySidebar(false);
+    },
+    onGoToSettings() {
+      this.$router.replace("/dashboard/index/settings");
     }
   }
 };

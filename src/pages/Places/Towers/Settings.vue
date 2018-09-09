@@ -10,31 +10,32 @@
       {{ tower.name }}
       <small class="d-block text-muted">{{ tower.id }}</small>
     </h5>
-    <h3>Notificações</h3>
-    <div v-if="gettingNotifications" class="ss-inline-spinner mg-bt-md"></div>
+    <h3>Alertas</h3>
+    <a href="#" @click.prevent="onTogglePushAlerts">Receber Notificações</a>
+    <div v-if="gettingAlerts" class="ss-inline-spinner mg-bt-md"></div>
     <div v-else>
-      <div class="row" v-if="tower.totalOfNotifications === 0">
+      <div class="row" v-if="tower.totalOfAlerts === 0">
         <div class="col-sm-12 mg-lf-sm mg-tp-sm text-info">
           <i class="fa fa-close"></i>
-          <b>Nenhuma notificação cadastrada para essa torre</b>
+          <b>Nenhum alerta criado para essa torre</b>
         </div>
       </div>
       <div class="row" v-else>
-        <paper-table :showheaders="false" :editButton="true" :removeButton="true" :toggleEnableCheckbox="true" @editData="onEdit" @removeData="onRemove" @toggleEnable="onToggleEnable" :data="notificationsTable.data" :columns="notificationsTable.columns" type="hover"></paper-table>
+        <paper-table :showheaders="false" :editButton="true" :removeButton="true" :toggleEnableCheckbox="true" @editData="onEdit" @removeData="onRemove" @toggleEnable="onToggleEnable" :data="alertsTable.data" :columns="alertsTable.columns" type="hover"></paper-table>
       </div>
     </div>
-    <p-button type="success" class="mg-tp-md" round @click.native.prevent="onShowNotificationForm(true)">
-      <i class="ti-plus "></i> Criar Notificação
+    <p-button type="success" class="mg-tp-md" round @click.native.prevent="onShowAlertForm(true)">
+      <i class="ti-plus "></i> Criar Alerta
     </p-button>
 
-    <form v-if="showNotificationForm" class="form-add-notification pd-all-md" @submit.prevent="onNotificationFormSubmit">
-      <a href="#" @click.prevent="onHideNotificationForm" class="close-modal">
+    <form v-if="showAlertForm" class="form-add-Alert pd-all-md" @submit.prevent="onAlertFormSubmit">
+      <a href="#" @click.prevent="onHideAlertForm" class="close-modal">
         <i class="fa fa-close"></i>
       </a>
 
       <div class="row">
         <div class="col-12 text-center text-uppercase">
-          <h5>Criar Notificação</h5>
+          <h5>Criar Alerta</h5>
         </div>
       </div>
 
@@ -43,7 +44,7 @@
           <div class="row">
             <div class="col-12 col-sm-6">
               <div class="form-group">
-                <select class="form-control" v-model="notificationForm.metric">
+                <select class="form-control" v-model="alertForm.metric">
                   <option value="temperatura">Temperatura</option>
                   <option value="umidade">Umidade</option>
                 </select>
@@ -51,7 +52,7 @@
             </div>
             <div class="col-12 col-sm-6">
               <div class="form-group">
-                <select class="form-control" v-model="notificationForm.for">
+                <select class="form-control" v-model="alertForm.for">
                   <option value="ambiente">Ambiente</option>
                   <option value="planta">Planta</option>
                 </select>
@@ -61,7 +62,7 @@
           <div class="row">
             <div class="col-12 col-sm-6">
               <div class="form-group">
-                <select class="form-control" v-model="notificationForm.when">
+                <select class="form-control" v-model="alertForm.when">
                   <option value="maior">Maior</option>
                   <option value="menor">Menor</option>
                 </select>
@@ -69,17 +70,17 @@
             </div>
             <div class="col-12 col-sm-6">
               <div class="form-group">
-                <ss-fg-input type="number" v-model="notificationForm.parameter"></ss-fg-input>
+                <ss-fg-input type="number" v-model="alertForm.parameter"></ss-fg-input>
               </div>
             </div>
           </div>
           <div class="row">
             <div class="col-12 text-center">
-              <input type="hidden" name="" v-model="notificationForm.id">
+              <input type="hidden" name="" v-model="alertForm.id">
               <p-button nativeType="submit" type="success" round>
-                {{ notificationForm.id ? 'Editar' : 'Criar' }}
+                {{ alertForm.id ? 'Editar' : 'Criar' }}
               </p-button>
-              <a href="#" class="mg-lf-sm" @click.prevent="onHideNotificationForm">Cancelar</a>
+              <a href="#" class="mg-lf-sm" @click.prevent="onHideAlertForm">Cancelar</a>
             </div>
           </div>
         </div>
@@ -95,7 +96,7 @@ import basePage from "@/mixins/BasePage.js";
 import logService from "@/services/LogService.js";
 import { PaperTable } from "@/components";
 import placesService from "@/services/PlacesService.js";
-import notificationsService from "@/services/NotificationsSevice.js";
+import alertsService from "@/services/AlertsSevice.js";
 
 export default {
   mixins: [basePage],
@@ -107,22 +108,22 @@ export default {
       tower: {
         id: "",
         name: "",
-        totalOfNotifications: ""
+        totalOfAlerts: ""
       },
-      notificationsTable: {
+      alertsTable: {
         title: "",
-        columns: ["notification"],
+        columns: ["alert"],
         data: []
       },
-      notificationForm: {
+      alertForm: {
         metric: "temperatura",
         for: "planta",
         when: "maior",
         parameter: 0
       },
       gettingTowerData: true,
-      gettingNotifications: true,
-      showNotificationForm: false
+      gettingAlerts: true,
+      showAlertForm: false
     };
   },
   computed: {
@@ -131,68 +132,66 @@ export default {
     })
   },
   created() {
-    const getTotalOfNotifications = (placeId, towerId) => {
+    const getTotalOfAlerts = (placeId, towerId) => {
       const ref = firebase
         .firestore()
         .collection("places")
         .doc(placeId)
         .collection("towers")
         .doc(towerId)
-        .collection("notifications");
+        .collection("alerts");
 
       return new Promise(resolve => {
-        ref.get().then(notificationsList => {
-          resolve(notificationsList.size);
+        ref.get().then(alertsList => {
+          resolve(alertsList.size);
         });
       });
     };
 
-    const getNotificationsList = (placeId, towerId) => {
+    const getAlertsList = (placeId, towerId) => {
       firebase
         .firestore()
         .collection("places")
         .doc(placeId)
         .collection("towers")
         .doc(towerId)
-        .collection("notifications")
+        .collection("alerts")
         .orderBy("datetime", "desc")
         .onSnapshot(snapshot => {
-          this.gettingNotifications = false;
+          this.gettingAlerts = false;
 
           snapshot.docChanges().forEach(change => {
             if (change.type === "added") {
-              this.notificationsTable.data.unshift({
+              this.alertsTable.data.unshift({
                 id: change.doc.id,
-                notification: `${change.doc.data().metric} - ${
+                alert: `${change.doc.data().metric} - ${
                   change.doc.data().for
                 } - ${change.doc.data().when} - ${change.doc.data().parameter}`
               });
-              this.tower.totalOfNotifications++;
+              this.tower.totalOfAlerts++;
             }
             if (change.type === "modified") {
-              this.notificationsTable.data = this.notificationsTable.data.map(
-                item => {
-                  if (item.id === change.doc.id) {
-                    return {
-                      id: change.doc.id,
-                      notification: `${change.doc.data().metric} - ${
-                        change.doc.data().for
-                      } - ${change.doc.data().when} - ${
-                        change.doc.data().parameter
-                      }`
-                    };
-                  } else {
-                    return item;
-                  }
+              this.alertsTable.data = this.alertsTable.data.map(item => {
+                if (item.id === change.doc.id) {
+                  return {
+                    id: change.doc.id,
+                    alert: `${change.doc.data().metric} - ${
+                      change.doc.data().for
+                    } - ${change.doc.data().when} - ${
+                      change.doc.data().parameter
+                    }`
+                  };
+                } else {
+                  return item;
                 }
-              );
+              });
             }
             if (change.type === "removed") {
-              this.notificationsTable.data = this.notificationsTable.data.filter(
+              this.alertsTable.data = this.alertsTable.data.filter(
                 item => item.id !== change.doc.id
               );
 
-              this.tower.totalOfNotifications--;
+              this.tower.totalOfAlerts--;
             }
           });
         });
@@ -205,17 +204,14 @@ export default {
         this.tower = Object.assign(this.tower, data);
       });
 
-    getNotificationsList(
-      this.$route.params.placeId,
-      this.$route.params.towerId
-    );
+    getAlertsList(this.$route.params.placeId, this.$route.params.towerId);
 
-    getTotalOfNotifications(
+    getTotalOfAlerts(
       this.$route.params.placeId,
       this.$route.params.towerId
     ).then(qnt => {
       Object.assign(this.tower, {
-        totalOfNotifications: qnt
+        totalOfAlerts: qnt
       });
     });
 
@@ -227,8 +223,8 @@ export default {
     onGoBack() {
       this.$router.push("../../towers/list");
     },
-    onShowNotificationForm(resetForm) {
-      this.showNotificationForm = true;
+    onShowAlertForm(resetForm) {
+      this.showAlertForm = true;
 
       if (resetForm) {
         this.resetForm();
@@ -239,8 +235,8 @@ export default {
         document.querySelector(".main-panel").classList.add("overflow-hidden");
       });
     },
-    onHideNotificationForm() {
-      this.showNotificationForm = false;
+    onHideAlertForm() {
+      this.showAlertForm = false;
       this.resetForm();
       this.$nextTick(() => {
         document
@@ -249,26 +245,26 @@ export default {
       });
     },
     resetForm() {
-      this.notificationForm = {
+      this.alertForm = {
         metric: "temperatura",
         for: "planta",
         when: "maior",
         parameter: 0
       };
     },
-    onNotificationFormSubmit() {
+    onAlertFormSubmit() {
       const ref = firebase
         .firestore()
         .collection("places")
         .doc(this.$route.params.placeId)
         .collection("towers")
         .doc(this.$route.params.towerId)
-        .collection("notifications");
+        .collection("alerts");
 
-      if (!this.notificationForm.id) {
+      if (!this.alertForm.id) {
         ref
           .add(
-            Object.assign(this.notificationForm, {
+            Object.assign(this.alertForm, {
               datetime: Date.now()
             })
           )
@@ -293,19 +289,19 @@ export default {
             logService.logError(
               new Date().getTime(),
               `A Notificação não pode ser criada: ${e.message}`,
-              "createNotification",
-              "create notification",
+              "createAlert",
+              "create Alert",
               this.stateUid
             );
           });
       } else {
         ref
-          .doc(this.notificationForm.id)
+          .doc(this.alertForm.id)
           .update({
-            metric: this.notificationForm.metric,
-            for: this.notificationForm.for,
-            when: this.notificationForm.when,
-            parameter: this.notificationForm.parameter
+            metric: this.alertForm.metric,
+            for: this.alertForm.for,
+            when: this.alertForm.when,
+            parameter: this.alertForm.parameter
           })
           .catch(e => {
             this.notifyVue(
@@ -326,18 +322,18 @@ export default {
           });
       }
 
-      this.onHideNotificationForm();
+      this.onHideAlertForm();
     },
     onEdit(id) {
-      notificationsService
-        .getNotificationData(
+      alertsService
+        .getAlertData(
           this.$route.params.placeId,
           this.$route.params.towerId,
           id
         )
         .then(data => {
-          this.notificationForm = data;
-          this.onShowNotificationForm(false);
+          this.alertForm = data;
+          this.onShowAlertForm(false);
         });
     },
     onRemove(id) {
@@ -350,7 +346,7 @@ export default {
             .doc(this.$route.params.placeId)
             .collection("towers")
             .doc(this.$route.params.towerId)
-            .collection("notifications")
+            .collection("alerts")
             .doc(id)
             .delete()
             .then(() => {
@@ -397,7 +393,7 @@ export default {
 };
 </script>
 <style>
-.form-add-notification {
+.form-add-Alert {
   display: flex;
   justify-content: center;
   flex-direction: column;

@@ -120,8 +120,8 @@ import { StatsCard, ChartCard, LocationMap } from "@/components/index";
 import Chartist from "chartist";
 import ChartistPluginTooltip from "chartist-plugin-tooltips";
 import firebase from "firebase";
-import basePage from "../../../mixins/BasePage.js";
-import getLastUploadMixin from "../../../mixins/PlacesAndTowers/GetLastUploadInfo.js";
+import basePage from "@/mixins/BasePage.js";
+import getLastUploadMixin from "@/mixins/PlacesAndTowers/GetLastUploadInfo.js";
 import mapStats from "./Charts/MapStats.js";
 
 export default {

@@ -190,9 +190,9 @@ import {
 import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
-import basePage from "../../mixins/BasePage.js";
+import basePage from "@/mixins/BasePage.js";
 import { mapState } from "vuex";
-import logService from "../../services/LogService.js";
+import logService from "@/services/LogService.js";
 
 const touchMap = new WeakMap();
 
