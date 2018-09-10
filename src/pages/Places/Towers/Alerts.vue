@@ -11,7 +11,6 @@
       <small class="d-block text-muted">{{ tower.id }}</small>
     </h5>
     <h3>Alertas</h3>
-    <a href="#" @click.prevent="onTogglePushAlerts">Receber Notificações</a>
     <div v-if="gettingAlerts" class="ss-inline-spinner mg-bt-md"></div>
     <div v-else>
       <div class="row" v-if="tower.totalOfAlerts === 0">
@@ -21,10 +20,10 @@
         </div>
       </div>
       <div class="row" v-else>
-        <paper-table :showheaders="false" :editButton="true" :removeButton="true" :toggleEnableCheckbox="true" @editData="onEdit" @removeData="onRemove" @toggleEnable="onToggleEnable" :data="alertsTable.data" :columns="alertsTable.columns" type="hover"></paper-table>
+        <paper-table :clickable="true" @openData="onEdit" :showheaders="false" :toggleEnableCheckbox="true" @click="onEdit" @toggleEnable="onToggleEnable" :data="alertsTable.data" :columns="alertsTable.columns" type="hover"></paper-table>
       </div>
     </div>
-    <p-button type="success" class="mg-tp-md" round @click.native.prevent="onShowAlertForm(true)">
+    <p-button type="success" class="mg-tp-md" round @click.native.prevent="onAddNewAlert">
       <i class="ti-plus "></i> Criar Alerta
     </p-button>
 
@@ -35,7 +34,7 @@
 
       <div class="row">
         <div class="col-12 text-center text-uppercase">
-          <h5>Criar Alerta</h5>
+          <h5>{{ alertForm.id ? 'Editar' : 'Criar' }} Alerta</h5>
         </div>
       </div>
 
@@ -45,6 +44,7 @@
             <div class="col-12 col-sm-6">
               <div class="form-group">
                 <select class="form-control" v-model="alertForm.metric">
+                  <option disabled v-if="gettingAlertData" value="">Aguarde...</option>
                   <option value="temperatura">Temperatura</option>
                   <option value="umidade">Umidade</option>
                 </select>
@@ -53,6 +53,7 @@
             <div class="col-12 col-sm-6">
               <div class="form-group">
                 <select class="form-control" v-model="alertForm.for">
+                  <option disabled v-if="gettingAlertData" value="">Aguarde...</option>
                   <option value="ambiente">Ambiente</option>
                   <option value="planta">Planta</option>
                 </select>
@@ -63,6 +64,7 @@
             <div class="col-12 col-sm-6">
               <div class="form-group">
                 <select class="form-control" v-model="alertForm.when">
+                  <option disabled v-if="gettingAlertData" value="">Aguarde...</option>
                   <option value="maior">Maior</option>
                   <option value="menor">Menor</option>
                 </select>
@@ -70,17 +72,22 @@
             </div>
             <div class="col-12 col-sm-6">
               <div class="form-group">
-                <ss-fg-input type="number" v-model="alertForm.parameter"></ss-fg-input>
+                <ss-fg-input :spinner="gettingAlertData" type="number" v-model="alertForm.parameter"></ss-fg-input>
               </div>
             </div>
           </div>
           <div class="row">
             <div class="col-12 text-center">
               <input type="hidden" name="" v-model="alertForm.id">
-              <p-button nativeType="submit" type="success" round>
-                {{ alertForm.id ? 'Editar' : 'Criar' }}
+              <p-button :disabled="gettingAlertData" nativeType="submit" type="success" round>
+                <template v-if="gettingAlertData">
+                  <i class="fa fa-spinner"></i>
+                </template>
+                <template v-else>
+                  ok
+                </template>
               </p-button>
-              <a href="#" class="mg-lf-sm" @click.prevent="onHideAlertForm">Cancelar</a>
+              <a href="#" v-if="alertForm.id" class="mg-lf-sm text-danger" @click.prevent="onRemove(alertForm.id)">Excluir</a>
             </div>
           </div>
         </div>
@@ -116,12 +123,13 @@ export default {
         data: []
       },
       alertForm: {
-        metric: "temperatura",
-        for: "planta",
-        when: "maior",
-        parameter: 0
+        metric: "",
+        for: "",
+        when: "",
+        parameter: ""
       },
       gettingTowerData: true,
+      gettingAlertData: true,
       gettingAlerts: true,
       showAlertForm: false
     };
@@ -164,9 +172,9 @@ export default {
             if (change.type === "added") {
               this.alertsTable.data.unshift({
                 id: change.doc.id,
-                alert: `${change.doc.data().metric} - ${
-                  change.doc.data().for
-                } - ${change.doc.data().when} - ${change.doc.data().parameter}`
+                alert: `${change.doc.data().metric}: ${change.doc.data().for} ${
+                  change.doc.data().when
+                } que ${change.doc.data().parameter}`
               });
               this.tower.totalOfAlerts++;
             }
@@ -175,9 +183,9 @@ export default {
                 if (item.id === change.doc.id) {
                   return {
                     id: change.doc.id,
-                    alert: `${change.doc.data().metric} - ${
+                    alert: `${change.doc.data().metric}: ${
                       change.doc.data().for
-                    } - ${change.doc.data().when} - ${
+                    } ${change.doc.data().when} que ${
                       change.doc.data().parameter
                     }`
                   };
@@ -222,6 +230,10 @@ export default {
   methods: {
     onGoBack() {
       this.$router.push("../../towers/list");
+    },
+    onAddNewAlert() {
+      this.onShowAlertForm(true);
+      this.gettingAlertData = false;
     },
     onShowAlertForm(resetForm) {
       this.showAlertForm = true;
@@ -325,6 +337,8 @@ export default {
       this.onHideAlertForm();
     },
     onEdit(id) {
+      this.gettingAlertData = true;
+
       alertsService
         .getAlertData(
           this.$route.params.placeId,
@@ -333,8 +347,10 @@ export default {
         )
         .then(data => {
           this.alertForm = data;
-          this.onShowAlertForm(false);
+          this.gettingAlertData = false;
         });
+
+      this.onShowAlertForm(false);
     },
     onRemove(id) {
       this.$dialog
@@ -350,6 +366,8 @@ export default {
             .doc(id)
             .delete()
             .then(() => {
+              this.onHideAlertForm();
+
               this.notifyVue(
                 "bottom",
                 "right",
@@ -378,7 +396,7 @@ export default {
         });
     },
     onToggleEnable(id) {
-      console.log(id);
+      console.log("onToggleEnable", id);
     },
     notifyVue(verticalAlign, horizontalAlign, type, message, icon) {
       this.$notify({

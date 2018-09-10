@@ -177,8 +177,8 @@
                   <div v-else class="ss-spinner ss-inline-block-spinner mg-lf-sm"></div>
                 </li>
                 <li>
-                  <i class="ti-settings"></i>
-                  <a href="#" @click.prevent.stop="onTowerSettings(tower)">Configurações</a>
+                  <i class="ti-bell"></i>
+                  <a href="#" @click.prevent.stop="onTowerAlerts(tower)">Alertas</a>
                 </li>
               </ul>
             </div>
@@ -543,8 +543,8 @@ export default {
     onTowerEdit(tower) {
       this.$router.replace(`../tower/${tower.id}/edit`);
     },
-    onTowerSettings(tower) {
-      this.$router.replace(`../tower/${tower.id}/settings`);
+    onTowerAlerts(tower) {
+      this.$router.replace(`../tower/${tower.id}/alerts`);
     },
     onTowerClick(tower) {
       this.$router.replace(`../tower/${tower.id}/details`);

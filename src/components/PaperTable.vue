@@ -6,12 +6,12 @@
       </slot>
     </thead>
     <tbody>
-      <tr v-for="(item, index) in data" :key="index">
+      <tr v-for="(item, index) in data" :key="index" :class="{ clickable }" @click="onOpenData(item.id)">
         <slot :row="item">
           <td v-for="(column, index) in columns" :key="index" v-if="hasValue(item, column)">
             {{itemValue(item, column)}}
           </td>
-          <td v-if="editButton || removeButton" class="action-buttons">
+          <td v-if="editButton || removeButton || toggleEnableCheckbox" class="action-buttons">
             <a v-if="editButton" href="#" @click.prevent="onEditData(item.id)" class="btn btn-sm btn-success mg-lf-xs">
               <i class="ti-pencil-alt"></i>
             </a>
@@ -51,6 +51,10 @@ export default {
     showheaders: {
       type: Boolean,
       default: true
+    },
+    clickable: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {
@@ -65,6 +69,9 @@ export default {
     itemValue(item, column) {
       return item[column.toLowerCase()];
     },
+    onOpenData(id) {
+      this.$emit("openData", id);
+    },
     onEditData(id) {
       this.$emit("editData", id);
     },
@@ -78,6 +85,10 @@ export default {
 };
 </script>
 <style>
+.clickable {
+  cursor: pointer;
+}
+
 .action-buttons {
   text-align: right;
 }

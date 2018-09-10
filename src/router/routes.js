@@ -11,7 +11,7 @@ import Login from "@/pages/Users/Login.vue";
 import PlacesList from "@/pages/Places/List.vue";
 import TowersList from "@/pages/Places/Towers/List.vue";
 import Tower from "@/pages/Places/Towers/Details.vue";
-import TowerSettings from "@/pages/Places/Towers/Settings.vue";
+import TowerAlerts from "@/pages/Places/Towers/Alerts.vue";
 import CreateTower from "@/pages/Places/Towers/Create.vue";
 import EditTower from "@/pages/Places/Towers/Edit.vue";
 import UserProfile from "@/pages/Users/UserProfile/Index.vue";
@@ -90,9 +90,9 @@ const routes = [
                 }
               },
               {
-                path: ":placeId/tower/:towerId/settings",
-                name: "configurações da torre",
-                component: TowerSettings
+                path: ":placeId/tower/:towerId/alerts",
+                name: "alertas da torre",
+                component: TowerAlerts
               },
               {
                 path: ":placeId/tower/:towerId/details",
