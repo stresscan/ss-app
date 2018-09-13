@@ -20,7 +20,7 @@
         </div>
       </div>
       <div class="row" v-else>
-        <paper-table :clickable="true" @openData="onEdit" :showheaders="false" :toggleEnableCheckbox="true" @click="onEdit" @toggleEnable="onToggleEnable" :data="alertsTable.data" :columns="alertsTable.columns" type="hover"></paper-table>
+        <paper-table :clickable="true" @openData="onEdit" :showheaders="false" :toggleCheckbox="true" @click="onEdit" @toggleCheckbox="onToggleEnable" :data="alertsTable.data" :columns="alertsTable.columns" type="hover"></paper-table>
       </div>
     </div>
     <p-button type="success" class="mg-tp-md" round @click.native.prevent="onAddNewAlert">
@@ -34,7 +34,8 @@
 
       <div class="row">
         <div class="col-12 text-center text-uppercase">
-          <h5>{{ alertForm.id ? 'Editar' : 'Criar' }} Alerta</h5>
+          <h5 v-if="!gettingAlertData">{{ alertForm.id ? 'Editar' : 'Criar' }} Alerta</h5>
+          <div v-else class="ss-inline-spinner mg-bt-md el-center"></div>
         </div>
       </div>
 
@@ -45,8 +46,8 @@
               <div class="form-group">
                 <select class="form-control" v-model="alertForm.metric">
                   <option disabled v-if="gettingAlertData" value="">Aguarde...</option>
-                  <option value="temperatura">Temperatura</option>
-                  <option value="umidade">Umidade</option>
+                  <option value="temperature">Temperatura</option>
+                  <option value="humidity">Umidade</option>
                 </select>
               </div>
             </div>
@@ -54,8 +55,8 @@
               <div class="form-group">
                 <select class="form-control" v-model="alertForm.for">
                   <option disabled v-if="gettingAlertData" value="">Aguarde...</option>
-                  <option value="ambiente">Ambiente</option>
-                  <option value="planta">Planta</option>
+                  <option value="environment">Ambiente</option>
+                  <option value="ground">Planta</option>
                 </select>
               </div>
             </div>
@@ -65,14 +66,14 @@
               <div class="form-group">
                 <select class="form-control" v-model="alertForm.when">
                   <option disabled v-if="gettingAlertData" value="">Aguarde...</option>
-                  <option value="maior">Maior</option>
-                  <option value="menor">Menor</option>
+                  <option value="high">Maior que</option>
+                  <option value="low">Menor que</option>
                 </select>
               </div>
             </div>
             <div class="col-12 col-sm-6">
               <div class="form-group">
-                <ss-fg-input :spinner="gettingAlertData" type="number" v-model="alertForm.parameter"></ss-fg-input>
+                <ss-fg-input :spinner="gettingAlertData" type="number" v-model="alertForm.value"></ss-fg-input>
               </div>
             </div>
           </div>
@@ -126,7 +127,7 @@ export default {
         metric: "",
         for: "",
         when: "",
-        parameter: ""
+        value: ""
       },
       gettingTowerData: true,
       gettingAlertData: true,
@@ -169,31 +170,32 @@ export default {
           this.gettingAlerts = false;
 
           snapshot.docChanges().forEach(change => {
+            const data = change.doc.data();
+            const itemChanged = {
+              id: change.doc.id,
+              enabled: data.enabled,
+              alert: `${
+                data.metric === "temperature" ? "Temperatura" : "Umidade"
+              } ${data.for === "ground" ? "da planta" : "do ambiente"} ${
+                data.when === "high" ? "maior" : "menor"
+              } que ${data.value}`
+            };
+
             if (change.type === "added") {
-              this.alertsTable.data.unshift({
-                id: change.doc.id,
-                alert: `${change.doc.data().metric}: ${change.doc.data().for} ${
-                  change.doc.data().when
-                } que ${change.doc.data().parameter}`
-              });
+              this.alertsTable.data.unshift(itemChanged);
               this.tower.totalOfAlerts++;
             }
+
             if (change.type === "modified") {
               this.alertsTable.data = this.alertsTable.data.map(item => {
                 if (item.id === change.doc.id) {
-                  return {
-                    id: change.doc.id,
-                    alert: `${change.doc.data().metric}: ${
-                      change.doc.data().for
-                    } ${change.doc.data().when} que ${
-                      change.doc.data().parameter
-                    }`
-                  };
+                  return itemChanged;
                 } else {
                   return item;
                 }
               });
             }
+
             if (change.type === "removed") {
               this.alertsTable.data = this.alertsTable.data.filter(
                 item => item.id !== change.doc.id
@@ -243,6 +245,7 @@ export default {
       }
 
       this.scrollTopFast();
+
       this.$nextTick(() => {
         document.querySelector(".main-panel").classList.add("overflow-hidden");
       });
@@ -258,10 +261,10 @@ export default {
     },
     resetForm() {
       this.alertForm = {
-        metric: "temperatura",
-        for: "planta",
-        when: "maior",
-        parameter: 0
+        metric: "temperature",
+        for: "ground",
+        when: "high",
+        value: 0
       };
     },
     onAlertFormSubmit() {
@@ -277,7 +280,8 @@ export default {
         ref
           .add(
             Object.assign(this.alertForm, {
-              datetime: Date.now()
+              datetime: Date.now(),
+              enabled: true
             })
           )
           .then(doc => {
@@ -313,7 +317,7 @@ export default {
             metric: this.alertForm.metric,
             for: this.alertForm.for,
             when: this.alertForm.when,
-            parameter: this.alertForm.parameter
+            value: this.alertForm.value
           })
           .catch(e => {
             this.notifyVue(
@@ -395,8 +399,31 @@ export default {
             });
         });
     },
-    onToggleEnable(id) {
-      console.log("onToggleEnable", id);
+    onToggleEnable(alert) {
+      firebase
+        .firestore()
+        .collection("places")
+        .doc(this.$route.params.placeId)
+        .collection("towers")
+        .doc(this.$route.params.towerId)
+        .collection("alerts")
+        .doc(alert.id)
+        .update({
+          enabled: alert.enabled
+        })
+        .catch(e => {
+          logService.logError(
+            new Date().getTime(),
+            `Erro ao tentar habilitar/desabilitar o alerta ${
+              alert.id
+            } da torre ${this.$route.params.towerId} do local ${
+              this.$route.params.placeId
+            }: ${e.message}`,
+            "Alerts",
+            "onToggleEnable",
+            this.stateUid
+          );
+        });
     },
     notifyVue(verticalAlign, horizontalAlign, type, message, icon) {
       this.$notify({

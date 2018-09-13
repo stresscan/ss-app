@@ -5,15 +5,6 @@
         <form @submit.prevent>
           <div class="row">
             <div class="col-md-12">
-              <div class="form-group">
-                <ss-fg-input readonly type="text" label="Local de Trabalho" placeholder="Local de Trabalho" v-model.trim="place">
-                </ss-fg-input>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-12">
               <ss-fg-input readonly type="email" label="Email" placeholder="Email" v-model.trim="email">
               </ss-fg-input>
             </div>
@@ -21,7 +12,7 @@
 
           <div class="row">
             <div class="col-md-12">
-              <ss-fg-input readonly type="text" label="Username" placeholder="Username" v-model.trim="username">
+              <ss-fg-input readonly type="text" label="Usuário" placeholder="Usuário" v-model.trim="username">
               </ss-fg-input>
             </div>
           </div>

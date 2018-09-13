@@ -7,18 +7,6 @@ export const askForPermissioToReceiveNotifications = async () => {
     console.log("Notification permission granted.");
     const token = await messaging.getToken();
     console.log("token do usuário:", token);
-    if (currentToken) {
-      sendTokenToServer(currentToken);
-      updateUIForPushEnabled(currentToken);
-    } else {
-      // Show permission request.
-      console.log(
-        "No Instance ID token available. Request permission to generate one."
-      );
-      // Show permission UI.
-      updateUIForPushPermissionRequired();
-      setTokenSentToServer(false);
-    }
 
     return token;
   } catch (error) {
@@ -33,6 +21,6 @@ export const saveUserPermissionToken = (uid, token) => {
     .collection("users_profile")
     .doc(uid)
     .update({
-      push_notification_token: token
+      push_notifications_token: token
     });
 };

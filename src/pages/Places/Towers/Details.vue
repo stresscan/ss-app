@@ -149,10 +149,10 @@ export default {
         disabled: false,
         last_stats: {
           datetime: 0,
-          environmentHumidity: 0,
-          environmentTemperature: 0,
-          groundHumidity: 0,
-          groundTemperature: 0
+          environment_temperature: 0,
+          environment_humidity: 0,
+          ground_temperature: 0,
+          ground_humidity: 0
         },
         stats: {
           length: 0
@@ -251,28 +251,28 @@ export default {
         statsCardsData.push({
           title: "Planta",
           icon: "thermometer-full",
-          number: data.last_stats.groundTemperature,
+          number: data.last_stats.ground_temperature,
           sign: "°"
         });
 
         statsCardsData.push({
           title: "Planta",
           icon: "umbrella",
-          number: data.last_stats.groundHumidity,
+          number: data.last_stats.ground_humidity,
           sign: "%"
         });
 
         statsCardsData.push({
           title: "Ambiente",
           icon: "thermometer-full",
-          number: data.last_stats.environmentTemperature,
+          number: data.last_stats.environment_temperature,
           sign: "°"
         });
 
         statsCardsData.push({
           title: "Ambiente",
           icon: "umbrella",
-          number: data.last_stats.environmentHumidity,
+          number: data.last_stats.environment_humidity,
           sign: "°"
         });
 
@@ -305,8 +305,8 @@ export default {
     };
 
     const buildTemperatureChart = (labels, data) => {
-      const envTemps = mapStats.getAverage(data, "environmentTemperature");
-      const groundTemps = mapStats.getAverage(data, "groundTemperature");
+      const envTemps = mapStats.getAverage(data, "environment_temperature");
+      const groundTemps = mapStats.getAverage(data, "ground_temperature");
 
       const envSeries = mapStats.getSeries(data, envTemps);
       const groundSeries = mapStats.getSeries(data, groundTemps);
@@ -372,8 +372,8 @@ export default {
     };
 
     const buildHumidityChart = (labels, data) => {
-      const envHumidity = mapStats.getAverage(data, "environmentHumidity");
-      const groundHumidity = mapStats.getAverage(data, "groundHumidity");
+      const envHumidity = mapStats.getAverage(data, "environment_humidity");
+      const groundHumidity = mapStats.getAverage(data, "ground_humidity");
 
       const envSeries = mapStats.getSeries(data, envHumidity);
       const groundSeries = mapStats.getSeries(data, groundHumidity);

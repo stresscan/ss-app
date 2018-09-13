@@ -177,10 +177,10 @@ export default {
         },
         last_stats: {
           datetime: 0,
-          environmentHumidity: 0,
-          environmentTemperature: 0,
-          groundHumidity: 0,
-          groundTemperature: 0
+          environment_humidity: 0,
+          environment_temperature: 0,
+          ground_humidity: 0,
+          ground_temperature: 0
         }
       },
       gettingPlaceData: true,
@@ -323,10 +323,10 @@ export default {
         },
         last_stats: {
           datetime: 0,
-          environmentTemperature: 0,
-          environmentHumidity: 0,
-          groundTemperature: 0,
-          groundHumidity: 0
+          environment_temperature: 0,
+          environment_humidity: 0,
+          ground_temperature: 0,
+          ground_humidity: 0
         },
         disabled: false
       };
@@ -353,10 +353,10 @@ export default {
             .collection("stats")
             .add({
               datetime: 0,
-              environmentTemperature: 0,
-              environmentHumidity: 0,
-              groundTemperature: 0,
-              groundHumidity: 0
+              environment_temperature: 0,
+              environment_humidity: 0,
+              ground_temperature: 0,
+              ground_humidity: 0
             });
         })
         .catch(e => {

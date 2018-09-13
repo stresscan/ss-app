@@ -197,7 +197,7 @@
               </p>
               <p class="small-info">{{ tower.culture }}</p>
               <p class="big-info">
-                {{ tower.last_stats.environmentTemperature }}°
+                {{ tower.last_stats.environment_temperature }}°
               </p>
             </div>
             <div class="stats last-upload" slot="footer">

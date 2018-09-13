@@ -2,7 +2,6 @@ import firebase from "firebase";
 
 export default {
   getAlertData: (placeId, towerId, notId) => {
-    console.log(placeId, towerId, notId);
     const ref = firebase
       .firestore()
       .collection("places")
@@ -14,7 +13,6 @@ export default {
 
     return new Promise(resolve => {
       ref.get().then(doc => {
-        console.log(doc);
         resolve(Object.assign(doc.data(), { id: doc.id }));
       });
     });
