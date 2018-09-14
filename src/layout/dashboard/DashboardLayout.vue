@@ -24,7 +24,7 @@
       </mobile-menu>
     </side-bar>
     <div class="main-panel">
-      <top-navbar></top-navbar>
+      <top-navbar :uid="stateUid"></top-navbar>
       <dashboard-content @click.native="toggleSidebar"></dashboard-content>
       <content-footer></content-footer>
     </div>
@@ -50,7 +50,8 @@ export default {
   computed: {
     username: () => firebase.auth().currentUser.displayName,
     ...mapState({
-      stateIsAdmin: state => state.users.user.isAdmin
+      stateIsAdmin: state => state.users.user.isAdmin,
+      stateUid: state => state.users.user.uid
     })
   },
   methods: {

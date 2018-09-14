@@ -53,8 +53,8 @@ exports.addLastTowerStatsData = functions.firestore
         alert.when === "high" ? "maior" : "menor"
       } que ${alert.value} na torre ${towerId.substring(0, 8)}`;
 
-      const url = "http://localhost:3014/dashboard/index/places/";
-      const click_action = url + placeId + "/tower/" + towerId + "/details";
+      const url = "http://localhost:3014";
+      const route = `/dashboard/index/places/${placeId}/tower/${towerId}/details`;
       const icon =
         "http://res.cloudinary.com/dwtuxv53y/image/upload/v1536530915/face-1_thhyxw.jpg";
 
@@ -77,7 +77,7 @@ exports.addLastTowerStatsData = functions.firestore
                   notification: {
                     title: "Stresscan",
                     body,
-                    click_action,
+                    click_action: url + route,
                     icon
                   }
                 });
@@ -88,8 +88,7 @@ exports.addLastTowerStatsData = functions.firestore
                 .collection("notifications")
                 .add({
                   body,
-                  click_action,
-                  ready: false,
+                  route,
                   datetime: Date.now(),
                   owner: userDoc.id
                 });

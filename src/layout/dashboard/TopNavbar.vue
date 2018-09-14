@@ -9,12 +9,9 @@
       </button>
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav ml-auto">
-          <drop-down class="nav-item" title="5 Notifications" title-classes="nav-link" icon="ti-bell">
-            <a class="dropdown-item" href="#">Notification 1</a>
-            <a class="dropdown-item" href="#">Notification 2</a>
-            <a class="dropdown-item" href="#">Notification 3</a>
-            <a class="dropdown-item" href="#">Notification 4</a>
-            <a class="dropdown-item" href="#">Another notification</a>
+          <drop-down class="nav-item" :isNotifications="true" :title="notificationsList.length + ' Notificações'" :title-classes="`nav-link ${notificationsList.length ? `text-danger` : ``}`" icon="ti-bell">
+            <span class="dropdown-item" v-if="notificationsList.length === 0">Nenhuma notificação</span>
+            <a v-for="item in notificationsList" :key="item.id" class="dropdown-item notifications-item" href="#" @click="onGoToNotification(item)">{{ item.body }}</a>
           </drop-down>
           <li class="nav-item">
             <a href="#" @click="onGoToSettings" class="nav-link">
@@ -30,17 +27,50 @@
   </nav>
 </template>
 <script>
+import firebase from "firebase";
+
 export default {
+  props: {
+    uid: {
+      type: String
+    }
+  },
+  data() {
+    return {
+      activeNotifications: false,
+      notificationsList: []
+    };
+  },
   computed: {
     routeName() {
       const { name } = this.$route;
       return this.capitalizeFirstLetter(name);
     }
   },
-  data() {
-    return {
-      activeNotifications: false
+  created() {
+    console.log("uid", this.uid);
+    const getNotReadNotifications = clientId => {
+      return new Promise(resolve => {
+        firebase
+          .firestore()
+          .collection("notifications")
+          .where("owner", "==", clientId)
+          .get()
+          .then(querySnapshot => {
+            let list = [];
+            querySnapshot.forEach(doc => {
+              list.push(Object.assign(doc.data(), { id: doc.id }));
+            });
+
+            resolve(list);
+          });
+      });
     };
+
+    getNotReadNotifications(this.uid).then(list => {
+      this.notificationsList = list;
+      console.log(this.notificationsList);
+    });
   },
   methods: {
     capitalizeFirstLetter(string) {
@@ -60,6 +90,10 @@ export default {
     },
     onGoToSettings() {
       this.$router.replace("/dashboard/index/settings");
+    },
+    onGoToNotification(notification) {
+      console.log("onGoToNotification", notification);
+      this.$router.replace(notification.route);
     }
   }
 };
