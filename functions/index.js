@@ -3,7 +3,7 @@ const admin = require("firebase-admin");
 
 admin.initializeApp();
 
-exports.addLastTowerStatsData = functions.firestore
+exports.sendNotificationOnAddNewTowerStats = functions.firestore
   .document("places/{placeId}/towers/{towerId}/stats/{statsId}")
   .onCreate((snap, context) => {
     const newStats = snap.data();
@@ -18,15 +18,6 @@ exports.addLastTowerStatsData = functions.firestore
       .doc(tower);
 
     towerDocRef
-      .update({
-        last_stats: newStats
-      })
-      .then(() => {
-        return true;
-      })
-      .catch(e => console.log(e.message));
-
-    towerDocRef
       .collection("alerts")
       .where("enabled", "==", true)
       .get()
@@ -38,7 +29,7 @@ exports.addLastTowerStatsData = functions.firestore
           const toLow = alert.when.includes("low") && newValue < alert.value;
 
           if (toHigh || toLow) {
-            sendPushNotification(place, tower, alert);
+            sendPushNotification(place, tower, alert, newStats.datetime);
           }
         });
 
@@ -46,7 +37,7 @@ exports.addLastTowerStatsData = functions.firestore
       })
       .catch(e => console.log(e.message));
 
-    const sendPushNotification = (placeId, towerId, alert) => {
+    const sendPushNotification = (placeId, towerId, alert, datetime) => {
       const msg = `${
         alert.metric === "temperature" ? "Temperatura" : "Umidade"
       } ${alert.for === "environment" ? "do ambiente" : "da planta"} está ${
@@ -91,7 +82,7 @@ exports.addLastTowerStatsData = functions.firestore
                 .add({
                   msg,
                   route,
-                  datetime: Date.now(),
+                  datetime,
                   owner: userDoc.id,
                   place,
                   tower

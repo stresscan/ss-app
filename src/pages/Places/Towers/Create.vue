@@ -174,13 +174,6 @@ export default {
         geolocation: {
           lat: "",
           lng: ""
-        },
-        last_stats: {
-          datetime: 0,
-          environment_humidity: 0,
-          environment_temperature: 0,
-          ground_humidity: 0,
-          ground_temperature: 0
         }
       },
       gettingPlaceData: true,
@@ -321,18 +314,8 @@ export default {
           lat: this.tower.geolocation.lat,
           lng: this.tower.geolocation.lng
         },
-        last_stats: {
-          datetime: 0,
-          environment_temperature: 0,
-          environment_humidity: 0,
-          ground_temperature: 0,
-          ground_humidity: 0
-        },
         disabled: false
       };
-
-      console.log(this.tower.id);
-      console.log({ newTower });
 
       firebase
         .firestore()

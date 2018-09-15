@@ -379,6 +379,28 @@ export default {
       });
     };
 
+    const getTowerLastStats = (placeId, towerId) => {
+      return new Promise(resolve => {
+        firebase
+          .firestore()
+          .collection("places")
+          .doc(placeId)
+          .collection("towers")
+          .doc(towerId)
+          .collection("stats")
+          .orderBy("datetime", "desc")
+          .limit(1)
+          .get()
+          .then(querySnapshot => {
+            let last_stat;
+            querySnapshot.forEach(doc => {
+              last_stat = doc.data();
+            });
+            resolve(last_stat || {});
+          });
+      });
+    };
+
     getPlaceData(this.$route.params.placeId).then(placeData => {
       this.place = placeData;
       this.place.owner = { id: placeData.owner };
@@ -407,11 +429,16 @@ export default {
           this.noTowersFound = true;
         } else {
           towersList.map(tower => {
-            this.towersList.push(
-              Object.assign(tower, {
-                last_upload: this.getLastUpload(tower.last_stats.datetime),
-                showSuspendedMenu: false
-              })
+            getTowerLastStats(this.$route.params.placeId, tower.id).then(
+              last_stats => {
+                this.towersList.push(
+                  Object.assign(tower, {
+                    last_stats: last_stats || {},
+                    last_upload: this.getLastUpload(last_stats.datetime || 0),
+                    showSuspendedMenu: false
+                  })
+                );
+              }
             );
           });
         }
