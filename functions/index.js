@@ -47,11 +47,11 @@ exports.addLastTowerStatsData = functions.firestore
       .catch(e => console.log(e.message));
 
     const sendPushNotification = (placeId, towerId, alert) => {
-      const body = `${
+      const msg = `${
         alert.metric === "temperature" ? "Temperatura" : "Umidade"
       } ${alert.for === "environment" ? "do ambiente" : "da planta"} está ${
         alert.when === "high" ? "maior" : "menor"
-      } que ${alert.value} na torre ${towerId.substring(0, 8)}`;
+      } que ${alert.value}`;
 
       const url = "http://localhost:3014";
       const route = `/dashboard/index/places/${placeId}/tower/${towerId}/details`;
@@ -70,27 +70,31 @@ exports.addLastTowerStatsData = functions.firestore
             .doc(placeDoc.data().owner)
             .get()
             .then(userDoc => {
-              const token = userDoc.data().push_notifications_token;
+              const tokens = userDoc.data().push_notifications_tokens || [];
+              console.log({ tokens });
 
-              if (token) {
+              tokens.forEach(token => {
+                console.log({ token });
                 admin.messaging().sendToDevice(token, {
                   notification: {
                     title: "Stresscan",
-                    body,
+                    body: `${msg} na torre ${towerId.substring(0, 8)}`,
                     click_action: url + route,
                     icon
                   }
                 });
-              }
+              });
 
               admin
                 .firestore()
                 .collection("notifications")
                 .add({
-                  body,
+                  msg,
                   route,
                   datetime: Date.now(),
-                  owner: userDoc.id
+                  owner: userDoc.id,
+                  place,
+                  tower
                 });
 
               return true;

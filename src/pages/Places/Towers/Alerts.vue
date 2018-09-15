@@ -157,7 +157,7 @@ export default {
       });
     };
 
-    const getAlertsList = (placeId, towerId) => {
+    const getRealtimeAlertsList = (placeId, towerId) => {
       firebase
         .firestore()
         .collection("places")
@@ -166,10 +166,10 @@ export default {
         .doc(towerId)
         .collection("alerts")
         .orderBy("datetime", "desc")
-        .onSnapshot(snapshot => {
+        .onSnapshot(querySnapshot => {
           this.gettingAlerts = false;
 
-          snapshot.docChanges().forEach(change => {
+          querySnapshot.docChanges().forEach(change => {
             const data = change.doc.data();
             const itemChanged = {
               id: change.doc.id,
@@ -214,7 +214,10 @@ export default {
         this.tower = Object.assign(this.tower, data);
       });
 
-    getAlertsList(this.$route.params.placeId, this.$route.params.towerId);
+    getRealtimeAlertsList(
+      this.$route.params.placeId,
+      this.$route.params.towerId
+    );
 
     getTotalOfAlerts(
       this.$route.params.placeId,
@@ -289,7 +292,7 @@ export default {
               "bottom",
               "right",
               "success",
-              "Notificação criada com sucesso",
+              "Alerta criado com sucesso",
               "ti-thumb-up"
             );
           })
@@ -298,13 +301,13 @@ export default {
               "bottom",
               "right",
               "danger",
-              "A Notificação não pode ser criada: erro inesperado",
+              "O alerta não pode ser criado: erro inesperado",
               "ti-thumb-down"
             );
 
             logService.logError(
               new Date().getTime(),
-              `A Notificação não pode ser criada: ${e.message}`,
+              `O alerta não pode ser criado: ${e.message}`,
               "createAlert",
               "create Alert",
               this.stateUid
@@ -324,13 +327,13 @@ export default {
               "bottom",
               "right",
               "danger",
-              "A Notificação não pode ser editada: erro inesperado",
+              "O alerta não pode ser editado: erro inesperado",
               "ti-thumb-down"
             );
 
             logService.logError(
               new Date().getTime(),
-              `A Notificação não pode ser editada: ${e.message}`,
+              `O alerta não pode ser editado: ${e.message}`,
               "createUser",
               "create user account",
               this.stateUid
@@ -358,7 +361,7 @@ export default {
     },
     onRemove(id) {
       this.$dialog
-        .confirm("Deseja realmente excluir essa notificação?")
+        .confirm("Deseja realmente excluir esse alerta?")
         .then(dialog => {
           firebase
             .firestore()
@@ -376,7 +379,7 @@ export default {
                 "bottom",
                 "right",
                 "success",
-                "Notificação excluida com sucesso",
+                "Alerta excluído com sucesso",
                 "ti-thumb-up"
               );
             })
@@ -385,13 +388,13 @@ export default {
                 "bottom",
                 "right",
                 "danger",
-                "A Notificação não pode ser excluída: erro inesperado",
+                "O alerta não pode ser excluído: erro inesperado",
                 "ti-thumb-down"
               );
 
               logService.logError(
                 new Date().getTime(),
-                `A Notificação não pode ser excluída: ${e.message}`,
+                `O alerta não pode ser excluído: ${e.message}`,
                 "createUser",
                 "create user account",
                 this.stateUid

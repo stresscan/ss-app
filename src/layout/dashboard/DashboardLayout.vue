@@ -1,18 +1,15 @@
 <template>
   <div class="wrapper" id="wrapper">
-    <side-bar :title="username">
+    <side-bar :title="stateUsername">
       <template slot="links">
         <sidebar-link to="/dashboard/index" name="Dashboard" icon="ti-panel" />
         <sidebar-link to="/dashboard/user-profile" name="Meus Dados" icon="ti-user" />
         <sidebar-link v-if="stateIsAdmin" to="/dashboard/users" name="Usuários" icon="fa fa-users" />
       </template>
       <mobile-menu>
-        <drop-down class="nav-item" title="5 Notifications" title-classes="nav-link" icon="ti-bell">
-          <a class="dropdown-item">Notification 1</a>
-          <a class="dropdown-item">Notification 2</a>
-          <a class="dropdown-item">Notification 3</a>
-          <a class="dropdown-item">Notification 4</a>
-          <a class="dropdown-item">Another notification</a>
+        <drop-down class="nav-item" :hideArrow="true" :isMobileNotifications="true" :title="notificationsList.length + ' Notificações'" :title-classes="`nav-link ${notificationsList.length ? `text-danger` : ``}`" icon="ti-bell">
+          <span class="dropdown-item" v-if="notificationsList.length === 0">Nenhuma notificação</span>
+          <a v-for="item in notificationsList" :key="item.id" class="dropdown-item notifications-item" href="#" @click="onGoToNotification(item)">{{ item.msg }}</a>
         </drop-down>
         <li class="nav-item">
           <a href="#" @click="onGoToSettings" class="nav-link">
@@ -47,18 +44,54 @@ export default {
     DashboardContent,
     MobileMenu
   },
+  data() {
+    return {
+      notificationsList: []
+    };
+  },
   computed: {
-    username: () => firebase.auth().currentUser.displayName,
     ...mapState({
+      stateUsername: state => state.users.user.username,
       stateIsAdmin: state => state.users.user.isAdmin,
       stateUid: state => state.users.user.uid
     })
+  },
+  created() {
+    const getRealtimeNotificationsList = clientId => {
+      firebase
+        .firestore()
+        .collection("notifications")
+        .where("owner", "==", clientId)
+        .orderBy("datetime", "desc")
+        .onSnapshot(querySnapshot => {
+          querySnapshot.docChanges().forEach(change => {
+            if (change.type === "added") {
+              this.notificationsList.unshift(
+                Object.assign(change.doc.data(), {
+                  id: change.doc.id
+                })
+              );
+            }
+
+            if (change.type === "removed") {
+              this.notificationsList = this.notificationsList.filter(
+                item => item.id !== change.doc.id
+              );
+            }
+          });
+        });
+    };
+
+    getRealtimeNotificationsList(this.stateUid);
   },
   methods: {
     toggleSidebar() {
       if (this.$sidebar.showSidebar) {
         this.$sidebar.displaySidebar(false);
       }
+    },
+    onGoToNotification(notification) {
+      this.$router.replace(notification.route);
     },
     onGoToSettings() {
       this.$sidebar.displaySidebar(false);
@@ -67,3 +100,9 @@ export default {
   }
 };
 </script>
+<style>
+.notification {
+  margin-top: 5px;
+}
+</style>
+

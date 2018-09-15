@@ -8,7 +8,7 @@
         </span>
       </slot>
     </a>
-    <ul class="dropdown-menu" :class="{show:isOpen, 'dropdown-notifications': isNotifications}">
+    <ul class="dropdown-menu" :class="{show:isOpen, 'dropdown-notifications': isNotifications, 'mobile-dropdown-notifications': isMobileNotifications, 'hide-arrow': hideArrow}">
       <div class="dropdown-menu-wrapper">
         <slot></slot>
       </div>
@@ -23,6 +23,14 @@ export default {
       default: "li"
     },
     isNotifications: {
+      type: Boolean,
+      default: false
+    },
+    isMobileNotifications: {
+      type: Boolean,
+      default: false
+    },
+    hideArrow: {
       type: Boolean,
       default: false
     },
@@ -65,9 +73,31 @@ export default {
   white-space: initial;
 }
 
-.dropdown-menu.dropdown-notifications > .dropdown-menu-wrapper {
+.dropdown-menu.dropdown-notifications > .dropdown-menu-wrapper,
+.dropdown-menu.mobile-dropdown-notifications > .dropdown-menu-wrapper {
   overflow-y: auto;
   max-height: 400px;
+}
+
+.dropdown-menu.mobile-dropdown-notifications > .dropdown-menu-wrapper {
+  overflow-y: auto;
+  max-height: 200px;
+}
+
+.dropdown .dropdown-menu.hide-arrow::after,
+.dropdown .dropdown-menu.hide-arrow::before {
+  display: none;
+}
+
+.dropdown .dropdown-menu.mobile-dropdown-notifications .dropdown-item:hover,
+.dropdown .dropdown-menu.mobile-dropdown-notifications .dropdown-item:focus {
+  background-color: transparent !important;
+  opacity: 1 !important;
+}
+
+.dropdown .dropdown-menu.mobile-dropdown-notifications .dropdown-item {
+  white-space: initial;
+  width: 150px;
 }
 </style>
 

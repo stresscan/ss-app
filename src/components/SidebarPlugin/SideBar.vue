@@ -8,7 +8,7 @@
     <div class="sidebar-wrapper" id="style-3">
       <div class="logo">
         <div class="simple-text">
-          <div style="cursor: pointer; display: inline-block" onClick="window.location = 'http://www.stresscan.com/'">
+          <div class="d-inline-block" style="cursor: pointer" onClick="window.location = 'http://www.stresscan.com/'">
             <div class="logo-img">
               <img src="@/assets/img/faces/face-1.jpg" alt="">
             </div>
@@ -27,9 +27,7 @@
           </sidebar-link>
         </slot>
       </ul>
-      <moving-arrow :move-y="arrowMovePx">
-
-      </moving-arrow>
+      <moving-arrow :move-y="arrowMovePx"></moving-arrow>
     </div>
   </div>
 </template>

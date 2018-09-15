@@ -43,23 +43,29 @@ const getAverage = (data, field) =>
   data.map(itemGroup => {
     let total = itemGroup
       .map(item => item[field])
-      .reduce((acc, item) => acc + item);
+      .reduce((acc, item) => acc + item, 0);
 
     return total / itemGroup.length;
   });
 
 const get24hLabels = stats => {
   return stats.map(itemGroup => {
-    return new Date(itemGroup[0].datetime).getHours();
+    if (itemGroup[0]) {
+      return new Date(itemGroup[0].datetime).getHours();
+    }
   });
 };
 
 const getSeries = (data, values) => {
   return data.map((item, i) => {
-    return {
-      meta: item[0].time.hour + "h",
-      value: values[i]
-    };
+    if (item[0]) {
+      return {
+        meta: item[0].time.hour + "h",
+        value: values[i]
+      };
+    } else {
+      return "";
+    }
   });
 };
 

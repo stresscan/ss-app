@@ -1,11 +1,12 @@
 <template>
   <div>
-    <!-- <div class="alert alert-warning alert-dismissible fade show" role="alert">
-      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <div class="alert alert-warning alert-dismissible fade show" v-for="(item, index) in notificationsList" :key="index" v-if="item.show" role="alert">
+      <button type="button" class="close" @click.prevent="onCloseNotification(item)" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
-      <strong>Atenção!</strong> Temperatura do ambiente acima do normal.
-    </div> -->
+      <small>{{ new Date(item.datetime).getDate() + '/' + new Date(item.datetime).getMonth() + "/" + new Date(item.datetime).getFullYear() }}</small><br />
+      <strong>Atenção!</strong> {{ item.msg }}.
+    </div>
 
     <div class="row">
       <div class="col-12">
@@ -67,7 +68,7 @@
                 </div>
                 <div v-if="gettingTowerData" class="ss-inline-spinner mg-tp-md mg-lf-md"></div>
                 <div v-else class="tower-data-card-numbers">
-                  {{ stats.number }}{{ stats.numberSign }}
+                  {{ stats.number }}{{ stats.sign }}
                 </div>
               </div>
               <div class="stats" slot="footer">
@@ -122,7 +123,7 @@ import ChartistPluginTooltip from "chartist-plugin-tooltips";
 import firebase from "firebase";
 import basePage from "@/mixins/BasePage.js";
 import getLastUploadMixin from "@/mixins/PlacesAndTowers/GetLastUploadInfo.js";
-import mapStats from "./Charts/MapStats.js";
+import mapTowerStats from "./Charts/MapTowerStats.js";
 
 export default {
   mixins: [basePage, getLastUploadMixin],
@@ -133,6 +134,7 @@ export default {
   },
   data() {
     return {
+      notificationsList: [],
       gettingPlaceData: true,
       place: {
         name: ""
@@ -172,6 +174,40 @@ export default {
     };
   },
   created() {
+    const getRealTimeNotificationsList = (placeId, towerId) => {
+      firebase
+        .firestore()
+        .collection("notifications")
+        .where("place", "==", placeId)
+        .where("tower", "==", towerId)
+        .onSnapshot(querySnapshot => {
+          querySnapshot.docChanges().forEach(change => {
+            if (change.type === "added") {
+              this.notificationsList.unshift(
+                Object.assign(change.doc.data(), {
+                  id: change.doc.id,
+                  show: false
+                })
+              );
+            }
+
+            if (change.type === "removed") {
+              this.notificationsList = this.notificationsList.filter(
+                item => item.id !== change.doc.id
+              );
+            }
+          });
+
+          const totalOfNotifications = querySnapshot.size;
+
+          for (let i = 1; i <= totalOfNotifications; i++) {
+            setTimeout(() => {
+              this.notificationsList[i - 1].show = true;
+            }, i * 100);
+          }
+        });
+    };
+
     const getPlaceData = placeId => {
       return new Promise(resolve => {
         firebase
@@ -198,43 +234,86 @@ export default {
       });
     };
 
-    const getTowerData = (placeId, towerId) => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(placeId)
-          .collection("towers")
-          .doc(towerId)
-          .get()
-          .then(doc => {
-            resolve(Object.assign(doc.data(), { id: doc.id }));
+    const getRealTimeTowerData = (placeId, towerId) => {
+      firebase
+        .firestore()
+        .collection("places")
+        .doc(placeId)
+        .collection("towers")
+        .doc(towerId)
+        .onSnapshot(snapshot => {
+          this.gettingTowerData = true;
+
+          console.log("last_stats", snapshot.data().last_stats);
+
+          let statsCardsData = [];
+
+          statsCardsData.push({
+            title: "Planta",
+            icon: "thermometer-full",
+            number: snapshot.data().last_stats.ground_temperature || 0,
+            sign: "°"
           });
-      });
+
+          statsCardsData.push({
+            title: "Planta",
+            icon: "umbrella",
+            number: snapshot.data().last_stats.ground_humidity || 0,
+            sign: "%"
+          });
+
+          statsCardsData.push({
+            title: "Ambiente",
+            icon: "thermometer-full",
+            number: snapshot.data().last_stats.environment_temperature || 0,
+            sign: "°"
+          });
+
+          statsCardsData.push({
+            title: "Ambiente",
+            icon: "umbrella",
+            number: snapshot.data().last_stats.environment_humidity || 0,
+            sign: "°"
+          });
+
+          const towerData = Object.assign(snapshot.data(), {
+            last_upload: this.getLastUpload(
+              snapshot.data().last_stats.datetime || Date.now()
+            ),
+            stats_cards: statsCardsData
+          });
+
+          Object.assign(this.tower, towerData);
+
+          console.log("tower", this.tower);
+
+          this.gettingTowerData = false;
+        });
     };
 
-    const getTowerStats = (placeId, towerId) => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(placeId)
-          .collection("towers")
-          .doc(towerId)
-          .collection("stats")
-          .orderBy("datetime", "desc")
-          .limit(10000)
-          .get()
-          .then(querySnapshot => {
-            let result = [];
+    const getRealTimeTowerStats = (placeId, towerId) => {
+      firebase
+        .firestore()
+        .collection("places")
+        .doc(placeId)
+        .collection("towers")
+        .doc(towerId)
+        .collection("stats")
+        .orderBy("datetime", "desc")
+        .limit(10000)
+        .onSnapshot(querySnapshot => {
+          this.gettingTowerStats = true;
+          let stats = [];
 
-            querySnapshot.forEach(doc => {
-              result.push(doc.data());
-            });
-
-            resolve(result);
+          querySnapshot.forEach(doc => {
+            console.log("stats", doc.data());
+            stats.push(Object.assign(doc.data(), { id: doc.id }));
           });
-      });
+
+          this.tower.stats.length = stats.length;
+          this.gettingTowerStats = false;
+          buildStatsCharts(stats);
+        });
     };
 
     getPlaceData(this.$route.params.placeId).then(data => {
@@ -242,74 +321,41 @@ export default {
       this.place = data;
     });
 
-    getTowerData(this.$route.params.placeId, this.$route.params.towerId).then(
-      data => {
-        this.gettingTowerData = false;
-
-        let statsCardsData = [];
-
-        statsCardsData.push({
-          title: "Planta",
-          icon: "thermometer-full",
-          number: data.last_stats.ground_temperature,
-          sign: "°"
-        });
-
-        statsCardsData.push({
-          title: "Planta",
-          icon: "umbrella",
-          number: data.last_stats.ground_humidity,
-          sign: "%"
-        });
-
-        statsCardsData.push({
-          title: "Ambiente",
-          icon: "thermometer-full",
-          number: data.last_stats.environment_temperature,
-          sign: "°"
-        });
-
-        statsCardsData.push({
-          title: "Ambiente",
-          icon: "umbrella",
-          number: data.last_stats.environment_humidity,
-          sign: "°"
-        });
-
-        Object.assign(data, {
-          last_upload: this.getLastUpload(data.last_stats.datetime),
-          stats_cards: statsCardsData
-        });
-
-        Object.assign(this.tower, data);
-      }
+    getRealTimeTowerData(
+      this.$route.params.placeId,
+      this.$route.params.towerId
     );
 
-    getTowerStats(this.$route.params.placeId, this.$route.params.towerId).then(
-      stats => {
-        this.tower.stats.length = stats.length;
-        this.gettingTowerStats = false;
-        buildStatsCharts(stats);
-      }
+    getRealTimeNotificationsList(
+      this.$route.params.placeId,
+      this.$route.params.towerId
+    );
+
+    getRealTimeTowerStats(
+      this.$route.params.placeId,
+      this.$route.params.towerId
     );
 
     const buildStatsCharts = stats => {
-      const formatedStats = mapStats.groupStatsByHour(
-        mapStats.getOnlyLast24hStats(stats)
+      const formatedStats = mapTowerStats.groupStatsByHour(
+        mapTowerStats.getOnlyLast24hStats(stats)
       );
 
-      const labels = mapStats.get24hLabels(formatedStats);
+      const labels = mapTowerStats.get24hLabels(formatedStats);
 
       buildTemperatureChart(labels, formatedStats);
       buildHumidityChart(labels, formatedStats);
     };
 
     const buildTemperatureChart = (labels, data) => {
-      const envTemps = mapStats.getAverage(data, "environment_temperature");
-      const groundTemps = mapStats.getAverage(data, "ground_temperature");
+      const envTemps = mapTowerStats.getAverage(
+        data,
+        "environment_temperature"
+      );
+      const groundTemps = mapTowerStats.getAverage(data, "ground_temperature");
 
-      const envSeries = mapStats.getSeries(data, envTemps);
-      const groundSeries = mapStats.getSeries(data, groundTemps);
+      const envSeries = mapTowerStats.getSeries(data, envTemps);
+      const groundSeries = mapTowerStats.getSeries(data, groundTemps);
 
       this.temperatureChart = {
         data: {
@@ -372,11 +418,14 @@ export default {
     };
 
     const buildHumidityChart = (labels, data) => {
-      const envHumidity = mapStats.getAverage(data, "environment_humidity");
-      const groundHumidity = mapStats.getAverage(data, "ground_humidity");
+      const envHumidity = mapTowerStats.getAverage(
+        data,
+        "environment_humidity"
+      );
+      const groundHumidity = mapTowerStats.getAverage(data, "ground_humidity");
 
-      const envSeries = mapStats.getSeries(data, envHumidity);
-      const groundSeries = mapStats.getSeries(data, groundHumidity);
+      const envSeries = mapTowerStats.getSeries(data, envHumidity);
+      const groundSeries = mapTowerStats.getSeries(data, groundHumidity);
 
       this.humidityChart = {
         data: {
@@ -436,6 +485,25 @@ export default {
   methods: {
     onGoBack() {
       this.$router.push("../../towers/list");
+    },
+    onCloseNotification(notification) {
+      notification.show = false;
+
+      firebase
+        .firestore()
+        .collection("notifications")
+        .doc(notification.id)
+        .delete()
+        .then()
+        .catch(e => {
+          logService.logError(
+            new Date().getTime(),
+            `A Notificação não pode ser excluída: ${e.message}`,
+            "onCloseNotification",
+            "tower details",
+            this.stateUid
+          );
+        });
     },
     bringToTop(targetElement) {
       this.$nextTick(() => {
@@ -510,7 +578,8 @@ export default {
 .fade-leave-active {
   transition: opacity 0.5s;
 }
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+.fade-enter,
+.fade-leave-to {
   opacity: 0;
 }
 </style>

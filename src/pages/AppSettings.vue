@@ -26,7 +26,6 @@ export default {
   methods: {
     async onTogglePushNotifications() {
       const token = await askForPermissioToReceiveNotifications();
-      console.log({ token });
       if (token) {
         saveUserPermissionToken(this.stateUid, token);
       }

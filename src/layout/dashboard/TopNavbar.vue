@@ -11,7 +11,7 @@
         <ul class="navbar-nav ml-auto">
           <drop-down class="nav-item" :isNotifications="true" :title="notificationsList.length + ' Notificações'" :title-classes="`nav-link ${notificationsList.length ? `text-danger` : ``}`" icon="ti-bell">
             <span class="dropdown-item" v-if="notificationsList.length === 0">Nenhuma notificação</span>
-            <a v-for="item in notificationsList" :key="item.id" class="dropdown-item notifications-item" href="#" @click="onGoToNotification(item)">{{ item.body }}</a>
+            <a v-for="item in notificationsList" :key="item.id" class="dropdown-item notifications-item" href="#" @click="onGoToNotification(item)">{{ item.msg + ' na torre ' + item.tower }}</a>
           </drop-down>
           <li class="nav-item">
             <a href="#" @click="onGoToSettings" class="nav-link">
@@ -48,29 +48,32 @@ export default {
     }
   },
   created() {
-    console.log("uid", this.uid);
-    const getNotReadNotifications = clientId => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("notifications")
-          .where("owner", "==", clientId)
-          .get()
-          .then(querySnapshot => {
-            let list = [];
-            querySnapshot.forEach(doc => {
-              list.push(Object.assign(doc.data(), { id: doc.id }));
-            });
+    const getRealtimeNotificationsList = clientId => {
+      firebase
+        .firestore()
+        .collection("notifications")
+        .where("owner", "==", clientId)
+        .orderBy("datetime", "desc")
+        .onSnapshot(querySnapshot => {
+          querySnapshot.docChanges().forEach(change => {
+            if (change.type === "added") {
+              this.notificationsList.unshift(
+                Object.assign(change.doc.data(), {
+                  id: change.doc.id
+                })
+              );
+            }
 
-            resolve(list);
+            if (change.type === "removed") {
+              this.notificationsList = this.notificationsList.filter(
+                item => item.id !== change.doc.id
+              );
+            }
           });
-      });
+        });
     };
 
-    getNotReadNotifications(this.uid).then(list => {
-      this.notificationsList = list;
-      console.log(this.notificationsList);
-    });
+    getRealtimeNotificationsList(this.uid);
   },
   methods: {
     capitalizeFirstLetter(string) {
@@ -92,7 +95,6 @@ export default {
       this.$router.replace("/dashboard/index/settings");
     },
     onGoToNotification(notification) {
-      console.log("onGoToNotification", notification);
       this.$router.replace(notification.route);
     }
   }
