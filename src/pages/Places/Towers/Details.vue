@@ -1,14 +1,13 @@
 <template>
   <div>
-    statsLength: {{statsLength}}<br /> last: {{lastStatsTime}}
     <a class="back-link" href="#" @click.prevent="onAddData">
-      Inserir dados aleatorios
+      Inserir dados aleatórios
     </a>
     <div class="alert alert-warning alert-dismissible fade show" v-for="(item, index) in notificationsList" :key="index" v-if="item.show" role="alert">
       <button type="button" class="close" @click.prevent="onCloseNotification(item)" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
-      <small>{{ item.datetime.getDate() + '/' + item.datetime.getMonth() + "/" + item.datetime.getFullYear() + ' ' + item.datetime.getHours() + 'h' + item.datetime.getMinutes()}}</small><br />
+      <small>{{ item.datetime.getDate() + '/' + item.datetime.getMonth() + 1 + "/" + item.datetime.getFullYear() + ' ' + item.datetime.getHours() + 'h' + item.datetime.getMinutes()}}</small><br />
       <strong>Atenção!</strong> {{ item.msg }}.
     </div>
 
@@ -58,14 +57,14 @@
         <div class="row">
           <div class="col-sm-12 mg-lf-sm text-info">
             <i class="fa fa-close"></i>
-            <b>Essa torre ainda não possui nenhum dado para ser exibido</b>
+            <b>Essa torre ainda não possui dados a serem exibido</b>
           </div>
         </div>
       </template>
       <template v-else>
         <div class="row">
           <div class="col-sm-6 col-md-3" v-for="(stats, index) in tower.stats_cards" :key="index">
-            <stats-card :title="stats.title">
+            <stats-card :title="stats.title" subtitle="última medição recebida">
               <div class="tower-data-card-content-wrapper" slot="raw-content">
                 <div class="tower-data-card-content-icon text-center" :class="{'icon-warning': stats.title === 'Planta', 'icon-info': stats.title === 'Ambiente'}">
                   <i :class="`fa fa-${stats.icon}`"></i>
@@ -85,7 +84,7 @@
         <!--Charts-->
         <div class="row">
           <div class="col-12">
-            <chart-card class="chart-temperature" :cardBodyNegativeTop="true" title="Temperatura/Hora" sub-title="Últimas 24 Horas" :chart-data="temperatureChart.data" :chart-options="temperatureChart.options" :chart-responsive-options="temperatureChart.responsiveOptions">
+            <chart-card class="chart-temperature" :cardBodyNegativeTop="true" title="Média de Temperatura por Hora" :sub-title="`${last24hStatsLength} medições recebidas nas últimas 24 Horas`" :chart-data="temperatureChart.data" :chart-options="temperatureChart.options" :chart-responsive-options="temperatureChart.responsiveOptions">
               <span slot="footer">
                 <i :class="tower.last_upload.icon"></i> {{ tower.last_upload.text }}
               </span>
@@ -93,10 +92,10 @@
                 <div class="mg-bt-sm">
                   <i class="fa fa-circle text-info"></i> Ambiente
                   <i class="fa fa-circle text-warning"></i> Planta
-                  <button v-if="areaChart.serieBIsOnTop" class="btn btn-sm mg-lf-xs" @click="bringSeriesToTop('.ct-series-a')">
+                  <button v-if="areaChart.serieBOnTop" class="btn btn-sm mg-lf-xs" @click="bringSeriesToTop('.ct-series-a')">
                     <i class="fa fa-exchange"></i>
                   </button>
-                  <button v-if="areaChart.serieAIsOnTop" class="btn btn-sm mg-lf-xs" @click="bringSeriesToTop('.ct-series-b')">
+                  <button v-if="areaChart.serieAOnTop" class="btn btn-sm mg-lf-xs" @click="bringSeriesToTop('.ct-series-b')">
                     <i class="fa fa-exchange"></i>
                   </button>
                 </div>
@@ -105,7 +104,7 @@
           </div>
 
           <div class="col-12">
-            <chart-card class="chart-humidity" :cardBodyNegativeTop="true" title="Umidade/Hora" sub-title="Últimas 24 Horas" :chart-data="humidityChart.data" :chart-options="humidityChart.options" :chart-responsive-options="humidityChart.responsiveOptions">
+            <chart-card class="chart-humidity" :cardBodyNegativeTop="true" title="Média de Umidade por Hora" :sub-title="`${last24hStatsLength} medições recebidas nas últimas 24 Horas`" :chart-data="humidityChart.data" :chart-options="humidityChart.options" :chart-responsive-options="humidityChart.responsiveOptions">
               <span slot="footer">
                 <i :class="tower.last_upload.icon"></i> {{ tower.last_upload.text }}
               </span>
@@ -138,8 +137,7 @@ export default {
   },
   data() {
     return {
-      statsLength: 0,
-      lastStatsTime: 0,
+      last24hStatsLength: 0,
       notificationsList: [],
       gettingPlaceData: true,
       place: {
@@ -167,8 +165,8 @@ export default {
       temperatureChart: {},
       humidityChart: {},
       areaChart: {
-        serieAIsOnTop: false,
-        serieBIsOnTop: true
+        serieAOnTop: false,
+        serieBOnTop: true
       }
     };
   },
@@ -266,16 +264,8 @@ export default {
           queryStatsSnapshot.forEach(doc => {
             let statsCardsData = [];
             const d = new Date(doc.data().datetime);
-            const date =
-              d.getDate() +
-              "/" +
-              d.getMonth() +
-              "/" +
-              d.getFullYear() +
-              " " +
-              d.getHours() +
-              "h" +
-              d.getMinutes();
+            const date = `${d.getDate()}/${d.getMonth() +
+              1}/${d.getFullYear()} ${d.getHours()}h${d.getMinutes()}`;
 
             statsCardsData.push({
               title: "Planta",
@@ -316,25 +306,12 @@ export default {
               stats_cards: statsCardsData
             });
 
-            let lastDataTime = new Date(doc.data().datetime);
-            this.lastStatsTime =
-              lastDataTime.getDate() +
-              "/" +
-              lastDataTime.getMonth() +
-              "/" +
-              lastDataTime.getFullYear() +
-              " " +
-              lastDataTime.getHours() +
-              "h" +
-              lastDataTime.getMinutes();
-
             statsCharts.push(Object.assign(doc.data(), { id: doc.id }));
           });
 
           this.tower.stats.length = statsCharts.length;
           this.gettingTowerStats = false;
           buildStatsCharts(statsCharts);
-          this.statsLength = statsCharts.length;
         });
     };
 
@@ -359,8 +336,11 @@ export default {
     );
 
     const buildStatsCharts = stats => {
+      const last24hStats = mapTowerStats.getOnlyLast24hStats(stats);
+      this.last24hStatsLength = last24hStats.length;
+
       const statsGroupedByDayAndHour = mapTowerStats.groupStatsByHour(
-        mapTowerStats.getOnlyLast24hStats(stats)
+        last24hStats
       );
 
       const labels = mapTowerStats.getLabels(
@@ -558,11 +538,11 @@ export default {
       });
     },
     onAddData() {
-      d = new Date(new Date().setHours(new Date().getHours() - 24));
+      let d = new Date();
+      d.setHours(d.getHours() - 24);
 
       for (let i = 0; i < 96; i++) {
         const time = d.setMinutes(d.getMinutes() + 15);
-        console.log({ d });
         const newData = {
           datetime: time,
           environment_humidity: Math.floor(Math.random() * 20) + 60,
@@ -586,11 +566,11 @@ export default {
         this.bringToTop(document.querySelector(serie));
 
         if (serie.includes("a")) {
-          this.areaChart.serieAIsOnTop = true;
-          this.areaChart.serieBIsOnTop = false;
+          this.areaChart.serieAOnTop = true;
+          this.areaChart.serieBOnTop = false;
         } else {
-          this.areaChart.serieAIsOnTop = false;
-          this.areaChart.serieBIsOnTop = true;
+          this.areaChart.serieAOnTop = false;
+          this.areaChart.serieBOnTop = true;
         }
       });
     }

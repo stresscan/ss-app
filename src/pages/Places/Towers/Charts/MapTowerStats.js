@@ -28,48 +28,29 @@ const getOnlyLast24hStats = stats => {
       });
     });
 
-  console.log({ only24h });
-
   return only24h;
 };
 
-const groupStatsByHour = stats => {
-  console.log("groupStatsByHour", stats);
-  let statsByDayAndHour = [];
-  let indexOfDaysAndHours = [];
+const groupStatsByHour = last24hStats => {
+  let currentDay = last24hStats[0].date.day;
+  let currentTime = last24hStats[0].time.hour;
+  let currentGroup = [];
+  let finalGroup = [];
+  let indexs = [];
 
-  const groupBy = (day, hour) => {
-    return stats.filter(
-      item =>
-        new Date(item.datetime).getDate() === day &&
-        new Date(item.datetime).getHours() === hour
-    );
-  };
-
-  let lastStatsHour = new Date(stats[stats.length - 1].datetime).getHours();
-  let lastStatsDay = new Date(stats[stats.length - 1].datetime).getDate();
-
-  const firstStatsHour = new Date(stats[0].datetime).getHours();
-  const firstStatsDay = new Date(stats[0].datetime).getDate();
-
-  for (let i = 0; i < 24; i++) {
-    let day = lastStatsDay;
-    let hour = lastStatsHour;
-
-    lastStatsHour--;
-
-    if (hour == 0) {
-      lastStatsDay--;
-      lastStatsHour = 23;
+  last24hStats.forEach(element => {
+    if (element.date.day == currentDay && element.time.hour == currentTime) {
+      currentGroup.push(element);
+    } else {
+      finalGroup[`${currentDay}_${currentTime}`] = currentGroup;
+      indexs.push(`${currentDay}_${currentTime}`);
+      currentGroup = [];
+      currentDay = element.date.day;
+      currentTime = element.time.hour;
     }
+  });
 
-    if (day === firstStatsDay && hour < firstStatsHour) continue;
-
-    statsByDayAndHour[`${day}_${hour}`] = groupBy(day, hour);
-    indexOfDaysAndHours.push(`${day}_${hour}`);
-  }
-
-  return { stats: statsByDayAndHour, index: indexOfDaysAndHours };
+  return { stats: finalGroup, index: indexs };
 };
 
 const getLabels = (statsGroupedByDayAndHour, index) => {
@@ -86,7 +67,6 @@ const getAverage = (data, index, field) => {
       .reduce((acc, item) => acc + item, 0);
 
     const average = total / itemGroup.length;
-    console.log({ itemGroup, average });
     return average.toFixed(1);
   });
 };
@@ -97,7 +77,7 @@ const getSeries = (data, index, values) => {
 
     if (item) {
       return {
-        meta: item.time.hour + "h",
+        meta: `${item.date.day}/${item.date.month} às ${item.time.hour}h`,
         value: values[ii]
       };
     } else {

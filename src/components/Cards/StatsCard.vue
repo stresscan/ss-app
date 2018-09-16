@@ -1,5 +1,5 @@
 <template>
-  <card :disabled="disabled" :title="title" :centerTitle="centerTitle">
+  <card :disabled="disabled" :title="title" :sub-title="subtitle" :centerTitle="centerTitle">
     <slot name="raw-content" />
     <div class="row inside-card" v-if="$slots.header || $slots.content">
       <div class="col-3" v-if="$slots.header">
@@ -22,6 +22,7 @@ export default {
   name: "stats-card",
   props: {
     title: String,
+    subtitle: String,
     centerTitle: Boolean,
     disabled: Boolean
   },
