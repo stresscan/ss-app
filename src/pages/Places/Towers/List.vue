@@ -447,9 +447,7 @@ export default {
   },
   methods: {
     onOutsideClick() {
-      if (this.stateIsAdmin) {
-        this.closeAllSuspendedMenu();
-      }
+      this.closeAllSuspendedMenu();
     },
     closeAllSuspendedMenu() {
       this.towersList.map(item => {
@@ -539,14 +537,12 @@ export default {
       }
     },
     onTowerToggleSuspendedMenu(tower) {
-      if (this.stateIsAdmin) {
-        this.closeAllSuspendedMenu();
-        this.towersList.map(item => {
-          if (item.id === tower.id) {
-            item.showSuspendedMenu = !tower.showSuspendedMenu;
-          }
-        });
-      }
+      this.closeAllSuspendedMenu();
+      this.towersList.map(item => {
+        if (item.id === tower.id) {
+          item.showSuspendedMenu = !tower.showSuspendedMenu;
+        }
+      });
     },
     onTowerToggleDisabled(tower) {
       if (this.stateIsAdmin) {
