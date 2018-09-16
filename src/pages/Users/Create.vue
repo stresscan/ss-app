@@ -388,7 +388,9 @@ export default {
             phoneNumber: this.phoneNumber,
             phoneNumber: this.phoneNumber,
             phoneNumberTwo: this.phoneNumberTwo,
-            isAdmin: Boolean(Number(this.isAdmin))
+            isAdmin: Boolean(Number(this.isAdmin)),
+            push_notifications_tokens: [],
+            push_notifications_enable: false
           };
 
           firebase

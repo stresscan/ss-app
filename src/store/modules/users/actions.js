@@ -7,5 +7,8 @@ export default {
   },
   updateUID(context, payload) {
     context.commit("UPDATE_UID", payload);
+  },
+  updatePushNotificationsEnable(context, payload) {
+    context.commit("UPDATE_PUSHNOTIFICATIONSENABLE", payload);
   }
 };

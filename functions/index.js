@@ -64,17 +64,19 @@ exports.sendNotificationOnAddNewTowerStats = functions.firestore
               const tokens = userDoc.data().push_notifications_tokens || [];
               console.log({ tokens });
 
-              tokens.forEach(token => {
-                console.log({ token });
-                admin.messaging().sendToDevice(token, {
-                  notification: {
-                    title: "Stresscan",
-                    body: `${msg} na torre ${towerId.substring(0, 8)}`,
-                    click_action: url + route,
-                    icon
-                  }
+              if (tokens && userDoc.data().push_notifications_enable) {
+                tokens.forEach(token => {
+                  console.log({ token });
+                  admin.messaging().sendToDevice(token, {
+                    notification: {
+                      title: "Stresscan",
+                      body: `${msg} na torre ${towerId.substring(0, 8)}`,
+                      click_action: url + route,
+                      icon
+                    }
+                  });
                 });
-              });
+              }
 
               admin
                 .firestore()

@@ -7,5 +7,8 @@ export default {
   },
   UPDATE_UID(state, payload) {
     state.user.uid = payload;
+  },
+  UPDATE_PUSHNOTIFICATIONSENABLE(state, payload) {
+    state.user.push_notifications_enable = payload;
   }
 };

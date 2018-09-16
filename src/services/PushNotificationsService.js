@@ -32,3 +32,15 @@ export const saveUserPermissionToken = (uid, token) => {
     });
   });
 };
+
+export const savePushNotificationEnable = (uid, enable) => {
+  console.log("savePushNotificationEnable", uid, enable);
+
+  firebase
+    .firestore()
+    .collection("users_profile")
+    .doc(uid)
+    .update({
+      push_notifications_enable: enable
+    });
+};

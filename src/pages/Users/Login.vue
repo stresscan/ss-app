@@ -53,6 +53,9 @@ export default {
             this.updateUserLevel(docSnapshot.data().isAdmin);
             this.updateUsername(docSnapshot.data().username);
             this.updateUID(docSnapshot.id);
+            this.updatePushNotificationsEnable(
+              docSnapshot.data().push_notifications_enable
+            );
             this.$router.replace("/dashboard");
           } else {
             this.errorMessage = "Perfil de usuário não encontrado";
@@ -64,7 +67,12 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["updateUserLevel", "updateUsername", "updateUID"]),
+    ...mapActions([
+      "updateUserLevel",
+      "updateUsername",
+      "updateUID",
+      "updatePushNotificationsEnable"
+    ]),
     onLogin() {
       this.authenticating = true;
 
@@ -83,6 +91,9 @@ export default {
                   this.updateUserLevel(docSnapshot.data().isAdmin);
                   this.updateUsername(docSnapshot.data().username);
                   this.updateUID(docSnapshot.id);
+                  this.updatePushNotificationsEnable(
+                    docSnapshot.data().push_notifications_enable
+                  );
                   this.$router.replace("/dashboard");
                 } else {
                   this.authenticating = false;

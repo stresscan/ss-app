@@ -2,6 +2,7 @@ export default {
   user: {
     uid: "",
     username: "",
-    isAdmin: false
+    isAdmin: false,
+    push_notifications_enable: false
   }
 };
