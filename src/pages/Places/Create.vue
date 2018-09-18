@@ -147,7 +147,6 @@
 
 <script>
 import firebase from "firebase";
-import { mapState } from "vuex";
 import { required, minLength, maxLength } from "vuelidate/lib/validators";
 import { validationMixin } from "vuelidate";
 import axios from "axios";

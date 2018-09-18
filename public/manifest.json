@@ -1,0 +1,26 @@
+{
+  "short_name": "Stresscan",
+  "name": "Stresscan",
+  "background_color": "#F4F3EF",
+  "theme_color": "#3EC579",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "icon.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "icon.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "icon.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": "index.html?utm_source=homescreen",
+  "gcm_sender_id": "103953800507"
+}

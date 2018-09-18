@@ -1,14 +1,26 @@
 import firebase from "firebase";
 
+// to get  subscriptions information:
+// https://developers.google.com/instance-id/reference/server#get_information_about_app_instances
+
 export const askForPermissioToReceiveNotifications = async () => {
   try {
+    // Retrieve Firebase Messaging object.
     const messaging = firebase.messaging();
+
+    const fbVAPIDkey =
+      "BO6MVrpD0E1vqV4DnOTZZKQ_QV7DLnPzEcYh4cMPoqbjnZQ-oRex0NRYAccvgggxcby6YThrlmvUROeLs0eS3fk";
+
+    messaging.usePublicVapidKey(fbVAPIDkey);
+
+    messaging.onTokenRefresh(function() {
+      console.log("onTokenRefresh");
+    });
+
     await messaging.requestPermission();
     console.log("Notificationf permission granted.");
-    const token = await messaging.getToken();
-    console.log("token do usuário:", token);
 
-    return token;
+    return await messaging.getToken();
   } catch (error) {
     console.error(error);
   }

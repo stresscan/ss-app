@@ -32,23 +32,26 @@ const getOnlyLast24hStats = stats => {
 };
 
 const groupStatsByHour = last24hStats => {
-  let currentDay = last24hStats[0].date.day;
-  let currentTime = last24hStats[0].time.hour;
   let currentGroup = [];
   let finalGroup = [];
   let indexs = [];
 
-  last24hStats.forEach(element => {
-    if (element.date.day == currentDay && element.time.hour == currentTime) {
-      currentGroup.push(element);
-    } else {
-      finalGroup[`${currentDay}_${currentTime}`] = currentGroup;
-      indexs.push(`${currentDay}_${currentTime}`);
-      currentGroup = [];
-      currentDay = element.date.day;
-      currentTime = element.time.hour;
-    }
-  });
+  if (last24hStats.length) {
+    let currentDay = last24hStats[0].date.day;
+    let currentTime = last24hStats[0].time.hour;
+
+    last24hStats.forEach(element => {
+      if (element.date.day == currentDay && element.time.hour == currentTime) {
+        currentGroup.push(element);
+      } else {
+        finalGroup[`${currentDay}_${currentTime}`] = currentGroup;
+        indexs.push(`${currentDay}_${currentTime}`);
+        currentGroup = [];
+        currentDay = element.date.day;
+        currentTime = element.time.hour;
+      }
+    });
+  }
 
   return { stats: finalGroup, index: indexs };
 };

@@ -6,7 +6,29 @@
 </template>
 
 <script>
-export default {};
+import appService from "./services/AppService.js";
+import { mapState } from "vuex";
+
+export default {
+  computed: {
+    ...mapState({
+      stateUid: state => state.users.user.uid
+    })
+  },
+  mounted() {
+    this.$nextTick(() => {
+      // Add to Home Screen Chrome Banner User Response
+      window.addEventListener("beforeinstallprompt", e => {
+        e.userChoice.then(choiceResult => {
+          appService.saveAdd2HomeScreenChoice(
+            this.stateUid,
+            choiceResult.outcome
+          );
+        });
+      });
+    });
+  }
+};
 </script>
 
 <style lang="scss">

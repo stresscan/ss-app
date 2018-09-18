@@ -10,7 +10,7 @@
         <div class="simple-text">
           <div class="d-inline-block" style="cursor: pointer" onClick="window.location = 'http://www.stresscan.com/'">
             <div class="logo-img">
-              <img src="@/assets/img/faces/face-1.jpg" alt="">
+              <img src="@/assets/img/logo.png" alt="">
             </div>
             <span>{{title}}</span>
           </div>

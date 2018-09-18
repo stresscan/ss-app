@@ -10,10 +10,8 @@ import PaperDashboard from "./plugins/paperDashboard";
 import "vue-notifyjs/themes/default.css";
 
 import { initializeFirebase } from "./config/firebaseConfig";
-import { registerServiceWorker } from "./serviceWorkerRegistration";
 
 initializeFirebase();
-registerServiceWorker();
 
 Vue.use(Vuelidate);
 

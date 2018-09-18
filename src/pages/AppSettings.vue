@@ -44,9 +44,17 @@ export default {
       this.updatePushNotificationsEnable(this.pushNotificationsEnable);
 
       if (this.pushNotificationsEnable) {
-        const token = await askForPermissioToReceiveNotifications();
-        if (token) {
-          saveUserPermissionToken(this.stateUid, token);
+        const currentToken = await askForPermissioToReceiveNotifications();
+
+        if (currentToken) {
+          saveUserPermissionToken(this.stateUid, currentToken);
+        } else {
+          this.pushNotificationsEnable = false;
+          this.updatePushNotificationsEnable(this.pushNotificationsEnable);
+          // Show permission request.
+          console.log(
+            "No Instance ID token available. Request permission to generate one."
+          );
         }
       }
     }
