@@ -9,15 +9,15 @@ firebase.initializeApp({
 // messages.
 const messaging = firebase.messaging();
 
-console.log("Firebase messaging SW Startup!");
+console.log("SW Startup!");
 
 self.addEventListener("install", event => {
-  console.log("Firebase messaging sw installed!");
+  console.log("SW installed!");
   event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener("activate", event => {
-  console.log("Firebase messaging sw activated!");
+  console.log("SW activated!");
   event.waitUntil(self.clients.claim());
 });
 
