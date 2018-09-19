@@ -5,19 +5,15 @@ firebase.initializeApp({
   messagingSenderId: "742012394729"
 });
 
-// Retrieve an instance of Firebase Messaging so that it can handle background
-// messages.
 const messaging = firebase.messaging();
 
-console.log("SW Startup!");
-
 self.addEventListener("install", event => {
-  console.log("SW installed!");
+  console.log("Firebabe Messaging SW installed!");
   event.waitUntil(self.skipWaiting());
 });
 
 self.addEventListener("activate", event => {
-  console.log("SW activated!");
+  console.log("Firebabe Messaging SW activated!");
   event.waitUntil(self.clients.claim());
 });
 

@@ -1,7 +1,7 @@
 import firebase from "firebase";
 
 export default {
-  saveAdd2HomeScreenChoice: (uid, choice) => {
+  saveAdd2HomeScreenUserChoice: (uid, choice) => {
     firebase
       .firestore()
       .collection("users_profile")

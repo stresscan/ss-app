@@ -20,7 +20,7 @@ export default {
       // Add to Home Screen Chrome Banner User Response
       window.addEventListener("beforeinstallprompt", e => {
         e.userChoice.then(choiceResult => {
-          appService.saveAdd2HomeScreenChoice(
+          appService.saveAdd2HomeScreenUserChoice(
             this.stateUid,
             choiceResult.outcome
           );

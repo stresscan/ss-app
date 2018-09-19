@@ -5,30 +5,18 @@ import firebase from "firebase";
 
 export const askForPermissioToReceiveNotifications = async () => {
   try {
-    // Retrieve Firebase Messaging object.
     const messaging = firebase.messaging();
-
-    const fbVAPIDkey =
-      "BO6MVrpD0E1vqV4DnOTZZKQ_QV7DLnPzEcYh4cMPoqbjnZQ-oRex0NRYAccvgggxcby6YThrlmvUROeLs0eS3fk";
-
-    messaging.usePublicVapidKey(fbVAPIDkey);
-
-    messaging.onTokenRefresh(function() {
-      console.log("onTokenRefresh");
-    });
-
     await messaging.requestPermission();
-    console.log("Notificationf permission granted.");
+    const token = await messaging.getToken();
+    console.log({ token });
 
-    return await messaging.getToken();
+    return token;
   } catch (error) {
     console.error(error);
   }
 };
 
 export const saveUserPermissionToken = (uid, token) => {
-  console.log("saveUserPermissionToken", token);
-
   const docRef = firebase
     .firestore()
     .collection("users_profile")
@@ -38,7 +26,9 @@ export const saveUserPermissionToken = (uid, token) => {
     const tokens = (user.data().push_notifications_tokens || []).filter(
       item => item !== token
     );
+
     tokens.push(token);
+
     docRef.update({
       push_notifications_tokens: tokens
     });
@@ -46,8 +36,6 @@ export const saveUserPermissionToken = (uid, token) => {
 };
 
 export const savePushNotificationEnable = (uid, enable) => {
-  console.log("savePushNotificationEnable", uid, enable);
-
   firebase
     .firestore()
     .collection("users_profile")
