@@ -32,8 +32,51 @@ export default {
     const getUser = () => {
       return new Promise(resolve => {
         firebase.auth().onAuthStateChanged(user => {
+          console.log({ onAuthStateChanged_user: user });
+
           if (user) {
-            resolve(user);
+            firebase
+              .firestore()
+              .collection("users_profile")
+              .doc(user.uid)
+              .get()
+              .then(docSnapshot => {
+                const currentUser = Object.assign(docSnapshot.data(), {
+                  id: docSnapshot.id
+                });
+
+                localStorage.setItem("offlineCurrentUser_id", currentUser.id);
+                localStorage.setItem(
+                  "offlineCurrentUser_username",
+                  currentUser.username
+                );
+                localStorage.setItem(
+                  "offlineCurrentUser_isAdmin",
+                  currentUser.isAdmin
+                );
+                localStorage.setItem(
+                  "offlineCurrentUser_push_notifications_enable",
+                  currentUser.push_notifications_enable
+                );
+
+                resolve(currentUser);
+              })
+              .catch(err => {
+                if (localStorage.getItem("offlineCurrentUser_id")) {
+                  resolve({
+                    id: localStorage.getItem("offlineCurrentUser_id"),
+                    username: localStorage.getItem(
+                      "offlineCurrentUser_username"
+                    ),
+                    isAdmin: localStorage.getItem("offlineCurrentUser_isAdmin"),
+                    push_notifications_enable: localStorage.getItem(
+                      "offlineCurrentUser_push_notifications_enable"
+                    )
+                  });
+                } else {
+                  resolve(null);
+                }
+              });
           } else {
             resolve(null);
           }
@@ -42,27 +85,17 @@ export default {
     };
 
     const user = await getUser();
+
+    console.log({ loginPage_user: user });
+
     if (user) {
-      firebase
-        .firestore()
-        .collection("users_profile")
-        .doc(user.uid)
-        .get()
-        .then(docSnapshot => {
-          if (docSnapshot.exists) {
-            this.updateUserLevel(docSnapshot.data().isAdmin);
-            this.updateUsername(docSnapshot.data().username);
-            this.updateUID(docSnapshot.id);
-            this.updatePushNotificationsEnable(
-              docSnapshot.data().push_notifications_enable
-            );
-            this.$router.replace("/dashboard");
-          } else {
-            this.errorMessage = "Perfil de usuário não encontrado";
-            this.loading = false;
-          }
-        });
+      this.updateUserLevel(user.isAdmin);
+      this.updateUsername(user.username);
+      this.updateUID(user.id);
+      this.updatePushNotificationsEnable(user.push_notifications_enable);
+      this.$router.replace("/dashboard");
     } else {
+      console.error("Perfil de usuário não encontrado");
       this.loading = false;
     }
   },
@@ -102,8 +135,20 @@ export default {
               });
           },
           err => {
+            if (err.message.includes("network error")) {
+              this.$notify({
+                message:
+                  "Parece que você está sem internet ou com uma conexão ruim",
+                icon: "ti-thumb-down",
+                verticalAlign: "bottom",
+                horizontalAlign: "center",
+                type: "info"
+              });
+            } else {
+              this.errorMessage = "Usuário ou senha inválidos";
+            }
+
             this.authenticating = false;
-            this.errorMessage = "Usuário e/ou senha inválido";
           }
         );
     }

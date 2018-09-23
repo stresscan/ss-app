@@ -115,7 +115,7 @@
           </div>
 
           <div class="text-center">
-            <p-button type="info" :disabled="$v.$invalid || updatingUserProfile" round @click.native.prevent="onUpdateProfile">
+            <p-button :loading="updatingUserProfile" type="info" :disabled="$v.$invalid || updatingUserProfile" round @click.native.prevent="onUpdateProfile">
               {{ buttonText }}
             </p-button>
           </div>
@@ -123,7 +123,7 @@
         </form>
       </div>
     </card>
-    <change-password @notifyVue="notifyVue" :email="email" />
+    <change-password @notifySuccess="emitNotifySuccess" @notifyError="emitNotifyError" :email="email" />
   </div>
 </template>
 
@@ -140,6 +140,7 @@ import {
 import { validationMixin } from "vuelidate";
 import { mask } from "vue-the-mask";
 import axios from "axios";
+import { emitNotifyMixin } from "@/mixins/Notify";
 
 const touchMap = new WeakMap();
 
@@ -149,7 +150,12 @@ export default {
     ChangePassword
   },
   directives: { mask },
-  mixins: [validationMixin],
+  mixins: [validationMixin, emitNotifyMixin],
+  props: {
+    uid: {
+      type: String
+    }
+  },
   data() {
     return {
       place: "",
@@ -231,9 +237,8 @@ export default {
     }
   },
   async created() {
-    const uid = firebase.auth().currentUser.uid;
-    const getUserData = () => {
-      return new Promise(resolve => {
+    const getUserData = uid => {
+      return new Promise((resolve, reject) => {
         firebase
           .firestore()
           .collection("users_profile")
@@ -242,18 +247,22 @@ export default {
           .then(userSnapShot => resolve(userSnapShot.data()))
           .catch(e => {
             console.log(`user profile couldn't be find ${e.message}`);
-            this.notifyVue(
-              "bottom",
-              "right",
-              "danger",
-              "Ocorreu um erro inesperado na tentativa de recuperar os seus dados, por favor tente novamente",
-              "ti-thumb-down"
-            );
+            if (e.message.includes("offline")) {
+              this.emitNotifyNetwork(
+                "Não foi possível recuperar os seus dados, parece que você está sem conexão"
+              );
+            } else {
+              this.emitNotifyError(
+                "Não foi possível recuperar os seus dados, por favor tente novamente"
+              );
+            }
+
+            reject(null);
           });
       });
     };
 
-    const userData = await getUserData();
+    const userData = await getUserData(this.uid);
 
     this.name = userData.name;
     this.surname = userData.surname;
@@ -267,16 +276,14 @@ export default {
     this.district = userData.district;
     this.phoneNumber = userData.phoneNumber;
     this.phoneNumberTwo = userData.phoneNumberTwo;
-    this.isAdmin = Number(userData.isAdmin);
 
     this.coverPictureUrl =
-      (await this.getImageUrl(uid, "cover.jpg")) + "&v=" + Date.now();
+      (await this.getImageUrl(this.uid, "cover.jpg")) + "&v=" + Date.now();
 
     this.profilePictureUrl =
-      (await this.getImageUrl(uid, "profile.jpg")) + "&v=" + Date.now();
+      (await this.getImageUrl(this.uid, "profile.jpg")) + "&v=" + Date.now();
 
     this.$emit("userDataIsLoaded", {
-      uid,
       name: this.name,
       surname: this.surname,
       username: this.username,
@@ -303,7 +310,7 @@ export default {
       firebase
         .firestore()
         .collection("users_profile")
-        .doc(firebase.auth().currentUser.uid)
+        .doc(this.uid)
         .update({
           name: this.name,
           surname: this.surname,
@@ -320,7 +327,7 @@ export default {
             firebase
               .firestore()
               .collection("users_profile")
-              .doc(firebase.auth().currentUser.uid)
+              .doc(this.uid)
               .update({
                 postalCode: this.postalCode
               })
@@ -330,13 +337,7 @@ export default {
           this.buttonText = "Atualizar dados";
           this.updatingUserProfile = false;
 
-          this.notifyVue({
-            verticalAlign: "bottom",
-            horizontalAlign: "right",
-            type: "success",
-            message: "Seus dados foram atualizados com sucesso",
-            icon: "ti-thumb-up"
-          });
+          this.emitNotifySuccess("Seus dados foram atualizados com sucesso");
         })
         .catch(e => {
           console.log(`user profile couldn't be updated by the user ${e}`);
@@ -344,7 +345,7 @@ export default {
           this.buttonText = "Atualizar dados";
           this.updatingUserProfile = false;
 
-          this.notifyVue({
+          this.emitNotify({
             verticalAlign: "bottom",
             horizontalAlign: "right",
             type: "danger",
@@ -372,15 +373,6 @@ export default {
                 console.log(`get img default/${fileName} error ${e.message}`)
               );
           });
-      });
-    },
-    notifyVue(data) {
-      this.$emit("notifyVue", {
-        verticalAlign: data.verticalAlign,
-        horizontalAlign: data.horizontalAlign,
-        type: data.type,
-        message: data.message,
-        icon: data.icon
       });
     }
   }

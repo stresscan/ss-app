@@ -103,6 +103,9 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.table-responsive {
+  overflow-x: auto !important;
+}
 @media (min-width: 450px) {
   .table-responsive {
     overflow: hidden;

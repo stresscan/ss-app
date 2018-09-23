@@ -4,7 +4,7 @@
       <template slot="links">
         <sidebar-link to="/dashboard/index" name="Dashboard" icon="ti-panel" />
         <sidebar-link to="/dashboard/user-profile" name="Meus Dados" icon="ti-user" />
-        <sidebar-link v-if="stateIsAdmin" to="/dashboard/users" name="Usuários" icon="fa fa-users" />
+        <sidebar-link v-if="isAdmin()" to="/dashboard/users" name="Usuários" icon="fa fa-users" />
       </template>
       <mobile-menu>
         <drop-down class="nav-item" :hideArrow="true" :isMobileNotifications="true" :title="notificationsList.length + ' Notificações'" :title-classes="`nav-link ${notificationsList.length ? `text-danger` : ``}`" icon="ti-bell">
@@ -34,10 +34,12 @@ import TopNavbar from "./TopNavbar.vue";
 import ContentFooter from "./ContentFooter.vue";
 import DashboardContent from "./Content.vue";
 import MobileMenu from "./MobileMenu";
-import { mapState } from "vuex";
 import firebase from "firebase";
+import userStateProps from "@/mixins/Auth/UserStateProps.js";
+import userIsAdmin from "@/mixins/Auth/UserIsAdmin.js";
 
 export default {
+  mixins: [userStateProps, userIsAdmin],
   components: {
     TopNavbar,
     ContentFooter,
@@ -48,13 +50,6 @@ export default {
     return {
       notificationsList: []
     };
-  },
-  computed: {
-    ...mapState({
-      stateUsername: state => state.users.user.username,
-      stateIsAdmin: state => state.users.user.isAdmin,
-      stateUid: state => state.users.user.uid
-    })
   },
   created() {
     const getRealtimeNotificationsList = clientId => {

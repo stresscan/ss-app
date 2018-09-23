@@ -1,25 +1,27 @@
 <template>
   <div class="row">
     <div class="col-xl-4 col-lg-5 col-md-6">
-      <user-card @fileIsTooBig="onFileUploadingTooBig" @uploading="onUploading" :dataLoaded="userDataLoaded" :uid="uid" :name="name" :surname="surname" :username="username" :phoneNumber="phoneNumber" :email="email" :profilePicture="profilePictureUrl" :coverPicture="coverPictureUrl"></user-card>
+      <user-card @fileIsTooBig="onFileUploadingTooBig" @uploading="onUploading" :dataLoaded="userDataLoaded" :uid="stateUid" :name="name" :surname="surname" :username="username" :phoneNumber="phoneNumber" :email="email" :profilePicture="profilePictureUrl" :coverPicture="coverPictureUrl"></user-card>
     </div>
     <div class="col-xl-8 col-lg-7 col-md-6">
-      <edit-profile-form @notifyVue="notifyVue" @userDataIsLoaded="onUserDataIsLoaded"></edit-profile-form>
+      <edit-profile-form :uid="stateUid" @notifyVue="notifyVue" @userDataIsLoaded="onUserDataIsLoaded"></edit-profile-form>
     </div>
   </div>
 </template>
 <script>
 import EditProfileForm from "./EditProfileForm.vue";
 import UserCard from "./UserCard.vue";
+import basePage from "@/mixins/BasePage.js";
+import authPage from "@/mixins/Auth/AuthenticatedPage.js";
 
 export default {
+  mixins: [basePage, authPage],
   components: {
     EditProfileForm,
     UserCard
   },
   data() {
     return {
-      uid: "",
       name: "",
       surname: "",
       username: "",
@@ -32,7 +34,6 @@ export default {
   },
   methods: {
     onUserDataIsLoaded(userData) {
-      this.uid = userData.uid;
       this.name = userData.name;
       this.surname = userData.surname;
       this.username = userData.username;
@@ -65,13 +66,15 @@ export default {
           return child.$options.name === "EditProfileForm";
         });
 
-        editProfileForm.getImageUrl(this.uid, data.fileName).then(newImgUrl => {
-          if (data.fileName.includes("cover")) {
-            this.coverPictureUrl = `${newImgUrl}&v=${Date.now()}`;
-          } else {
-            this.profilePictureUrl = `${newImgUrl}&v=${Date.now()}`;
-          }
-        });
+        editProfileForm
+          .getImageUrl(this.stateUid, data.fileName)
+          .then(newImgUrl => {
+            if (data.fileName.includes("cover")) {
+              this.coverPictureUrl = `${newImgUrl}&v=${Date.now()}`;
+            } else {
+              this.profilePictureUrl = `${newImgUrl}&v=${Date.now()}`;
+            }
+          });
       }
     },
     notifyVue(data) {

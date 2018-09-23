@@ -50,24 +50,18 @@ export default {
           this.emailSent = true;
           this.sendingEmail = false;
 
-          this.$emit("notifyVue", {
-            verticalAlign: "bottom",
-            horizontalAlign: "right",
-            type: "success",
-            message: "E-mail com instruções foi enviado com sucesso",
-            icon: "ti-thumb-up"
-          });
+          this.$emit(
+            "notifySuccess",
+            "E-mail com instruções foi enviado com sucesso"
+          );
         })
         .catch(e => {
           this.sendingEmail = false;
 
-          this.$emit("notifyVue", {
-            verticalAlign: "bottom",
-            horizontalAlign: "right",
-            type: "danger",
-            message: "Ocorreu um erro inesperado, por favor tente novamente",
-            icon: "ti-thumb-down"
-          });
+          this.$emit(
+            "notifyError",
+            "Ocorreu um erro inesperado, por favor tente novamente"
+          );
         });
     },
     onResendEmail() {

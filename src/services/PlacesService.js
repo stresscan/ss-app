@@ -2,6 +2,7 @@ import firebase from "firebase";
 
 export default {
   getPlacesListByOwner: (uid, includeDisables) => {
+    //console.log(firebase.database.ServerValue.TIMESTAMP);
     const collectionRef = firebase.firestore().collection("places");
     let query = collectionRef;
 

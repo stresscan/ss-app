@@ -1,18 +1,21 @@
 <template>
   <div>
-    <div v-if="isAdmin" class="mg-bt-md">
-      <h3>Filtrar por Cliente</h3>
-      <select @change="onChangeClient" id="client" class="form-control" v-model="clientSelect">
-        <option disabled value="" v-if="loadingClientList">Aguarde...</option>
-        <option value="">Todos</option>
-        <option v-for="client in clientsList" :key="client.id" v-bind:value="client.id">
-          {{ client.name }}
-        </option>
-      </select>
-    </div>
-    <p-button v-if="isAdmin && !loadingPlacesList" type="success" class="mg-bt-md" round @click.native.prevent="onNewPlace">
-      <i class="ti-plus"></i> Adicionar Local
-    </p-button>
+    <template v-if="isAdmin()">
+      <div class="mg-bt-md">
+        <h3>Filtrar por Cliente</h3>
+        <select @change="onChangeClient" id="client" class="form-control" v-model="clientSelectValue">
+          <option disabled value="" v-if="loadingClientList">Aguarde...</option>
+          <option value="">Todos</option>
+          <option v-for="client in clientsList" :key="client.id" v-bind:value="client.id">
+            {{ client.name }}
+          </option>
+        </select>
+      </div>
+      <p-button v-if="!loadingPlacesList" type="success" class="mg-bt-md" round @click.native.prevent="onNewPlace">
+        <i class="ti-plus"></i> Adicionar Local
+      </p-button>
+    </template>
+
     <div class="row">
       <div v-if="loadingPlacesList" class="ss-inline-spinner el-center mg-tp-md mg-bt-md"></div>
       <template v-else>
@@ -49,13 +52,14 @@
 <script>
 import { StatsCard, ChartCard } from "@/components/index";
 import Chartist from "chartist";
-import { mapState } from "vuex";
 import placeService from "@/services/PlacesService";
 import authService from "@/services/AuthService";
 import basePage from "@/mixins/BasePage.js";
+import authPage from "@/mixins/Auth/AuthenticatedPage.js";
+import userIsAdmin from "@/mixins/Auth/UserIsAdmin.js";
 
 export default {
-  mixins: [basePage],
+  mixins: [basePage, authPage, userIsAdmin],
   components: {
     StatsCard,
     ChartCard
@@ -65,28 +69,20 @@ export default {
       loadingClientList: true,
       loadingPlacesList: true,
       noPlacesFound: false,
-      clientSelect: "",
+      clientSelectValue: "",
       clientsList: [],
       placesList: []
     };
   },
-  computed: {
-    ...mapState({
-      uid: state => state.users.user.uid,
-      isAdmin: state => state.users.user.isAdmin
-    })
-  },
   created() {
-    this.getClients();
+    if (this.isAdmin()) {
+      this.getClientsList();
+    }
 
-    this.clientSelect = this.$route.query.clientId
-      ? this.$route.query.clientId
-      : "";
-
-    this.getPlacesListByOwner(this.isAdmin ? this.clientSelect : this.uid);
+    this.getPlacesListByOwner(this.isAdmin() ? "" : this.stateUid);
   },
   methods: {
-    getClients() {
+    getClientsList() {
       this.loadingClientList = true;
       placeService.getClientsList().then(list => {
         list.map(item => {
@@ -96,7 +92,7 @@ export default {
         this.loadingClientList = false;
 
         if (this.$route.query.clientId) {
-          this.clientSelect = this.$route.query.clientId;
+          this.clientSelectValue = this.$route.query.clientId;
         }
       });
     },
@@ -105,11 +101,11 @@ export default {
       this.loadingPlacesList = true;
       this.noPlacesFound = false;
 
-      if (!ownerId && !this.isAdmin) {
+      if (!ownerId && !this.isAdmin()) {
         this.loadingPlacesList = false;
       } else {
         placeService
-          .getPlacesListByOwner(ownerId, this.isAdmin)
+          .getPlacesListByOwner(ownerId, this.isAdmin())
           .then(placesList => {
             if (placesList.length == 0) {
               this.loadingPlacesList = false;
@@ -120,7 +116,7 @@ export default {
 
               for (let i = 0; i < placesListLength; i++) {
                 placeService
-                  .getPlaceTowersQnt(placesList[i].id, this.isAdmin)
+                  .getPlaceTowersQnt(placesList[i].id, this.isAdmin())
                   .then(qnt => {
                     this.placesList.push(
                       Object.assign(placesList[i], {
@@ -138,14 +134,16 @@ export default {
       }
     },
     onChangeClient() {
-      this.getPlacesListByOwner(this.clientSelect);
+      if (this.isAdmin()) {
+        this.getPlacesListByOwner(this.clientSelectValue, true);
+      }
     },
     onPlaceClick(place) {
       this.$router.replace(`${place.id}/towers/list`);
     },
     onNewPlace() {
-      if (this.isAdmin) {
-        this.$router.replace(`create?clientId=${this.clientSelect}`);
+      if (this.isAdmin()) {
+        this.$router.replace(`create?clientId=${this.clientSelectValue}`);
       }
     }
   }

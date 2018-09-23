@@ -10,9 +10,18 @@
 
     <title>Stresscan Dashboard</title>
 
+    <!-- Add to home screen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#41C079">
+    <meta name="apple-mobile-web-app-title" content="Stresscan">
+    <link rel="apple-touch-icon" href="<%= webpackConfig.output.publicPath %>img/icons/icon-152x152.png">
+
+    <!-- Tile Icon for Windows -->
+    <meta name="msapplication-TileImage" content="<%= webpackConfig.output.publicPath %>img/icons/icon-144x144.png">
+    <meta name="msapplication-TileColor" content="\#41C079">
+
     <!--  Fonts and icons -->
     <link type="text/css" href="https://fonts.googleapis.com/css?family=Muli:400,300" rel="stylesheet">
-    <link type="text/css" href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
   </head>
 
@@ -24,7 +33,6 @@
     <!-- built files will be auto injected -->
     <!--  Google Maps Plugin -->
     <script src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyAamVCoyQ4AuvBpxVRMs9P-HFkfPVQj0Kw" type="text/javascript"></script>
-
   </body>
 
 </html>

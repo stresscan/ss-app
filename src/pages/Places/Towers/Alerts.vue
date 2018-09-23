@@ -82,7 +82,7 @@
               <input type="hidden" name="" v-model="alertForm.id">
               <p-button :disabled="gettingAlertData" nativeType="submit" type="success" round>
                 <template v-if="gettingAlertData">
-                  <i class="fa fa-spinner"></i>
+                  <i class="fa fa-spinner fa-spin"></i>
                 </template>
                 <template v-else>
                   ok

@@ -15,12 +15,15 @@ const router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
   const currentUser = firebase.auth().currentUser;
-  const isCurrenUserAdmin = store.state.users.user.isAdmin;
+  const offlineCurrentUser = localStorage.getItem("offlineCurrentUser_id");
+  const isCurrentUserAdmin = store.state.users.user.isAdmin;
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
 
-  if (requiresAuth && !currentUser) next("/login");
-  else if (requiresAdmin && !isCurrenUserAdmin) next("/login");
+  console.log({ offlineCurrentUser });
+
+  if (requiresAuth && (!currentUser && !offlineCurrentUser)) next("/login");
+  else if (requiresAdmin && !isCurrentUserAdmin) next("/login");
   else next();
 });
 

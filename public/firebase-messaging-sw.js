@@ -5,6 +5,8 @@ firebase.initializeApp({
   messagingSenderId: "742012394729"
 });
 
+console.log("hello firebase messagin sw!");
+
 const messaging = firebase.messaging();
 
 self.addEventListener("install", event => {
