@@ -141,6 +141,7 @@ import { validationMixin } from "vuelidate";
 import { mask } from "vue-the-mask";
 import axios from "axios";
 import { emitNotifyMixin } from "@/mixins/Notify";
+import userService from "@/services/UsersService.js";
 
 const touchMap = new WeakMap();
 
@@ -278,10 +279,12 @@ export default {
     this.phoneNumberTwo = userData.phoneNumberTwo;
 
     this.coverPictureUrl =
-      (await this.getImageUrl(this.uid, "cover.jpg")) + "&v=" + Date.now();
+      (await userService.getImageUrl(this.uid, "cover.jpg")) +
+      `&v=${Date.now()}`;
 
     this.profilePictureUrl =
-      (await this.getImageUrl(this.uid, "profile.jpg")) + "&v=" + Date.now();
+      (await userService.getImageUrl(this.uid, "profile.jpg")) +
+      `&v=${Date.now()}`;
 
     this.$emit("userDataIsLoaded", {
       name: this.name,
@@ -354,26 +357,6 @@ export default {
             icon: "ti-thumb-down"
           });
         });
-    },
-    async getImageUrl(uid, fileName) {
-      return new Promise(resolve => {
-        firebase
-          .storage()
-          .ref(`${uid}/${fileName}`)
-          .getDownloadURL()
-          .then(url => resolve(url))
-          .catch(e => {
-            console.log(`get img ${uid}/${fileName} error ${e.message}`);
-            firebase
-              .storage()
-              .ref(`default/${fileName}`)
-              .getDownloadURL()
-              .then(url => resolve(url))
-              .catch(e =>
-                console.log(`get img default/${fileName} error ${e.message}`)
-              );
-          });
-      });
     }
   }
 };
