@@ -5,6 +5,7 @@ import store from "./store/store";
 import Vuelidate from "vuelidate";
 import VueScrollTo from "vue-scrollto";
 import VuejsDialog from "vuejs-dialog";
+import localforage from "localforage";
 
 import PaperDashboard from "./plugins/paperDashboard";
 import "vue-notifyjs/themes/default.css";
@@ -14,6 +15,10 @@ import { registerServiceWorkers } from "./serviceWorkersRegistration";
 
 registerServiceWorkers();
 initializeFirebase();
+
+localforage.config({
+  name: "stresscan"
+});
 
 Vue.use(Vuelidate);
 

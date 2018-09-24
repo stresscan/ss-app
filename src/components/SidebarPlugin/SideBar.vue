@@ -35,6 +35,7 @@
 import MovingArrow from "./MovingArrow.vue";
 import SidebarLink from "./SidebarLink";
 import firebase from "firebase";
+import localforage from "localforage";
 
 export default {
   props: {
@@ -126,6 +127,12 @@ export default {
         .auth()
         .signOut()
         .then(() => {
+          let localUser = localforage.createInstance({
+            name: "offlineCurrentUser"
+          });
+
+          localUser.clear();
+
           this.$router.replace("/login");
         });
     }

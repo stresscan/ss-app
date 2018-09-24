@@ -17,6 +17,7 @@
 <script>
 import firebase from "firebase";
 import { mapActions } from "vuex";
+import offlineUserService from "@/services/offline/OfflineUsersService.js";
 
 export default {
   data() {
@@ -31,54 +32,33 @@ export default {
   async created() {
     const getUser = () => {
       return new Promise(resolve => {
-        firebase.auth().onAuthStateChanged(user => {
-          console.log({ onAuthStateChanged_user: user });
+        firebase.auth().onAuthStateChanged(fbuser => {
+          if (!fbuser) resolve(null);
 
-          if (user) {
+          if (fbuser) {
             firebase
               .firestore()
               .collection("users_profile")
-              .doc(user.uid)
+              .doc(fbuser.uid)
               .get()
               .then(docSnapshot => {
                 const currentUser = Object.assign(docSnapshot.data(), {
                   id: docSnapshot.id
                 });
 
-                localStorage.setItem("offlineCurrentUser_id", currentUser.id);
-                localStorage.setItem(
-                  "offlineCurrentUser_username",
-                  currentUser.username
-                );
-                localStorage.setItem(
-                  "offlineCurrentUser_isAdmin",
-                  currentUser.isAdmin
-                );
-                localStorage.setItem(
-                  "offlineCurrentUser_push_notifications_enable",
-                  currentUser.push_notifications_enable
-                );
+                offlineUserService.persiste(currentUser);
+
+                offlineUserService
+                  .getUser()
+                  .then(localUser => console.log({ localUser }));
 
                 resolve(currentUser);
               })
               .catch(err => {
-                if (localStorage.getItem("offlineCurrentUser_id")) {
-                  resolve({
-                    id: localStorage.getItem("offlineCurrentUser_id"),
-                    username: localStorage.getItem(
-                      "offlineCurrentUser_username"
-                    ),
-                    isAdmin: localStorage.getItem("offlineCurrentUser_isAdmin"),
-                    push_notifications_enable: localStorage.getItem(
-                      "offlineCurrentUser_push_notifications_enable"
-                    )
-                  });
-                } else {
-                  resolve(null);
-                }
+                offlineUserService
+                  .getUser()
+                  .then(localUser => resolve(localUser));
               });
-          } else {
-            resolve(null);
           }
         });
       });
@@ -135,6 +115,7 @@ export default {
               });
           },
           err => {
+            console.log(err.message);
             if (err.message.includes("network error")) {
               this.$notify({
                 message:
