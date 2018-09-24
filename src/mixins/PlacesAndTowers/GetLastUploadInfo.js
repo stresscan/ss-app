@@ -1,4 +1,4 @@
-import { getDateDiffInMinutes } from "@/utils/Dates/getDateDiffs";
+import { getDateDiffInMinutes } from "@/utils/Dates";
 
 export default {
   methods: {

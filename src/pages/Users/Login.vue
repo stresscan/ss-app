@@ -48,10 +48,6 @@ export default {
 
                 offlineUserService.persiste(currentUser);
 
-                offlineUserService
-                  .getUser()
-                  .then(localUser => console.log({ localUser }));
-
                 resolve(currentUser);
               })
               .catch(err => {

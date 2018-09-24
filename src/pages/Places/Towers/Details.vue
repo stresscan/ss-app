@@ -127,6 +127,7 @@ import firebase from "firebase";
 import basePage from "@/mixins/BasePage.js";
 import getLastUploadMixin from "@/mixins/PlacesAndTowers/GetLastUploadInfo.js";
 import mapTowerStats from "./Charts/MapTowerStats.js";
+import { leftZero } from "@/utils/Numbers";
 
 export default {
   mixins: [basePage, getLastUploadMixin],
@@ -263,9 +264,12 @@ export default {
 
           queryStatsSnapshot.forEach(doc => {
             let statsCardsData = [];
-            const d = new Date(doc.data().datetime);
+            const d = new Date(doc.data().datetime * 1000);
+
             const date = `${d.getDate()}/${d.getMonth() +
-              1}/${d.getFullYear()} ${d.getHours()}h${d.getMinutes()}`;
+              1}/${d.getFullYear()} ${d.getHours()}h${leftZero(
+              d.getMinutes().toString()
+            )}`;
 
             statsCardsData.push({
               title: "Planta",
@@ -301,12 +305,17 @@ export default {
 
             this.tower = Object.assign(this.tower, {
               last_upload: this.getLastUpload(
-                doc.data().datetime || Date.now().getTime()
+                doc.data().datetime * 1000 || Date.now().getTime()
               ),
               stats_cards: statsCardsData
             });
 
-            statsCharts.push(Object.assign(doc.data(), { id: doc.id }));
+            statsCharts.push(
+              Object.assign(doc.data(), {
+                id: doc.id,
+                datetime: doc.data().datetime * 1000
+              })
+            );
           });
 
           this.tower.stats.length = statsCharts.length;
@@ -544,7 +553,7 @@ export default {
       for (let i = 0; i < 96; i++) {
         const time = d.setMinutes(d.getMinutes() + 15);
         const newData = {
-          datetime: time,
+          datetime: time / 1000,
           environment_humidity: Math.floor(Math.random() * 20) + 60,
           environment_temperature: Math.floor(Math.random() * 10) + 25,
           ground_humidity: Math.floor(Math.random() * 60) + 40,
