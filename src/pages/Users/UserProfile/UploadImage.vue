@@ -42,6 +42,7 @@ export default {
     };
   },
   props: {
+    uid: String,
     folder: String,
     fileName: String,
     format: Array
@@ -70,19 +71,38 @@ export default {
       });
     },
     upload(file) {
+      console.log("uploading", `${this.folder}/${this.fileName}`);
       this.$emit("uploading", { uploading: true, fileName: this.fileName });
 
-      firebase
+      const stRef = firebase
         .storage()
         .ref()
-        .child(`${this.folder}/${this.fileName}`)
-        .put(file)
-        .then(snapshot => {
-          this.$emit("uploading", {
-            uploading: false,
-            fileName: this.fileName
-          });
+        .child(`${this.folder}/${this.fileName}`);
+
+      stRef.put(file).then(snapshot => {
+        this.$emit("uploading", {
+          uploading: false,
+          fileName: this.fileName
         });
+
+        stRef
+          .updateMetadata({
+            cacheControl: "public,max-age=300"
+          })
+          .catch(error => {
+            console.error("Error trying to update image metadata", error);
+
+            logService.logError(
+              new Date().getTime(),
+              `Erro ao tentar atualizar o metadata da imagem ${this.folder}/${
+                this.fileName
+              }: ${e.message}`,
+              "upload",
+              "UpdateImage.vue",
+              this.uid
+            );
+          });
+      });
     }
   }
 };

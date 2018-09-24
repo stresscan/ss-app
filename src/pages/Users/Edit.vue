@@ -18,64 +18,52 @@
         </div>
         <div class="row">
           <div class="col-md-6">
-            <ss-fg-input readonly type="text" label="Nome" placeholder="Nome" v-model.trim="name">
-            </ss-fg-input>
+            <ss-fg-input readonly type="text" label="Nome" placeholder="Nome" v-model.trim="name"></ss-fg-input>
           </div>
           <div class="col-md-6">
-            <ss-fg-input readonly type="text" label="Sobrenome" placeholder="Sobrenome" v-model.trim="surname">
-            </ss-fg-input>
+            <ss-fg-input readonly type="text" label="Sobrenome" placeholder="Sobrenome" v-model.trim="surname"></ss-fg-input>
           </div>
         </div>
 
         <div class="row">
           <div class="col-md-6">
-            <ss-fg-input readonly type="email" label="Email" placeholder="Email" v-model.trim="email">
-            </ss-fg-input>
+            <ss-fg-input readonly type="email" label="Email" placeholder="Email" v-model.trim="email"></ss-fg-input>
           </div>
           <div class="col-md-6">
-            <ss-fg-input readonly type="text" label="Username" placeholder="Username" v-model.trim="username">
-            </ss-fg-input>
+            <ss-fg-input readonly type="text" label="Username" placeholder="Username" v-model.trim="username"></ss-fg-input>
           </div>
         </div>
 
         <div class="row">
           <div class="col-md-4">
-            <ss-fg-input readonly type="text" label="CEP" placeholder="CEP" v-model.trim="postalCode">
-            </ss-fg-input>
+            <ss-fg-input readonly type="text" label="CEP" placeholder="CEP" v-model.trim="postalCode"></ss-fg-input>
           </div>
           <div class="col-md-8">
-            <ss-fg-input readonly type="text" label="Cidade" placeholder="Cidade" maxlength="50" v-model.trim="city">
-            </ss-fg-input>
+            <ss-fg-input readonly type="text" label="Cidade" placeholder="Cidade" maxlength="50" v-model.trim="city"></ss-fg-input>
           </div>
         </div>
 
         <div class="row">
           <div class="col-md-4">
-            <ss-fg-input readonly :uppercase="true" type="text" label="UF" maxlength="2" placeholder="UF" v-model.trim="estate">
-            </ss-fg-input>
+            <ss-fg-input readonly :uppercase="true" type="text" label="UF" maxlength="2" placeholder="UF" v-model.trim="estate"></ss-fg-input>
           </div>
           <div class="col-md-6">
-            <ss-fg-input readonly type="text" label="Endereço" placeholder="Endereço" v-model.trim="address">
-            </ss-fg-input>
+            <ss-fg-input readonly type="text" label="Endereço" placeholder="Endereço" v-model.trim="address"></ss-fg-input>
           </div>
           <div class="col-md-2">
-            <ss-fg-input readonly type="text" maxlength="10" label="Número" placeholder="Número" v-model.trim="number">
-            </ss-fg-input>
+            <ss-fg-input readonly type="text" maxlength="10" label="Número" placeholder="Número" v-model.trim="number"></ss-fg-input>
           </div>
         </div>
 
         <div class="row">
           <div class="col-md-4">
-            <ss-fg-input readonly type="text" label="Bairro" placeholder="Bairro" v-model.trim="district">
-            </ss-fg-input>
+            <ss-fg-input readonly type="text" label="Bairro" placeholder="Bairro" v-model.trim="district"></ss-fg-input>
           </div>
           <div class="col-md-4">
-            <ss-fg-input readonly type="text" label="Telefone" placeholder="Telefone" v-model.trim="phoneNumber">
-            </ss-fg-input>
+            <ss-fg-input readonly type="text" label="Telefone" placeholder="Telefone" v-model.trim="phoneNumber"></ss-fg-input>
           </div>
           <div class="col-md-4">
-            <ss-fg-input readonly type="text" label="Telefone 2" placeholder="Telefone 2" v-model.trim="phoneNumberTwo">
-            </ss-fg-input>
+            <ss-fg-input readonly type="text" label="Telefone 2" placeholder="Telefone 2" v-model.trim="phoneNumberTwo"></ss-fg-input>
           </div>
         </div>
 

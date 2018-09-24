@@ -13,6 +13,7 @@ import EditProfileForm from "./EditProfileForm.vue";
 import UserCard from "./UserCard.vue";
 import basePage from "@/mixins/BasePage.js";
 import authPage from "@/mixins/Auth/AuthenticatedPage.js";
+import userService from "@/services/UsersService.js";
 
 export default {
   mixins: [basePage, authPage],
@@ -62,17 +63,16 @@ export default {
           this.profilePictureUrl = "";
         }
       } else {
-        const editProfileForm = this.$children.find(child => {
-          return child.$options.name === "EditProfileForm";
-        });
-
-        editProfileForm
+        userService
           .getImageUrl(this.stateUid, data.fileName)
           .then(newImgUrl => {
+            console.log({ newImgUrl });
+            const versionedImgUrl = `${newImgUrl}&v=${Date.now()}`;
+
             if (data.fileName.includes("cover")) {
-              this.coverPictureUrl = `${newImgUrl}&v=${Date.now()}`;
+              this.coverPictureUrl = versionedImgUrl;
             } else {
-              this.profilePictureUrl = `${newImgUrl}&v=${Date.now()}`;
+              this.profilePictureUrl = versionedImgUrl;
             }
           });
       }

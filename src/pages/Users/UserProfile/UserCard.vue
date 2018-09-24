@@ -11,9 +11,9 @@
       </div>
       <div v-if="dataLoaded">
         <div class="upload-photos-wrapper el-center">
-          <upload-image @uploading="onFileUploading" @fileIsTooBig="onFileIsTooBig" class="input-file" :folder="uid" fileName="profile.jpg" :format="[3, 3]" />
+          <upload-image @uploading="onFileUploading" @fileIsTooBig="onFileIsTooBig" class="input-file" :uid="uid" :folder="uid" fileName="profile.jpg" :format="[3, 3]" />
           <div class="btn-upload">alterar foto</div>
-          <upload-image @uploading="onFileUploading" @fileIsTooBig="onFileIsTooBig" class="input-file second" :folder="uid" fileName="cover.jpg" :format="[6, 3]" />
+          <upload-image @uploading="onFileUploading" @fileIsTooBig="onFileIsTooBig" class="input-file second" :uid="uid" :folder="uid" fileName="cover.jpg" :format="[6, 3]" />
           <div class="btn-upload second">alterar capa</div>
         </div>
         <h4 class="title">{{ name }} {{ surname }}

@@ -11,6 +11,8 @@ export default {
         .then(url => resolve(url))
         .catch(e => {
           console.log(`get img ${uid}/${fileName} error ${e.message}`);
+
+          // fallback to get default image..
           firebase
             .storage()
             .ref(`default/${fileName}`)
