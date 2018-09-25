@@ -248,6 +248,7 @@ export default {
           .then(userSnapShot => resolve(userSnapShot.data()))
           .catch(e => {
             console.log(`user profile couldn't be find ${e.message}`);
+
             if (e.message.includes("offline")) {
               this.emitNotifyNetwork(
                 "Não foi possível recuperar os seus dados, parece que você está sem conexão"
@@ -258,33 +259,55 @@ export default {
               );
             }
 
-            reject(null);
+            reject();
           });
       });
     };
 
-    const userData = await getUserData(this.uid);
+    let userData = {};
 
-    this.name = userData.name;
-    this.surname = userData.surname;
-    this.email = firebase.auth().currentUser.email;
-    this.username = firebase.auth().currentUser.displayName;
-    this.postalCodeMock = userData.postalCode;
-    this.city = userData.city;
-    this.estate = userData.estate;
-    this.address = userData.address;
-    this.number = userData.number;
-    this.district = userData.district;
-    this.phoneNumber = userData.phoneNumber;
-    this.phoneNumberTwo = userData.phoneNumberTwo;
+    try {
+      userData = await getUserData(this.uid);
+    } catch (e) {
+      userData = null;
+    }
 
-    this.coverPictureUrl =
-      (await userService.getImageUrl(this.uid, "cover.jpg")) +
-      `&v=${Date.now()}`;
+    console.log({ userData });
 
-    this.profilePictureUrl =
-      (await userService.getImageUrl(this.uid, "profile.jpg")) +
-      `&v=${Date.now()}`;
+    if (!userData) {
+      // TODO: get offline userdata
+    }
+
+    if (userData) {
+      // TODO: sync local data
+
+      this.name = userData.name;
+      this.surname = userData.surname;
+      this.email = firebase.auth().currentUser.email;
+      this.username = firebase.auth().currentUser.displayName;
+      this.postalCodeMock = userData.postalCode;
+      this.city = userData.city;
+      this.estate = userData.estate;
+      this.address = userData.address;
+      this.number = userData.number;
+      this.district = userData.district;
+      this.phoneNumber = userData.phoneNumber;
+      this.phoneNumberTwo = userData.phoneNumberTwo;
+
+      try {
+        this.coverPictureUrl = await userService.getImageUrl(
+          this.uid,
+          "cover.jpg"
+        );
+      } catch {}
+
+      try {
+        this.profilePictureUrl = await userService.getImageUrl(
+          this.uid,
+          "profile.jpg"
+        );
+      } catch {}
+    }
 
     this.$emit("userDataIsLoaded", {
       name: this.name,

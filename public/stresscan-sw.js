@@ -10,6 +10,10 @@ self.__precacheManifest = [
   {
     revision: "941835a10dcd04cf798c",
     url: "/app.js"
+  },
+  {
+    revision: "9878978978978979kjh87",
+    url: "/logo.3cc98cff.png"
   }
 ];
 
@@ -20,21 +24,32 @@ if (workbox) {
   workbox.precaching.precacheAndRoute(self.__precacheManifest || []);
 
   workbox.routing.registerRoute(
-    new RegExp("https://fonts.googleapis.com"),
+    "https://fonts.googleapis.com",
     workbox.strategies.staleWhileRevalidate({
       cacheName: "google-fonts"
     })
   );
 
   workbox.routing.registerRoute(
-    new RegExp("https://maxcdn.bootstrapcdn.com"),
+    "https://maxcdn.bootstrapcdn.com",
     workbox.strategies.staleWhileRevalidate({
       cacheName: "font-awesome"
     })
   );
 
+  // workbox.routing.registerRoute(
+  //   "https://firebasestorage.googleapis.com",
+  //   workbox.strategies.cacheFirst({
+  //     plugins: [
+  //       new workbox.cacheableResponse.Plugin({
+  //         statuses: [0, 200]
+  //       })
+  //     ]
+  //   })
+  // );
+
   workbox.routing.registerRoute(
-    new RegExp("https://firebasestorage.googleapis.com"),
+    "https://firebasestorage.googleapis.com",
     workbox.strategies.staleWhileRevalidate({
       cacheName: "firebase-storage"
     })

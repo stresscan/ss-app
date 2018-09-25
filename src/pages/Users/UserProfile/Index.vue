@@ -8,6 +8,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import EditProfileForm from "./EditProfileForm.vue";
 import UserCard from "./UserCard.vue";
@@ -66,9 +67,7 @@ export default {
         userService
           .getImageUrl(this.stateUid, data.fileName)
           .then(newImgUrl => {
-            console.log({ newImgUrl });
             const versionedImgUrl = `${newImgUrl}&v=${Date.now()}`;
-
             if (data.fileName.includes("cover")) {
               this.coverPictureUrl = versionedImgUrl;
             } else {

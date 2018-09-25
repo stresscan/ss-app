@@ -85,10 +85,13 @@ export default {
           fileName: this.fileName
         });
 
-        stRef
+        console.log(snapshot.ref);
+
+        snapshot.ref
           .updateMetadata({
             cacheControl: "public,max-age=300"
           })
+          .then(m => console.log({ m }))
           .catch(error => {
             console.error("Error trying to update image metadata", error);
 

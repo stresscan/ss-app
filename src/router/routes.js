@@ -133,7 +133,7 @@ const routes = [
           },
           {
             path: ":id",
-            name: "usuários",
+            name: "usuário",
             component: EditUser
           }
         ]

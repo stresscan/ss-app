@@ -2,7 +2,6 @@ import firebase from "firebase";
 
 export default {
   getImageUrl: (uid, fileName) => {
-    //console.log(firebase.database.ServerValue.TIMESTAMP);
     return new Promise(resolve => {
       firebase
         .storage()

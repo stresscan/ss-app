@@ -1,6 +1,8 @@
 <template>
   <card class="card-user" style="padding-bottom: 20px">
+    <offline @detected-condition="handleConnectivityChange" />
     <div slot="image" class="cover-pic-wrapper">
+      <p v-if="online">online</p>
       <img v-if="coverPicture" :src="coverPicture">
       <div v-else class="ss-inline-spinner el-center mg-tp-lg"></div>
     </div>
@@ -29,10 +31,17 @@
 </template>
 <script>
 import UploadImage from "./UploadImage.vue";
+import offline from "v-offline";
 
 export default {
   components: {
-    UploadImage
+    UploadImage,
+    offline
+  },
+  data() {
+    return {
+      online: true
+    };
   },
   props: {
     uid: String,
@@ -46,6 +55,13 @@ export default {
     coverPicture: String
   },
   methods: {
+    handleConnectivityChange(status) {
+      console.log(status);
+      this.online = status;
+      if (!status)
+        this.coverPicture =
+          "https://firebasestorage.googleapis.com/v0/b/ss-beta.appspot.com/o/kHTDufxvJpMwMNky5vxjicHgSSC2%2Fprofile.jpg?alt=media&token=c9ea5707-428d-47cd-94a8-1513804475f4&v=1537832200412";
+    },
     onFileIsTooBig(data) {
       this.$emit("fileIsTooBig", data);
     },
