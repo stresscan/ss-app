@@ -53,13 +53,11 @@
 import { StatsCard, ChartCard } from "@/components/index";
 import Chartist from "chartist";
 import placeService from "@/services/PlacesService";
-import authService from "@/services/AuthService";
-import basePage from "@/mixins/BasePage.js";
-import authPage from "@/mixins/Auth/AuthenticatedPage.js";
-import userIsAdmin from "@/mixins/Auth/UserIsAdmin.js";
+import basePageMixin from "@/mixins/BasePage.js";
+import authPageMixin from "@/mixins/Auth/AuthPage.js";
 
 export default {
-  mixins: [basePage, authPage, userIsAdmin],
+  mixins: [basePageMixin, authPageMixin],
   components: {
     StatsCard,
     ChartCard

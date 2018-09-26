@@ -7,5 +7,10 @@ export default {
       stateIsAdmin: state => state.users.user.isAdmin,
       stateUid: state => state.users.user.uid
     })
+  },
+  methods: {
+    isAdmin() {
+      return String(this.stateIsAdmin) == "true";
+    }
   }
 };

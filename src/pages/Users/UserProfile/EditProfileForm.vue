@@ -2,25 +2,22 @@
   <div>
     <card class="card" title="Editar Dados">
       <div>
-        <form @submit.prevent>
+        <form @submit.prevent="onUpdateProfile">
           <div class="row">
             <div class="col-md-12">
-              <ss-fg-input readonly type="email" label="Email" placeholder="Email" v-model.trim="email">
-              </ss-fg-input>
+              <ss-fg-input readonly type="email" label="Email" placeholder="Email" v-model.trim="email"></ss-fg-input>
             </div>
           </div>
 
           <div class="row">
             <div class="col-md-12">
-              <ss-fg-input readonly type="text" label="Usuário" placeholder="Usuário" v-model.trim="username">
-              </ss-fg-input>
+              <ss-fg-input readonly type="text" label="Usuário" placeholder="Usuário" v-model.trim="username"></ss-fg-input>
             </div>
           </div>
 
           <div class="row">
             <div class="col-sm-6">
-              <ss-fg-input :class="{'has-error': $v.name.$error}" @input="delayTouch($v.name)" type="text" label="Nome" placeholder="Nome" v-model.trim="name">
-              </ss-fg-input>
+              <ss-fg-input :class="{'has-error': $v.name.$error}" @input="delayTouch($v.name)" type="text" label="Nome" placeholder="Nome" v-model.trim="name"></ss-fg-input>
               <ul class="field-error-message" v-if="$v.name.$error">
                 <li v-if="!$v.name.required">
                   Campo requerido
@@ -47,8 +44,7 @@
           <div class="row">
             <div class="col-sm-4 col-md-6">
               <span v-if="!postalCode" class="fakePostalCode form-control">{{ postalCodeMock }}</span>
-              <ss-fg-input :spinner="searchingPostalCode" :class="{'has-error': $v.postalCode.$error}" @input="delayTouch($v.postalCode)" type="text" v-mask="'#####-###'" maxlength="9" label="CEP" v-model.trim="postalCode">
-              </ss-fg-input>
+              <ss-fg-input :offline="!reactiveOnlineApp || offlineData" :spinner="searchingPostalCode" :class="{'has-error': $v.postalCode.$error}" @input="delayTouch($v.postalCode)" type="text" v-mask="'#####-###'" maxlength="9" label="CEP" v-model.trim="postalCode"></ss-fg-input>
               <ul class="field-error-message " v-if="$v.postalCode.$error">
                 <li v-if="!$v.postalCode.isValid">
                   Esse CEP não é válido
@@ -56,8 +52,7 @@
               </ul>
             </div>
             <div class="col-sm-8 col-md-6">
-              <ss-fg-input :class="{'has-error': $v.address.$error}" @input="delayTouch($v.address)" maxlength="100" type="text" label="Endereço" placeholder="Endereço" v-model.trim="address">
-              </ss-fg-input>
+              <ss-fg-input :offline="!reactiveOnlineApp || offlineData" :class="{'has-error': $v.address.$error}" @input="delayTouch($v.address)" maxlength="100" type="text" label="Endereço" placeholder="Endereço" v-model.trim="address"></ss-fg-input>
               <ul class="field-error-message " v-if="$v.address.$error">
                 <li v-if="!$v.address.minLength ">
                   Endereço precisa ter no mínimo {{ $v.address.$params.minLength.min }} caracteres
@@ -68,7 +63,7 @@
 
           <div class="row">
             <div class="col-sm-10 col-md-8">
-              <ss-fg-input :class="{'has-error': $v.city.$error}" @input="delayTouch($v.city)" type="text" label="Cidade" placeholder="Cidade" maxlength="50" v-model.trim="city">
+              <ss-fg-input :offline="!reactiveOnlineApp || offlineData" :class="{'has-error': $v.city.$error}" @input="delayTouch($v.city)" type="text" label="Cidade" placeholder="Cidade" maxlength="50" v-model.trim="city">
               </ss-fg-input>
               <ul class="field-error-message " v-if="$v.city.$error">
                 <li v-if="!$v.city.minLength ">
@@ -77,7 +72,7 @@
               </ul>
             </div>
             <div class="col-sm-2 col-md-4">
-              <ss-fg-input :uppercase="true" :class="{'has-error': $v.estate.$error}" @input="delayTouch($v.estate)" type="text" label="UF" maxlength="2" placeholder="UF" v-model.trim="estate">
+              <ss-fg-input :offline="!reactiveOnlineApp || offlineData" :uppercase="true" :class="{'has-error': $v.estate.$error}" @input="delayTouch($v.estate)" type="text" label="UF" maxlength="2" placeholder="UF" v-model.trim="estate">
               </ss-fg-input>
               <ul class="field-error-message " v-if="$v.estate.$error">
                 <li v-if="!$v.estate.minLength || !$v.estate.maxLength">
@@ -89,7 +84,7 @@
 
           <div class="row">
             <div class="col-sm-8">
-              <ss-fg-input :class="{'has-error': $v.district.$error}" @input="delayTouch($v.district)" type="text" label="Bairro" placeholder="Bairro" v-model.trim="district">
+              <ss-fg-input :offline="!reactiveOnlineApp || offlineData" :class="{'has-error': $v.district.$error}" @input="delayTouch($v.district)" type="text" label="Bairro" placeholder="Bairro" v-model.trim="district">
               </ss-fg-input>
               <ul class="field-error-message " v-if="$v.district.$error">
                 <li v-if="!$v.district.minLength ">
@@ -115,7 +110,7 @@
           </div>
 
           <div class="text-center">
-            <p-button :loading="updatingUserProfile" type="info" :disabled="$v.$invalid || updatingUserProfile" round @click.native.prevent="onUpdateProfile">
+            <p-button :loading="updatingUserProfile" native-type="submit" type="info" :disabled="$v.$invalid || updatingUserProfile" round>
               {{ buttonText }}
             </p-button>
           </div>
@@ -123,7 +118,7 @@
         </form>
       </div>
     </card>
-    <change-password @notifySuccess="emitNotifySuccess" @notifyError="emitNotifyError" :email="email" />
+    <change-password @notifySuccess="emitNotify" @notifyError="emitNotify" :email="email" />
   </div>
 </template>
 
@@ -142,6 +137,8 @@ import { mask } from "vue-the-mask";
 import axios from "axios";
 import { emitNotifyMixin } from "@/mixins/Notify";
 import userService from "@/services/UsersService.js";
+import offlineUserService from "@/services/offline/OfflineUsersService.js";
+import { isOnlineCheck } from "@/services/offline/isOnlineCheckService.js";
 
 const touchMap = new WeakMap();
 
@@ -153,12 +150,15 @@ export default {
   directives: { mask },
   mixins: [validationMixin, emitNotifyMixin],
   props: {
-    uid: {
-      type: String
+    uid: String,
+    reactiveOnlineApp: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
     return {
+      offlineData: false,
       place: "",
       username: "",
       email: "",
@@ -250,13 +250,16 @@ export default {
             console.log(`user profile couldn't be find ${e.message}`);
 
             if (e.message.includes("offline")) {
-              this.emitNotifyNetwork(
-                "Não foi possível recuperar os seus dados, parece que você está sem conexão"
-              );
+              this.offlineData = true;
+              this.emitNotify({
+                type: "Network",
+                msg: `Parece que você está offline ou com uma conexão lenta. Alteração de dados está limitada.`
+              });
             } else {
-              this.emitNotifyError(
-                "Não foi possível recuperar os seus dados, por favor tente novamente"
-              );
+              this.emitNotify({
+                type: "Error",
+                msg: `Não foi possível recuperar os seus dados, por favor tente novamente.`
+              });
             }
 
             reject();
@@ -266,48 +269,70 @@ export default {
 
     let userData = {};
 
-    try {
-      userData = await getUserData(this.uid);
-    } catch (e) {
-      userData = null;
+    const isOnline = await isOnlineCheck();
+
+    console.log("isOnline edit profile", isOnline);
+
+    if (!isOnline) {
+      userData = await offlineUserService.getUser();
+      this.profilePictureUrl = userData.profilePictureUrl;
+      this.coverPictureUrl = userData.coverPictureUrl;
+      this.offlineData = true;
+
+      this.emitNotify({
+        type: "Network",
+        msg: `O aplicativo está offline. Alteração de dados está limitada a alguns dados.`
+      });
+    } else {
+      try {
+        userData = await getUserData(this.uid);
+      } catch (e) {
+        userData = null;
+      }
     }
 
     console.log({ userData });
 
-    if (!userData) {
-      // TODO: get offline userdata
-    }
+    this.name = userData.name;
+    this.surname = userData.surname;
+    this.email = firebase.auth().currentUser.email;
+    this.username = firebase.auth().currentUser.displayName;
+    this.postalCodeMock = userData.postalCode;
+    this.city = userData.city;
+    this.estate = userData.estate;
+    this.address = userData.address;
+    this.number = userData.number;
+    this.district = userData.district;
+    this.phoneNumber = userData.phoneNumber;
+    this.phoneNumberTwo = userData.phoneNumberTwo;
 
-    if (userData) {
-      // TODO: sync local data
-
-      this.name = userData.name;
-      this.surname = userData.surname;
-      this.email = firebase.auth().currentUser.email;
-      this.username = firebase.auth().currentUser.displayName;
-      this.postalCodeMock = userData.postalCode;
-      this.city = userData.city;
-      this.estate = userData.estate;
-      this.address = userData.address;
-      this.number = userData.number;
-      this.district = userData.district;
-      this.phoneNumber = userData.phoneNumber;
-      this.phoneNumberTwo = userData.phoneNumberTwo;
-
+    if (!this.coverPictureUrl) {
       try {
         this.coverPictureUrl = await userService.getImageUrl(
           this.uid,
           "cover.jpg"
         );
-      } catch {}
 
+        offlineUserService.persiste({
+          coverPictureUrl: this.coverPictureUrl
+        });
+      } catch {}
+    }
+
+    if (!this.profilePictureUrl) {
       try {
         this.profilePictureUrl = await userService.getImageUrl(
           this.uid,
           "profile.jpg"
         );
+
+        offlineUserService.persiste({
+          profilePictureUrl: this.profilePictureUrl
+        });
       } catch {}
     }
+
+    console.log({ userData });
 
     this.$emit("userDataIsLoaded", {
       name: this.name,
@@ -333,37 +358,51 @@ export default {
       this.updatingUserProfile = true;
       this.$v.$touch();
 
+      const updatedData = {
+        name: this.name,
+        surname: this.surname,
+        number: this.number,
+        phoneNumber: this.phoneNumber,
+        phoneNumberTwo: this.phoneNumberTwo
+      };
+
       firebase
         .firestore()
         .collection("users_profile")
         .doc(this.uid)
-        .update({
-          name: this.name,
-          surname: this.surname,
-          address: this.address || "",
-          city: this.city || "",
-          estate: this.estate || "",
-          district: this.district || "",
-          number: this.number || "",
-          phoneNumber: this.phoneNumber || "",
-          phoneNumberTwo: this.phoneNumberTwo || ""
-        })
+        .update(updatedData)
         .then(() => {
+          offlineUserService.persiste(updatedData);
+
+          // the initial value of the postalcode is always empty
+          // the value filled up in the form is a mock value
+          // because of that only update this if the user change the value
           if (this.postalCode) {
+            const postalCode = {
+              postalCode: this.postalCode,
+              address: this.address,
+              city: this.city,
+              estate: this.estate,
+              district: this.district
+            };
+
             firebase
               .firestore()
               .collection("users_profile")
               .doc(this.uid)
-              .update({
-                postalCode: this.postalCode
-              })
-              .then(() => console.log("cep atualizado"));
+              .update(postalCode)
+              .then(() => {
+                offlineUserService.persiste(postalCode);
+              });
           }
 
           this.buttonText = "Atualizar dados";
           this.updatingUserProfile = false;
 
-          this.emitNotifySuccess("Seus dados foram atualizados com sucesso");
+          this.emitNotify({
+            type: "Success",
+            msg: `Seus dados foram atualizados com sucesso`
+          });
         })
         .catch(e => {
           console.log(`user profile couldn't be updated by the user ${e}`);
@@ -372,12 +411,8 @@ export default {
           this.updatingUserProfile = false;
 
           this.emitNotify({
-            verticalAlign: "bottom",
-            horizontalAlign: "right",
-            type: "danger",
-            message:
-              "Ocorreu um erro inesperado na tentativa de atualizar os seus dados, por favor tente novamente",
-            icon: "ti-thumb-down"
+            type: "Error",
+            msg: `Ocorreu um erro inesperado na tentativa de atualizar os seus dados, por favor tente novamente`
           });
         });
     }

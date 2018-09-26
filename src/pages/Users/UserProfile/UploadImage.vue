@@ -17,8 +17,11 @@
 import firebase from "firebase";
 import VueCropper from "vue-cropper";
 import Modal from "@/components/Modal";
+import { isOnlineCheck } from "@/services/offline/isOnlineCheckService.js";
+import { emitNotifyMixin } from "@/mixins/Notify";
 
 export default {
+  mixins: [emitNotifyMixin],
   components: {
     VueCropper,
     Modal
@@ -50,7 +53,10 @@ export default {
   methods: {
     detectFiles(fileList) {
       if (fileList[0].size > 5e6) {
-        this.$emit("fileIsTooBig", fileList[0].size);
+        this.emitNotify({
+          type: "Error",
+          msg: `Arquivo muito pesado. Por favor selecione uma imagem com no máximo 5mb`
+        });
       } else {
         const reader = new FileReader();
 
@@ -70,34 +76,60 @@ export default {
         this.upload(data);
       });
     },
-    upload(file) {
-      console.log("uploading", `${this.folder}/${this.fileName}`);
-      this.$emit("uploading", { uploading: true, fileName: this.fileName });
+    async upload(file) {
+      const isOnline = await isOnlineCheck();
 
-      const stRef = firebase
-        .storage()
-        .ref()
-        .child(`${this.folder}/${this.fileName}`);
+      if (isOnline) {
+        console.log("uploading", `${this.folder}/${this.fileName}`);
+        this.$emit("uploading", { uploading: true, fileName: this.fileName });
 
-      stRef.put(file).then(snapshot => {
-        this.$emit("uploading", {
-          uploading: false,
-          fileName: this.fileName
-        });
+        const stRef = firebase
+          .storage()
+          .ref()
+          .child(`${this.folder}/${this.fileName}`);
 
-        console.log(snapshot.ref);
+        stRef
+          .put(file)
+          .then(snapshot => {
+            this.$emit("uploading", {
+              uploading: false,
+              fileName: this.fileName
+            });
 
-        snapshot.ref
-          .updateMetadata({
-            cacheControl: "public,max-age=300"
+            this.emitNotify({
+              type: "Success",
+              msg: "Imagem eviada com sucesso"
+            });
+
+            snapshot.ref
+              .updateMetadata({
+                cacheControl: "public,max-age=300"
+              })
+              .catch(error => {
+                console.error("Error trying to update image metadata", error);
+
+                logService.logError(
+                  new Date().getTime(),
+                  `Erro ao tentar atualizar o metadata da imagem ${
+                    this.folder
+                  }/${this.fileName}: ${e.message}`,
+                  "updateMetadata",
+                  "UpdateImage.vue",
+                  this.uid
+                );
+              });
           })
-          .then(m => console.log({ m }))
-          .catch(error => {
-            console.error("Error trying to update image metadata", error);
+          .catch(e => {
+            this.emitNotify({
+              type: "Error",
+              msg: `Ocorreu um erro ao tentar enviar a imagem. Por favor tente novamente`
+            });
+
+            console.error("Error trying to upload image", error);
 
             logService.logError(
               new Date().getTime(),
-              `Erro ao tentar atualizar o metadata da imagem ${this.folder}/${
+              `Erro ao tentar fazer upload da imagem ${this.folder}/${
                 this.fileName
               }: ${e.message}`,
               "upload",
@@ -105,7 +137,12 @@ export default {
               this.uid
             );
           });
-      });
+      } else {
+        this.emitNotify({
+          type: "Network",
+          msg: `O aplicativo está offline. Não é possível fazer upload de fotos`
+        });
+      }
     }
   }
 };

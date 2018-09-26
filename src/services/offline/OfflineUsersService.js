@@ -5,38 +5,46 @@ const _localUserRef = localforage.createInstance({
   name: "offlineCurrentUser"
 });
 
-const _getItem = async itemName => {
-  var obj = {};
-  obj[itemName] = await _localUserRef.getItem(itemName);
+const _getItem = async itemKey => {
+  const itemValue = await _localUserRef.getItem(itemKey);
+  let obj = {};
+  obj[itemKey] = itemValue;
   return obj;
 };
 
 export default {
   persiste: user => {
-    _localUserRef.setItem("id", user.id);
-    _localUserRef.setItem("username", user.username);
-    _localUserRef.setItem("isAdmin", user.isAdmin);
-    _localUserRef.setItem(
-      "push_notifications_enable",
-      user.push_notifications_enable
-    );
+    for (let prop in user) {
+      _localUserRef.setItem(prop, user[prop]);
+    }
   },
   getUser: async () => {
-    const idItem = await _getItem("id");
+    const user = await _getItem("id");
 
-    if (!idItem.id) return null;
+    if (!user.id) return null;
 
-    let user = await Promise.all([
+    let userDataArray = await Promise.all([
+      _getItem("address"),
+      _getItem("city"),
+      _getItem("district"),
+      _getItem("email"),
+      _getItem("estate"),
+      _getItem("number"),
+      _getItem("phoneNumber"),
+      _getItem("phoneNumberTwo"),
+      _getItem("postalCode"),
+      _getItem("name"),
+      _getItem("surname"),
       _getItem("username"),
       _getItem("isAdmin"),
-      _getItem("push_notifications_enable")
+      _getItem("push_notifications_enable"),
+      _getItem("coverPictureUrl"),
+      _getItem("profilePictureUrl")
     ]);
 
-    console.log({ user });
-
     return Object.assign(
-      { id: idItem.id },
-      user.reduce((acc, item) => {
+      { id: user.id },
+      userDataArray.reduce((acc, item) => {
         var key = Object.keys(item)[0];
         acc[key] = item[key];
         return acc;

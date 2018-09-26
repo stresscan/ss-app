@@ -2,7 +2,7 @@ import firebase from "firebase";
 
 export default {
   getImageUrl: (uid, fileName) => {
-    return new Promise(resolve => {
+    return new Promise((resolve, reject) => {
       firebase
         .storage()
         .ref(`${uid}/${fileName}`)
@@ -17,9 +17,10 @@ export default {
             .ref(`default/${fileName}`)
             .getDownloadURL()
             .then(url => resolve(url))
-            .catch(e =>
-              console.log(`get img default/${fileName} error ${e.message}`)
-            );
+            .catch(e => {
+              console.log(`get img default/${fileName} error ${e.message}`);
+              reject();
+            });
         });
     });
   }

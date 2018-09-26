@@ -3,13 +3,16 @@
     <a class="back-link" href="#" @click.prevent="onAddData">
       Inserir dados aleatórios
     </a>
-    <div class="alert alert-warning alert-dismissible fade show" v-for="(item, index) in notificationsList" :key="index" v-if="item.show" role="alert">
-      <button type="button" class="close" @click.prevent="onCloseNotification(item)" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
-      </button>
-      <small>{{ item.datetime.getDate() + '/' + item.datetime.getMonth() + 1 + "/" + item.datetime.getFullYear() + ' ' + item.datetime.getHours() + 'h' + item.datetime.getMinutes()}}</small><br />
-      <strong>Atenção!</strong> {{ item.msg }}.
-    </div>
+
+    <template v-if="!isAdmin()">
+      <div class="alert alert-warning alert-dismissible fade show" v-for="(item, index) in notificationsList" :key="index" v-if="item.show" role="alert">
+        <button type="button" class="close" @click.prevent="onCloseNotification(item)" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+        <small>{{ item.datetime.getDate() + '/' + item.datetime.getMonth() + 1 + "/" + item.datetime.getFullYear() + ' ' + item.datetime.getHours() + 'h' + item.datetime.getMinutes()}}</small><br />
+        <strong>Atenção!</strong> {{ item.msg }}.
+      </div>
+    </template>
 
     <div class="row">
       <div class="col-12">
@@ -124,13 +127,14 @@ import { StatsCard, ChartCard, LocationMap } from "@/components/index";
 import Chartist from "chartist";
 import ChartistPluginTooltip from "chartist-plugin-tooltips";
 import firebase from "firebase";
-import basePage from "@/mixins/BasePage.js";
+import basePageMixin from "@/mixins/BasePage.js";
+import authPageMixin from "@/mixins/Auth/AuthPage.js";
 import getLastUploadMixin from "@/mixins/PlacesAndTowers/GetLastUploadInfo.js";
 import mapTowerStats from "./Charts/MapTowerStats.js";
 import { leftZero } from "@/utils/Numbers";
 
 export default {
-  mixins: [basePage, getLastUploadMixin],
+  mixins: [basePageMixin, authPageMixin, getLastUploadMixin],
   components: {
     StatsCard,
     ChartCard,

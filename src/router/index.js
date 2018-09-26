@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import routes from "./routes";
 import firebase from "firebase";
 import store from "../store/store";
+import offlineUserService from "@/services/offline/OfflineUsersService.js";
 
 Vue.use(VueRouter);
 
@@ -13,18 +14,26 @@ const router = new VueRouter({
   linkActiveClass: "active"
 });
 
-router.beforeEach((to, from, next) => {
-  const currentUser = firebase.auth().currentUser;
-  const offlineCurrentUser = localStorage.getItem("offlineCurrentUser_id");
-  const isCurrentUserAdmin = store.state.users.user.isAdmin;
+const beforeEach = async (to, from, next) => {
+  const user = firebase.auth().currentUser;
+  const userOnState = store.state.users.user.uid;
+  const offlineUser = await offlineUserService.getUser();
+  const isUserAdmin = store.state.users.user.isAdmin;
+
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
 
-  console.log({ offlineCurrentUser });
+  console.log("route", { user });
+  console.log("route", { userOnState });
+  console.log("route", { offlineUser });
+  console.log("route", { isUserAdmin });
 
-  if (requiresAuth && (!currentUser && !offlineCurrentUser)) next("/login");
-  else if (requiresAdmin && !isCurrentUserAdmin) next("/login");
+  if (!userOnState && to.name !== "login") next("/login");
+  else if (requiresAuth && (!user && !offlineUser)) next("/login");
+  else if (requiresAdmin && !isUserAdmin) next("/login");
   else next();
-});
+};
+
+router.beforeEach(beforeEach);
 
 export default router;

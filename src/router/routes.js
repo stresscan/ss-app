@@ -32,7 +32,8 @@ const routes = [
     redirect: "/login",
     children: [
       {
-        path: "login",
+        name: "login",
+        path: "/login",
         component: Login
       }
     ]

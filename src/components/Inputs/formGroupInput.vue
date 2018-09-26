@@ -2,6 +2,7 @@
   <div class="form-group" :class="{'input-group': hasIcon}">
     <slot name="label">
       <label v-if="label" class="control-label">
+        <i v-if="offline" class="material-icons">cloud_off</i>
         {{label}}
       </label>
     </slot>
@@ -10,7 +11,7 @@
         <i :class="addonLeftIcon" class="input-group-text"></i>
       </span>
     </slot>
-    <input :class="{ uppercase }" :value="value" @input="$emit('input',$event.target.value)" v-bind="$attrs" class="form-control" aria-describedby="addon-right addon-left">
+    <input :readonly="offline" :class="{ uppercase }" :value="value" @input="$emit('input',$event.target.value)" v-bind="$attrs" class="form-control" aria-describedby="addon-right addon-left">
     <div v-if="spinner" class="spinner"></div>
     <slot></slot>
     <slot name="addonRight">
@@ -30,7 +31,11 @@ export default {
     addonRightIcon: String,
     addonLeftIcon: String,
     spinner: Boolean,
-    uppercase: Boolean
+    uppercase: Boolean,
+    offline: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
     hasIcon() {

@@ -24,8 +24,10 @@
 
 <script>
 import firebase from "firebase";
+import { emitNotifyMixin } from "@/mixins/Notify";
 
 export default {
+  mixins: [emitNotifyMixin],
   data() {
     return {
       sendingEmail: false,
@@ -50,18 +52,18 @@ export default {
           this.emailSent = true;
           this.sendingEmail = false;
 
-          this.$emit(
-            "notifySuccess",
-            "E-mail com instruções foi enviado com sucesso"
-          );
+          this.emitNotify({
+            type: "Success",
+            msg: "E-mail com instruções foi enviado com sucesso"
+          });
         })
         .catch(e => {
           this.sendingEmail = false;
 
-          this.$emit(
-            "notifyError",
-            "Ocorreu um erro inesperado, por favor tente novamente"
-          );
+          this.emitNotify({
+            type: "Error",
+            msg: "Ocorreu um erro inesperado, por favor tente novamente"
+          });
         });
     },
     onResendEmail() {

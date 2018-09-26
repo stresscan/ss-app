@@ -1,8 +1,6 @@
 <template>
   <card class="card-user" style="padding-bottom: 20px">
-    <offline @detected-condition="handleConnectivityChange" />
     <div slot="image" class="cover-pic-wrapper">
-      <p v-if="online">online</p>
       <img v-if="coverPicture" :src="coverPicture">
       <div v-else class="ss-inline-spinner el-center mg-tp-lg"></div>
     </div>
@@ -13,9 +11,9 @@
       </div>
       <div v-if="dataLoaded">
         <div class="upload-photos-wrapper el-center">
-          <upload-image @uploading="onFileUploading" @fileIsTooBig="onFileIsTooBig" class="input-file" :uid="uid" :folder="uid" fileName="profile.jpg" :format="[3, 3]" />
+          <upload-image @uploading="onFileUploading" @notifySuccess="emitNotify" @notifyError="emitNotify" @notifyNetwork="emitNotify" class="input-file" :uid="uid" :folder="uid" fileName="profile.jpg" :format="[3, 3]" />
           <div class="btn-upload">alterar foto</div>
-          <upload-image @uploading="onFileUploading" @fileIsTooBig="onFileIsTooBig" class="input-file second" :uid="uid" :folder="uid" fileName="cover.jpg" :format="[6, 3]" />
+          <upload-image @uploading="onFileUploading" @notifySuccess="emitNotify" @notifyError="emitNotify" @notifyNetwork="emitNotify" class="input-file second" :uid="uid" :folder="uid" fileName="cover.jpg" :format="[6, 3]" />
           <div class="btn-upload second">alterar capa</div>
         </div>
         <h4 class="title">{{ name }} {{ surname }}
@@ -31,12 +29,12 @@
 </template>
 <script>
 import UploadImage from "./UploadImage.vue";
-import offline from "v-offline";
+import { emitNotifyMixin } from "@/mixins/Notify";
 
 export default {
+  mixins: [emitNotifyMixin],
   components: {
-    UploadImage,
-    offline
+    UploadImage
   },
   data() {
     return {
@@ -55,13 +53,6 @@ export default {
     coverPicture: String
   },
   methods: {
-    handleConnectivityChange(status) {
-      console.log(status);
-      this.online = status;
-      if (!status)
-        this.coverPicture =
-          "https://firebasestorage.googleapis.com/v0/b/ss-beta.appspot.com/o/kHTDufxvJpMwMNky5vxjicHgSSC2%2Fprofile.jpg?alt=media&token=c9ea5707-428d-47cd-94a8-1513804475f4&v=1537832200412";
-    },
     onFileIsTooBig(data) {
       this.$emit("fileIsTooBig", data);
     },

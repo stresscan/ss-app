@@ -1,10 +1,10 @@
 <template>
   <div class="row">
     <div class="col-xl-4 col-lg-5 col-md-6">
-      <user-card @fileIsTooBig="onFileUploadingTooBig" @uploading="onUploading" :dataLoaded="userDataLoaded" :uid="stateUid" :name="name" :surname="surname" :username="username" :phoneNumber="phoneNumber" :email="email" :profilePicture="profilePictureUrl" :coverPicture="coverPictureUrl"></user-card>
+      <user-card @notifyNetwork="notifyNetwork" @notifyError="notifyError" @notifySuccess="notifySuccess" @uploading="onUploading" :reactive-online-app="reactiveOnlineApp" :dataLoaded="userDataLoaded" :uid="stateUid" :name="name" :surname="surname" :username="username" :phoneNumber="phoneNumber" :email="email" :profilePicture="profilePictureUrl" :coverPicture="coverPictureUrl"></user-card>
     </div>
     <div class="col-xl-8 col-lg-7 col-md-6">
-      <edit-profile-form :uid="stateUid" @notifyVue="notifyVue" @userDataIsLoaded="onUserDataIsLoaded"></edit-profile-form>
+      <edit-profile-form @notifyNetwork="notifyNetwork" @notifySuccess="notifySuccess" @notifyError="notifyError" @userDataIsLoaded="onUserDataIsLoaded" :reactive-online-app="reactiveOnlineApp" :uid="stateUid"></edit-profile-form>
     </div>
   </div>
 </template>
@@ -12,12 +12,14 @@
 <script>
 import EditProfileForm from "./EditProfileForm.vue";
 import UserCard from "./UserCard.vue";
-import basePage from "@/mixins/BasePage.js";
-import authPage from "@/mixins/Auth/AuthenticatedPage.js";
+import basePageMixin from "@/mixins/BasePage.js";
+import authPageMixin from "@/mixins/Auth/AuthPage.js";
 import userService from "@/services/UsersService.js";
+import offlineUserService from "@/services/offline/OfflineUsersService.js";
+import { notifyMixin } from "@/mixins/Notify";
 
 export default {
-  mixins: [basePage, authPage],
+  mixins: [basePageMixin, authPageMixin, notifyMixin],
   components: {
     EditProfileForm,
     UserCard
@@ -46,16 +48,6 @@ export default {
 
       this.userDataLoaded = true;
     },
-    onFileUploadingTooBig(data) {
-      this.notifyVue({
-        verticalAlign: "bottom",
-        horizontalAlign: "right",
-        type: "danger",
-        message:
-          "Arquivo muito pesado. Por favor selecione uma imagem com no máximo 5mb",
-        icon: "ti-thumb-down"
-      });
-    },
     onUploading(data) {
       if (data.uploading) {
         if (data.fileName.includes("cover")) {
@@ -70,8 +62,16 @@ export default {
             const versionedImgUrl = `${newImgUrl}&v=${Date.now()}`;
             if (data.fileName.includes("cover")) {
               this.coverPictureUrl = versionedImgUrl;
+
+              offlineUserService.persiste({
+                coverPictureUrl: this.coverPictureUrl
+              });
             } else {
               this.profilePictureUrl = versionedImgUrl;
+
+              offlineUserService.persiste({
+                profilePictureUrl: this.profilePictureUrl
+              });
             }
           });
       }

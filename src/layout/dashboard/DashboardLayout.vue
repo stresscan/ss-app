@@ -22,7 +22,7 @@
     </side-bar>
     <div class="main-panel">
       <top-navbar :uid="stateUid"></top-navbar>
-      <dashboard-content @click.native="toggleSidebar"></dashboard-content>
+      <main-content @click.native="toggleSidebar"></main-content>
       <content-footer></content-footer>
     </div>
   </div>
@@ -32,18 +32,17 @@
 <script>
 import TopNavbar from "./TopNavbar.vue";
 import ContentFooter from "./ContentFooter.vue";
-import DashboardContent from "./Content.vue";
+import MainContent from "../MainContent.vue";
 import MobileMenu from "./MobileMenu";
 import firebase from "firebase";
-import userStateProps from "@/mixins/Auth/UserStateProps.js";
-import userIsAdmin from "@/mixins/Auth/UserIsAdmin.js";
+import authPageMixin from "@/mixins/Auth/AuthPage.js";
 
 export default {
-  mixins: [userStateProps, userIsAdmin],
+  mixins: [authPageMixin],
   components: {
     TopNavbar,
     ContentFooter,
-    DashboardContent,
+    MainContent,
     MobileMenu
   },
   data() {

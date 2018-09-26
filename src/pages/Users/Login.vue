@@ -18,8 +18,10 @@
 import firebase from "firebase";
 import { mapActions } from "vuex";
 import offlineUserService from "@/services/offline/OfflineUsersService.js";
+import basePageMixin from "@/mixins/BasePage.js";
 
 export default {
+  mixins: [basePageMixin],
   data() {
     return {
       email: "",

@@ -7551,6 +7551,10 @@ vue-notifyjs@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/vue-notifyjs/-/vue-notifyjs-0.3.0.tgz#943ff8a657106010ca499144e9309f6c427a779d"
 
+vue-online@1.1.9:
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/vue-online/-/vue-online-1.1.9.tgz#0a3b0992881e47c3574f0ca3a7f99901ed109281"
+
 vue-router@^3.0.1:
   version "3.0.1"
   resolved "https://registry.yarnpkg.com/vue-router/-/vue-router-3.0.1.tgz#d9b05ad9c7420ba0f626d6500d693e60092cc1e9"

@@ -5,7 +5,7 @@ const iconSuccess = "ti-thumb-up";
 const iconInfo = "ti-info";
 const iconNetwork = "ti-power-off";
 
-export const options = {
+export const opts = {
   verticalAlign,
   horizontalAlign,
   iconError,
