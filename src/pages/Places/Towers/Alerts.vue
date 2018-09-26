@@ -384,12 +384,8 @@ export default {
               );
             })
             .catch(e => {
-              this.notifyVue(
-                "bottom",
-                "right",
-                "danger",
-                "O alerta não pode ser excluído: erro inesperado",
-                "ti-thumb-down"
+              this.notifyError(
+                "O alerta não pode ser excluído: erro inesperado"
               );
 
               logService.logError(

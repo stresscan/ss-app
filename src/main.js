@@ -13,9 +13,11 @@ import "vue-notifyjs/themes/default.css";
 import { initializeFirebase } from "./config/firebaseConfig";
 import { registerServiceWorkers } from "./serviceWorkersRegistration";
 
-//if (process.env.NODE_ENV === "production") {
-registerServiceWorkers();
-//}
+console.log("environment", process.env.NODE_ENV);
+
+if (process.env.NODE_ENV === "production") {
+  registerServiceWorkers();
+}
 
 initializeFirebase();
 

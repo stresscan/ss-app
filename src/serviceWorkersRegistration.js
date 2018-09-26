@@ -1,7 +1,9 @@
 export const registerServiceWorkers = () => {
   if ("serviceWorker" in navigator) {
-    console.log("controller", navigator.serviceWorker.controller);
-    //if (!navigator.serviceWorker.controller) {
+    console.log(
+      "registering service worker - controller",
+      navigator.serviceWorker.controller
+    );
     navigator.serviceWorker
       .register("/stresscan-sw.js")
       .then(reg => {
@@ -14,8 +16,5 @@ export const registerServiceWorkers = () => {
       .catch(err => {
         console.error("Boo!", err);
       });
-    // } else {
-    //   console.log("service worker already installed");
-    // }
   }
 };

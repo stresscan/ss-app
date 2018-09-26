@@ -3,6 +3,7 @@
     <div v-if="loading">Carregando...</div>
     <div v-if="authenticating">Autenticando...</div>
     <form v-if="!loading && !authenticating" @submit.prevent="onLogin">
+      <i class="material-icons" style="opacity: 0">cloud_off</i>
       <h1>Login</h1>
       <p class="error-message" v-if="errorMessage">{{ errorMessage }}</p>
       <label for="email">email</label>
