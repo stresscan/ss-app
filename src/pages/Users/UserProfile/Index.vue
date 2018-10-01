@@ -12,14 +12,14 @@
 <script>
 import EditProfileForm from "./EditProfileForm.vue";
 import UserCard from "./UserCard.vue";
-import basePageMixin from "@/mixins/BasePage.js";
-import authPageMixin from "@/mixins/Auth/AuthPage.js";
-import userService from "@/services/UsersService.js";
+import basicPageMixin from "@/mixins/BasicPage";
+import authPageMixin from "@/mixins/Auth/AuthPage";
+import usersProfileService from "@/services/UsersProfileService";
 import offlineUserService from "@/services/offline/OfflineUsersService.js";
 import { notifyMixin } from "@/mixins/Notify";
 
 export default {
-  mixins: [basePageMixin, authPageMixin, notifyMixin],
+  mixins: [basicPageMixin, authPageMixin, notifyMixin],
   components: {
     EditProfileForm,
     UserCard
@@ -56,7 +56,7 @@ export default {
           this.profilePictureUrl = "";
         }
       } else {
-        userService
+        usersProfileService
           .getImageUrl(this.stateUid, data.fileName)
           .then(newImgUrl => {
             const versionedImgUrl = `${newImgUrl}&v=${Date.now()}`;
@@ -75,15 +75,6 @@ export default {
             }
           });
       }
-    },
-    notifyVue(data) {
-      this.$notify({
-        message: data.message,
-        icon: data.icon,
-        horizontalAlign: data.horizontalAlign,
-        verticalAlign: data.verticalAlign,
-        type: data.type
-      });
     }
   }
 };

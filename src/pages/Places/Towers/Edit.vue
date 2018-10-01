@@ -119,20 +119,24 @@
 </template>
 
 <script>
-import firebase from "firebase";
 import { mapState } from "vuex";
 import { required, minLength, maxLength } from "vuelidate/lib/validators";
 import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
-import basePage from "@/mixins/BasePage.js";
-import { LocationMap } from "@/components/index";
+import basicPageMixin from "@/mixins/BasicPage";
+import { notifyMixin } from "@/mixins/Notify";
+import { LocationMap } from "@/components";
+
+import placesService from "@/services/PlacesService";
+import towersService from "@/services/TowersService";
+import clientsService from "@/services/ClientsService";
 
 const touchMap = new WeakMap();
 
 export default {
   directives: { mask },
-  mixins: [validationMixin, basePage],
+  mixins: [basicPageMixin, validationMixin, notifyMixin],
   components: {
     LocationMap
   },
@@ -191,63 +195,32 @@ export default {
       }
     }
   },
-  created() {
-    const getPlaceData = placeId => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(placeId)
-          .get()
-          .then(doc => {
-            resolve(Object.assign(doc.data(), { id: doc.id }));
-          });
-      });
-    };
-
-    const getOwnerData = ownerId => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("users_profile")
-          .doc(ownerId)
-          .get()
-          .then(doc => {
-            resolve(Object.assign(doc.data(), { id: doc.id }));
-          });
-      });
-    };
-
-    const getTowerData = (placeId, towerId) => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(placeId)
-          .collection("towers")
-          .doc(towerId)
-          .get()
-          .then(doc => {
-            resolve(Object.assign(doc.data(), { id: doc.id }));
-          });
-      });
-    };
-
-    getPlaceData(this.$route.params.placeId).then(data => {
+  async created() {
+    try {
+      const place = await placesService.get(this.$route.params.placeId);
       this.gettingPlaceData = false;
-      this.place = data;
+      this.place = place;
 
-      getOwnerData(data.owner).then(ownerData => {
+      try {
+        const owner = clientsService.get(place.owner);
         this.gettingOwnerData = false;
-        this.owner = ownerData;
-      });
-    });
-
-    getTowerData(this.$route.params.placeId, this.$route.params.towerId).then(
-      data => {
-        this.tower = data;
+        this.owner = owner;
+      } catch (e) {
+        console.error(e.message);
       }
-    );
+    } catch (e) {
+      console.error(e.message);
+    }
+
+    try {
+      const tower = await towersService.get(
+        this.$route.params.placeId,
+        this.$route.params.towerId
+      );
+      this.tower = tower;
+    } catch (e) {
+      console.error(e.message);
+    }
   },
   methods: {
     onGoBack() {
@@ -265,12 +238,13 @@ export default {
       this.tower.geolocation.lat = String(latlng.lat);
       this.tower.geolocation.lng = String(latlng.lng);
     },
-    onFormSubmit() {
+    async onFormSubmit() {
       this.buttonText = "Editando torre...";
       this.editingTower = true;
       this.$v.$touch();
 
-      const updatedTower = {
+      const tower = {
+        id: this.$route.params.towerId,
         name: this.tower.name,
         culture: this.tower.culture,
         geolocation: {
@@ -279,38 +253,19 @@ export default {
         }
       };
 
-      firebase
-        .firestore()
-        .collection("places")
-        .doc(this.place.id)
-        .collection("towers")
-        .doc(this.$route.params.towerId)
-        .update(updatedTower)
-        .then(doc => {
-          this.towerEdited = true;
-        })
-        .catch(e => {
-          console.log(`tower couldn't be edited ${e}`);
-          this.buttonText = "Editar torre";
-          this.editingTower = false;
+      try {
+        await towersService.update(this.place.id, tower);
 
-          this.notifyVue(
-            "bottom",
-            "right",
-            "danger",
-            "A torre não pode ser criada: erro desconhecido",
-            "ti-thumb-down"
-          );
+        this.towerEdited = true;
+      } catch (e) {
+        console.error(`tower couldn't be edited ${e}`);
+        this.buttonText = "Editar torre";
+        this.editingTower = false;
+
+        this.notifyError({
+          msg: `A torre não pode ser criada: erro desconhecido`
         });
-    },
-    notifyVue(verticalAlign, horizontalAlign, type, message, icon) {
-      this.$notify({
-        message,
-        icon,
-        horizontalAlign,
-        verticalAlign,
-        type
-      });
+      }
     }
   }
 };

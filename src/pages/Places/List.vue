@@ -52,12 +52,16 @@
 <script>
 import { StatsCard, ChartCard } from "@/components/index";
 import Chartist from "chartist";
-import placeService from "@/services/PlacesService";
-import basePageMixin from "@/mixins/BasePage.js";
-import authPageMixin from "@/mixins/Auth/AuthPage.js";
+
+import placesService from "@/services/PlacesService";
+import towersService from "@/services/TowersService";
+import clientsService from "@/services/ClientsService";
+
+import basicPageMixin from "@/mixins/BasicPage";
+import authPageMixin from "@/mixins/Auth/AuthPage";
 
 export default {
-  mixins: [basePageMixin, authPageMixin],
+  mixins: [basicPageMixin, authPageMixin],
   components: {
     StatsCard,
     ChartCard
@@ -80,19 +84,23 @@ export default {
     this.getPlacesListByOwner(this.isAdmin() ? "" : this.stateUid);
   },
   methods: {
-    getClientsList() {
+    async getClientsList() {
       this.loadingClientList = true;
-      placeService.getClientsList().then(list => {
+
+      try {
+        const list = await clientsService.list();
         list.map(item => {
           this.clientsList.push(item);
         });
+      } catch (e) {
+        console.error(e.message);
+      }
 
-        this.loadingClientList = false;
+      this.loadingClientList = false;
 
-        if (this.$route.query.clientId) {
-          this.clientSelectValue = this.$route.query.clientId;
-        }
-      });
+      if (this.$route.query.clientId) {
+        this.clientSelectValue = this.$route.query.clientId;
+      }
     },
     getPlacesListByOwner(ownerId) {
       this.placesList = [];
@@ -102,33 +110,31 @@ export default {
       if (!ownerId && !this.isAdmin()) {
         this.loadingPlacesList = false;
       } else {
-        placeService
-          .getPlacesListByOwner(ownerId, this.isAdmin())
-          .then(placesList => {
-            if (placesList.length == 0) {
-              this.loadingPlacesList = false;
-              this.noPlacesFound = true;
-            } else {
-              let i;
-              const placesListLength = placesList.length;
+        placesService.listByOwner(ownerId, this.isAdmin()).then(placesList => {
+          if (placesList.length == 0) {
+            this.loadingPlacesList = false;
+            this.noPlacesFound = true;
+          } else {
+            let i;
+            const placesListLength = placesList.length;
 
-              for (let i = 0; i < placesListLength; i++) {
-                placeService
-                  .getPlaceTowersQnt(placesList[i].id, this.isAdmin())
-                  .then(qnt => {
-                    this.placesList.push(
-                      Object.assign(placesList[i], {
-                        qntTowers: qnt
-                      })
-                    );
+            for (let i = 0; i < placesListLength; i++) {
+              towersService
+                .list(placesList[i].id, this.isAdmin())
+                .then(list => {
+                  this.placesList.push(
+                    Object.assign(placesList[i], {
+                      qntTowers: list.size()
+                    })
+                  );
 
-                    if (i == placesListLength - 1) {
-                      this.loadingPlacesList = false;
-                    }
-                  });
-              }
+                  if (i == placesListLength - 1) {
+                    this.loadingPlacesList = false;
+                  }
+                });
             }
-          });
+          }
+        });
       }
     },
     onChangeClient() {

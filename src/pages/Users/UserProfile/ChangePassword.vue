@@ -23,7 +23,8 @@
 </template>
 
 <script>
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/auth";
 import { emitNotifyMixin } from "@/mixins/Notify";
 
 export default {

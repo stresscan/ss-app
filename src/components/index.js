@@ -1,4 +1,5 @@
 import FormGroupInput from "./Inputs/formGroupInput.vue";
+import ToggleButton from "./Inputs/toggleButton.vue";
 
 import DropDown from "./Dropdown.vue";
 import PaperTable from "./PaperTable.vue";
@@ -14,6 +15,7 @@ import LocationMap from "./Map.vue";
 
 let components = {
   FormGroupInput,
+  ToggleButton,
   Card,
   ChartCard,
   StatsCard,
@@ -27,6 +29,7 @@ export default components;
 
 export {
   FormGroupInput,
+  ToggleButton,
   Card,
   ChartCard,
   StatsCard,

@@ -146,18 +146,20 @@
 </template>
 
 <script>
-import firebase from "firebase";
+import clientsService from "@/services/ClientsService";
+import placesService from "@/services/PlacesService";
 import { required, minLength, maxLength } from "vuelidate/lib/validators";
 import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
-import basePageMixin from "@/mixins/BasePage.js";
+import basicPageMixin from "@/mixins/BasicPage";
+import { notifyMixin } from "@/mixins/Notify";
 
 const touchMap = new WeakMap();
 
 export default {
   directives: { mask },
-  mixins: [validationMixin, basePageMixin],
+  mixins: [basicPageMixin, validationMixin, notifyMixin],
   data() {
     return {
       clients: [],
@@ -193,6 +195,7 @@ export default {
           required,
           isValid(value) {
             if (value === "") return true;
+
             return new Promise((resolve, reject) => {
               this.place.location.city = "";
               this.place.location.estate = "";
@@ -251,34 +254,14 @@ export default {
       }
     }
   },
-  created() {
-    const getClientsList = () => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("users_profile")
-          .where("isAdmin", "==", false)
-          .get()
-          .then(clientsQuerySnapshot => {
-            let clients = [];
-
-            clientsQuerySnapshot.forEach(clientDocSnapshot => {
-              let clientData = Object.assign(clientDocSnapshot.data(), {
-                id: clientDocSnapshot.id
-              });
-
-              clients.push(clientData);
-            });
-
-            resolve(clients);
-          });
-      });
-    };
-
-    getClientsList().then(clients => {
+  async created() {
+    try {
+      const clients = await clientsService.list();
       this.clients = clients;
       this.place.owner = this.$route.query.clientId;
-    });
+    } catch(e) {
+      console.error(e);
+    }
   },
   methods: {
     onGoBack() {
@@ -292,7 +275,7 @@ export default {
       }
       touchMap.set($v, setTimeout($v.$touch, 1000));
     },
-    onFormSubmit() {
+    async onFormSubmit() {
       this.buttonText = "Cadastrando local...";
       this.creatingPlace = true;
       this.$v.$touch();
@@ -312,25 +295,22 @@ export default {
         disabled: false
       };
 
-      firebase
-        .firestore()
-        .collection("places")
-        .add(newPlace)
-        .then(place => {
-          this.placeCreated = true;
+      try {
+        await placesService.create(newPlace);
+        this.placeCreated = true;
+        this.notifySuccess({
+          msg: `Local criado com sucesso!`
         })
-        .catch(e => {
-          console.log(`place couldn't be created ${e}`);
-          this.buttonText = "Cadastrar local";
-          this.creatingPlace = false;
-          this.notifyVue(
-            "bottom",
-            "right",
-            "danger",
-            "O local não pode ser criado: erro desconhecido",
-            "ti-thumb-down"
-          );
-        });
+      } catch(e) {
+        console.log(`place couldn't be created ${e}`);
+
+        this.buttonText = "Cadastrar local";
+        this.creatingPlace = false;
+
+        this.notifyError({
+          msg: `O local não pode ser criado: erro desconhecido`
+        })
+      }
     },
     resetForm() {
       this.place.name = "";
@@ -347,15 +327,6 @@ export default {
 
       this.$nextTick(() => {
         this.$v.$reset();
-      });
-    },
-    notifyVue(verticalAlign, horizontalAlign, type, message, icon) {
-      this.$notify({
-        message,
-        icon,
-        horizontalAlign,
-        verticalAlign,
-        type
       });
     }
   }

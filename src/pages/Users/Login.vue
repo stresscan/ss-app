@@ -16,13 +16,16 @@
 </template>
 
 <script>
-import firebase from "firebase";
-import { mapActions } from "vuex";
-import offlineUserService from "@/services/offline/OfflineUsersService.js";
-import basePageMixin from "@/mixins/BasePage.js";
+import firebase from "firebase/app";
+import "firebase/firestore";
+import "firebase/auth";
+
+import offlineUserService from "@/services/offline/OfflineUsersService";
+import basicPageMixin from "@/mixins/BasicPage";
+import authPageMixin from "@/mixins/Auth/AuthPage";
 
 export default {
-  mixins: [basePageMixin],
+  mixins: [basicPageMixin, authPageMixin],
   data() {
     return {
       email: "",
@@ -50,7 +53,6 @@ export default {
                 });
 
                 offlineUserService.persiste(currentUser);
-
                 resolve(currentUser);
               })
               .catch(err => {
@@ -68,23 +70,15 @@ export default {
     console.log({ loginPage_user: user });
 
     if (user) {
-      this.updateUserLevel(user.isAdmin);
-      this.updateUsername(user.username);
-      this.updateUID(user.id);
-      this.updatePushNotificationsEnable(user.push_notifications_enable);
+      this.updateUserState(user);
       this.$router.replace("/dashboard");
     } else {
       console.error("Perfil de usuário não encontrado");
+      this.updateUserState({});
       this.loading = false;
     }
   },
   methods: {
-    ...mapActions([
-      "updateUserLevel",
-      "updateUsername",
-      "updateUID",
-      "updatePushNotificationsEnable"
-    ]),
     onLogin() {
       this.authenticating = true;
 
@@ -100,12 +94,13 @@ export default {
               .get()
               .then(docSnapshot => {
                 if (docSnapshot.exists) {
-                  this.updateUserLevel(docSnapshot.data().isAdmin);
-                  this.updateUsername(docSnapshot.data().username);
-                  this.updateUID(docSnapshot.id);
-                  this.updatePushNotificationsEnable(
-                    docSnapshot.data().push_notifications_enable
-                  );
+                  this.updateUserState({
+                    id: userSnapshot.user.uid,
+                    isAdmin: docSnapshot.data().isAdmin,
+                    username: docSnapshot.data().username,
+                    push_notifications_enable: docSnapshot.data()
+                      .push_notifications_enable
+                  });
                   this.$router.replace("/dashboard");
                 } else {
                   this.authenticating = false;
@@ -135,7 +130,6 @@ export default {
   }
 };
 </script>
-
 
 <style lang="scss" scoped>
 .form-wrapper {

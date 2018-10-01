@@ -34,8 +34,8 @@
 <script>
 import MovingArrow from "./MovingArrow.vue";
 import SidebarLink from "./SidebarLink";
-import firebase from "firebase";
-import localforage from "localforage";
+import authService from "@/services/AuthService";
+import offlineUserService from "@/services/offline/OfflineUsersService";
 
 export default {
   props: {
@@ -122,19 +122,10 @@ export default {
         this.links.splice(index, 1);
       }
     },
-    onLogout() {
-      firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          let localUser = localforage.createInstance({
-            name: "offlineCurrentUser"
-          });
-
-          localUser.clear();
-
-          this.$router.replace("/login");
-        });
+    async onLogout() {
+      await authService.signOut();
+      offlineUserService.clearData();
+      this.$router.replace("/login");
     }
   },
   mounted() {

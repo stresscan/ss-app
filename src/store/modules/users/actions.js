@@ -1,14 +1,14 @@
 export default {
-  updateUserLevel(context, payload) {
-    context.commit("UPDATE_USER_LEVEL", payload);
+  updateState_UserLevel(context, payload) {
+    context.commit("UPDATE_STATE_USER_LEVEL", payload);
   },
-  updateUsername(context, payload) {
-    context.commit("UPDATE_USERNAME", payload);
+  updateState_Username(context, payload) {
+    context.commit("UPDATE_STATE_USERNAME", payload);
   },
-  updateUID(context, payload) {
-    context.commit("UPDATE_UID", payload);
+  updateState_UID(context, payload) {
+    context.commit("UPDATE_STATE_UID", payload);
   },
-  updatePushNotificationsEnable(context, payload) {
-    context.commit("UPDATE_PUSHNOTIFICATIONSENABLE", payload);
+  updateState_PushNotificationsEnable(context, payload) {
+    context.commit("UPDATE_STATE_PUSHNOTIFICATIONSENABLE", payload);
   }
 };

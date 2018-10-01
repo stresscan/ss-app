@@ -27,7 +27,8 @@
   </nav>
 </template>
 <script>
-import firebase from "firebase";
+// import firebase from "firebase/app";
+// import "firebase/firestore";
 
 export default {
   props: {
@@ -48,32 +49,30 @@ export default {
     }
   },
   created() {
-    const getRealtimeNotificationsList = clientId => {
-      firebase
-        .firestore()
-        .collection("notifications")
-        .where("owner", "==", clientId)
-        .orderBy("datetime", "desc")
-        .onSnapshot(querySnapshot => {
-          querySnapshot.docChanges().forEach(change => {
-            if (change.type === "added") {
-              this.notificationsList.unshift(
-                Object.assign(change.doc.data(), {
-                  id: change.doc.id
-                })
-              );
-            }
-
-            if (change.type === "removed") {
-              this.notificationsList = this.notificationsList.filter(
-                item => item.id !== change.doc.id
-              );
-            }
-          });
-        });
-    };
-
-    getRealtimeNotificationsList(this.uid);
+    // const getRealtimeNotificationsList = clientId => {
+    //   firebase
+    //     .firestore()
+    //     .collection("notifications")
+    //     .where("owner", "==", clientId)
+    //     .orderBy("datetime", "desc")
+    //     .onSnapshot(querySnapshot => {
+    //       querySnapshot.docChanges().forEach(change => {
+    //         if (change.type === "added") {
+    //           this.notificationsList.unshift(
+    //             Object.assign(change.doc.data(), {
+    //               id: change.doc.id
+    //             })
+    //           );
+    //         }
+    //         if (change.type === "removed") {
+    //           this.notificationsList = this.notificationsList.filter(
+    //             item => item.id !== change.doc.id
+    //           );
+    //         }
+    //       });
+    //     });
+    // };
+    // getRealtimeNotificationsList(this.uid);
   },
   methods: {
     capitalizeFirstLetter(string) {

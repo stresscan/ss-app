@@ -179,7 +179,6 @@
   </div>
 </template>
 <script>
-import firebase from "firebase";
 import {
   email,
   required,
@@ -190,15 +189,19 @@ import {
 import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
-import basePage from "@/mixins/BasePage.js";
+import basicPageMixin from "@/mixins/BasicPage";
+import { notifyMixin } from "@/mixins/Notify";
 import { mapState } from "vuex";
-import logService from "@/services/LogService.js";
+
+import logService from "@/services/LogService";
+import usersProfileService from "@/services/UsersProfileService";
+import authService from "@/services/AuthService";
 
 const touchMap = new WeakMap();
 
 export default {
   directives: { mask },
-  mixins: [validationMixin, basePage],
+  mixins: [basicPageMixin, validationMixin, notifyMixin],
   data() {
     return {
       username: "",
@@ -235,7 +238,7 @@ export default {
     username: {
       required,
       minLength: minLength(4),
-      isUnique(value) {
+      async isUnique(value) {
         this.checkingUsername = true;
 
         if (value === "") {
@@ -243,40 +246,35 @@ export default {
           return true;
         }
 
-        return new Promise((resolve, reject) => {
-          firebase
-            .firestore()
-            .collection("users_profile")
-            .where("username", "==", value)
-            .get()
-            .then(querySnapshot => {
-              this.checkingUsername = false;
-              resolve(querySnapshot.empty);
-            });
-        });
+        try {
+          const users = await usersProfileService.getByUsername(value);
+          this.checkingUsername = false;
+          return users.length === 0;
+        } catch (e) {
+          this.checkingUsername = false;
+          return false;
+        }
       }
     },
     email: {
       required,
       email,
-      isUnique(value) {
+      async isUnique(value) {
         this.checkingEmail = true;
 
         if (value === "") {
           this.checkingEmail = false;
           return true;
         }
-        return new Promise((resolve, reject) => {
-          firebase
-            .firestore()
-            .collection("users_profile")
-            .where("email", "==", value)
-            .get()
-            .then(querySnapshot => {
-              this.checkingEmail = false;
-              resolve(querySnapshot.empty);
-            });
-        });
+
+        try {
+          const users = await usersProfileService.getByEmail(value);
+          this.checkingEmail = false;
+          return users.length === 0;
+        } catch (e) {
+          this.checkingEmail = false;
+          return false;
+        }
       }
     },
     password: {
@@ -349,31 +347,36 @@ export default {
       }
       touchMap.set($v, setTimeout($v.$touch, 1000));
     },
-    onFormSubmit() {
+    async onFormSubmit() {
       this.buttonText = "Criando usuário...";
       this.creatingUser = true;
       this.$v.$touch();
 
-      firebase
-        .auth()
-        .createUserWithEmailAndPassword(this.email, this.password)
-        .then(createdUser => {
-          createdUser.user
-            .updateProfile({
-              displayName: this.username
-            })
-            .catch(e => {
-              console.log(`displayname couldn't be updated ${e}`);
-              logService.logError(
-                new Date().getTime(),
-                `displayname couldn't be updated (fail or catch): ${e.message}`,
-                "createUser",
-                "update displayName",
-                this.stateUid
-              );
-            });
+      try {
+        const createdUser = await authService.createUserWithEmailAndPassword(
+          this.email,
+          this.password
+        );
 
-          const newUser = {
+        try {
+          authService.updateUser(createdUser, {
+            displayName: this.username
+          });
+        } catch (e) {
+          console.error(`displayname couldn't be updated ${e}`);
+
+          logService.logError(
+            new Date().getTime(),
+            `displayname couldn't be updated (fail or catch): ${e.message}`,
+            "createUser",
+            "update displayName",
+            this.stateUid
+          );
+        }
+
+        try {
+          await usersProfileService.create({
+            uid: createdUser.user.uid,
             date: Date.now(),
             name: this.name,
             surname: this.surname,
@@ -391,68 +394,41 @@ export default {
             isAdmin: Boolean(Number(this.isAdmin)),
             push_notifications_tokens: [],
             push_notifications_enable: false
-          };
+          });
 
-          firebase
-            .firestore()
-            .collection("users_profile")
-            .doc(createdUser.user.uid)
-            .set(newUser)
-            .then(
-              () => {
-                this.$router.replace("list?created=1");
-              },
-              e => {
-                this.buttonText = "Criar usuário";
-                this.creatingUser = false;
-
-                this.notifyVue(
-                  "bottom",
-                  "right",
-                  "danger",
-                  "O perfil do usuário não pode ser criado: erro desconhecido",
-                  "ti-thumb-down"
-                );
-
-                logService.logError(
-                  new Date().getTime(),
-                  `create user profile fail: ${e.message}`,
-                  "createUser",
-                  "create user profile",
-                  this.stateUid
-                );
-              }
-            );
-        })
-        .catch(e => {
+          this.$router.replace("list?created=1");
+        } catch (e) {
           this.buttonText = "Criar usuário";
           this.creatingUser = false;
 
-          this.notifyVue(
-            "bottom",
-            "right",
-            "danger",
-            "O usuário não pode ser criado: erro inesperado",
-            "ti-thumb-down"
-          );
+          this.notifyErro({
+            msg: `O perfil do usuário não pode ser criado: erro desconhecido`
+          });
 
           logService.logError(
             new Date().getTime(),
-            `user account create fail or catch: ${e.message}`,
+            `create user profile fail: ${e.message}`,
             "createUser",
-            "create user account",
+            "create user profile",
             this.stateUid
           );
+        }
+      } catch (e) {
+        this.buttonText = "Criar usuário";
+        this.creatingUser = false;
+
+        this.notifyError({
+          msg: `O usuário não pode ser criado: erro inesperado`
         });
-    },
-    notifyVue(verticalAlign, horizontalAlign, type, message, icon) {
-      this.$notify({
-        message,
-        icon,
-        horizontalAlign,
-        verticalAlign,
-        type
-      });
+
+        logService.logError(
+          new Date().getTime(),
+          `user account create fail or catch: ${e.message}`,
+          "createUser",
+          "create user account",
+          this.stateUid
+        );
+      }
     }
   }
 };

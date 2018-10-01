@@ -16,10 +16,13 @@
   </div>
 </template>
 <script>
-import firebase from "firebase";
 import { PaperTable } from "@/components";
+import { notifyMixin } from "@/mixins/Notify";
+import basicPageMixin from "@/mixins/BasicPage";
+import usersProfileService from "@/services/UsersProfileService";
 
 export default {
+  mixins: [basicPageMixin, notifyMixin],
   components: {
     PaperTable
   },
@@ -34,53 +37,20 @@ export default {
     };
   },
   async created() {
-    const getUsers = () => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("users_profile")
-          .get()
-          .then(querySnapshot => {
-            let users = [];
-            querySnapshot.forEach(docSnapshot => {
-              users.push({
-                id: docSnapshot.id,
-                nome: `${docSnapshot.data().name} ${
-                  docSnapshot.data().surname
-                }`,
-                nivel: docSnapshot.data().isAdmin ? "admin" : "cliente",
-                username: docSnapshot.data().username,
-                status: docSnapshot.data().disabled ? "desativado" : "ativado"
-              });
-            });
-
-            resolve(users);
-          });
-      });
-    };
-
-    this.table.data = await getUsers();
+    this.table.data = await usersProfileService.list();
     this.dataLoaded = true;
   },
   mounted() {
     if (this.$route.query.edited == 1) {
-      this.notifyVue(
-        "bottom",
-        "right",
-        "success",
-        "Usuário atualizado com sucesso",
-        "ti-thumb-up"
-      );
+      this.notifySuccess({
+        msg: `Usuário atualizado com sucesso`
+      });
     }
 
     if (this.$route.query.created == 1) {
-      this.notifyVue(
-        "bottom",
-        "right",
-        "success",
-        "Usuário criado com sucesso",
-        "ti-thumb-up"
-      );
+      this.notifySuccess({
+        msg: `Usuário criado com sucesso`
+      });
     }
   },
   methods: {
@@ -89,15 +59,6 @@ export default {
     },
     onEditUserData(id) {
       this.$router.push(id);
-    },
-    notifyVue(verticalAlign, horizontalAlign, type, message, icon) {
-      this.$notify({
-        message,
-        icon,
-        horizontalAlign,
-        verticalAlign,
-        type
-      });
     }
   }
 };

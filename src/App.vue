@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import appService from "./services/AppService.js";
+//import appService from "./services/AppService.js";
 import { mapState } from "vuex";
 
 export default {
@@ -20,10 +20,10 @@ export default {
       // Add to Home Screen Chrome Banner User Response
       window.addEventListener("beforeinstallprompt", e => {
         e.userChoice.then(choiceResult => {
-          appService.saveAdd2HomeScreenUserChoice(
-            this.stateUid,
-            choiceResult.outcome
-          );
+          // appService.saveAdd2HomeScreenUserChoice(
+          //   this.stateUid,
+          //   choiceResult.outcome
+          // );
         });
       });
     });

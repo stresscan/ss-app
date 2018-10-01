@@ -14,10 +14,11 @@
   </div>
 </template>
 <script>
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/storage";
 import VueCropper from "vue-cropper";
 import Modal from "@/components/Modal";
-import { isOnlineCheck } from "@/services/offline/isOnlineCheckService.js";
+import { isOnline } from "@/services/offline/isOnlineService.js";
 import { emitNotifyMixin } from "@/mixins/Notify";
 
 export default {
@@ -77,7 +78,7 @@ export default {
       });
     },
     async upload(file) {
-      const isOnline = await isOnlineCheck();
+      const isOnline = await isOnline();
 
       if (isOnline) {
         console.log("uploading", `${this.folder}/${this.fileName}`);

@@ -30,12 +30,13 @@
 <style lang="scss">
 </style>
 <script>
-import TopNavbar from "./TopNavbar.vue";
-import ContentFooter from "./ContentFooter.vue";
-import MainContent from "../MainContent.vue";
+import TopNavbar from "./TopNavbar";
+import ContentFooter from "./ContentFooter";
+import MainContent from "../MainContent";
 import MobileMenu from "./MobileMenu";
-import firebase from "firebase";
-import authPageMixin from "@/mixins/Auth/AuthPage.js";
+// import firebase from "firebase/app";
+// import "firebase/firestore";
+import authPageMixin from "@/mixins/Auth/AuthPage";
 
 export default {
   mixins: [authPageMixin],
@@ -51,32 +52,30 @@ export default {
     };
   },
   created() {
-    const getRealtimeNotificationsList = clientId => {
-      firebase
-        .firestore()
-        .collection("notifications")
-        .where("owner", "==", clientId)
-        .orderBy("datetime", "desc")
-        .onSnapshot(querySnapshot => {
-          querySnapshot.docChanges().forEach(change => {
-            if (change.type === "added") {
-              this.notificationsList.unshift(
-                Object.assign(change.doc.data(), {
-                  id: change.doc.id
-                })
-              );
-            }
-
-            if (change.type === "removed") {
-              this.notificationsList = this.notificationsList.filter(
-                item => item.id !== change.doc.id
-              );
-            }
-          });
-        });
-    };
-
-    getRealtimeNotificationsList(this.stateUid);
+    // const getRealtimeNotificationsList = clientId => {
+    //   firebase
+    //     .firestore()
+    //     .collection("notifications")
+    //     .where("owner", "==", clientId)
+    //     .orderBy("datetime", "desc")
+    //     .onSnapshot(querySnapshot => {
+    //       querySnapshot.docChanges().forEach(change => {
+    //         if (change.type === "added") {
+    //           this.notificationsList.unshift(
+    //             Object.assign(change.doc.data(), {
+    //               id: change.doc.id
+    //             })
+    //           );
+    //         }
+    //         if (change.type === "removed") {
+    //           this.notificationsList = this.notificationsList.filter(
+    //             item => item.id !== change.doc.id
+    //           );
+    //         }
+    //       });
+    //     });
+    // };
+    // getRealtimeNotificationsList(this.stateUid);
   },
   methods: {
     toggleSidebar() {

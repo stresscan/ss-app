@@ -123,8 +123,9 @@
 </template>
 
 <script>
+import firebase from "firebase/app";
+import "firebase/firestore";
 import ChangePassword from "./ChangePassword.vue";
-import firebase from "firebase";
 import {
   email,
   required,
@@ -136,9 +137,9 @@ import { validationMixin } from "vuelidate";
 import { mask } from "vue-the-mask";
 import axios from "axios";
 import { emitNotifyMixin } from "@/mixins/Notify";
-import userService from "@/services/UsersService.js";
+import usersProfileService from "@/services/UsersProfileService.js";
 import offlineUserService from "@/services/offline/OfflineUsersService.js";
-import { isOnlineCheck } from "@/services/offline/isOnlineCheckService.js";
+import { isOnline } from "@/services/offline/isOnlineService.js";
 
 const touchMap = new WeakMap();
 
@@ -269,7 +270,7 @@ export default {
 
     let userData = {};
 
-    const isOnline = await isOnlineCheck();
+    const isOnline = await isOnline();
 
     console.log("isOnline edit profile", isOnline);
 
@@ -295,8 +296,8 @@ export default {
 
     this.name = userData.name;
     this.surname = userData.surname;
-    this.email = firebase.auth().currentUser.email;
-    this.username = firebase.auth().currentUser.displayName;
+    this.email = userData.email;
+    this.username = userData.username;
     this.postalCodeMock = userData.postalCode;
     this.city = userData.city;
     this.estate = userData.estate;
@@ -308,7 +309,7 @@ export default {
 
     if (!this.coverPictureUrl) {
       try {
-        this.coverPictureUrl = await userService.getImageUrl(
+        this.coverPictureUrl = await usersProfileService.getImageUrl(
           this.uid,
           "cover.jpg"
         );
@@ -321,7 +322,7 @@ export default {
 
     if (!this.profilePictureUrl) {
       try {
-        this.profilePictureUrl = await userService.getImageUrl(
+        this.profilePictureUrl = await usersProfileService.getImageUrl(
           this.uid,
           "profile.jpg"
         );

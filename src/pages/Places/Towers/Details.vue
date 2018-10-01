@@ -123,18 +123,23 @@
   </div>
 </template>
 <script>
+// import firebase from "firebase/app";
+// import "firebase/firestore";
 import { StatsCard, ChartCard, LocationMap } from "@/components/index";
 import Chartist from "chartist";
 import ChartistPluginTooltip from "chartist-plugin-tooltips";
-import firebase from "firebase";
-import basePageMixin from "@/mixins/BasePage.js";
-import authPageMixin from "@/mixins/Auth/AuthPage.js";
-import getLastUploadMixin from "@/mixins/PlacesAndTowers/GetLastUploadInfo.js";
-import mapTowerStats from "./Charts/MapTowerStats.js";
+import basicPageMixin from "@/mixins/BasicPage";
+import authPageMixin from "@/mixins/Auth/AuthPage";
+import getLastUploadMixin from "@/mixins/PlacesAndTowers/GetLastUploadInfo";
+import mapTowerStats from "./Charts/MapTowerStats";
 import { leftZero } from "@/utils/Numbers";
 
+import placesService from "@/services/PlacesService";
+import towersService from "@/services/TowersService";
+import notificationsService from "@/services/NotificationsSevice";
+
 export default {
-  mixins: [basePageMixin, authPageMixin, getLastUploadMixin],
+  mixins: [basicPageMixin, authPageMixin, getLastUploadMixin],
   components: {
     StatsCard,
     ChartCard,
@@ -175,178 +180,151 @@ export default {
       }
     };
   },
-  created() {
-    const getRealTimeNotificationsList = (placeId, towerId) => {
-      firebase
-        .firestore()
-        .collection("notifications")
-        .where("place", "==", placeId)
-        .where("tower", "==", towerId)
-        .onSnapshot(querySnapshot => {
-          querySnapshot.docChanges().forEach(change => {
-            if (change.type === "added") {
-              this.notificationsList.unshift(
-                Object.assign(change.doc.data(), {
-                  id: change.doc.id,
-                  datetime: new Date(change.doc.data().datetime),
-                  show: false
-                })
-              );
-            }
+  async created() {
+    // const getRealTimeNotificationsList = (placeId, towerId) => {
+    //   firebase
+    //     .firestore()
+    //     .collection("notifications")
+    //     .where("place", "==", placeId)
+    //     .where("tower", "==", towerId)
+    //     .onSnapshot(querySnapshot => {
+    //       querySnapshot.docChanges().forEach(change => {
+    //         if (change.type === "added") {
+    //           this.notificationsList.unshift(
+    //             Object.assign(change.doc.data(), {
+    //               id: change.doc.id,
+    //               datetime: new Date(change.doc.data().datetime),
+    //               show: false
+    //             })
+    //           );
+    //         }
 
-            if (change.type === "removed") {
-              this.notificationsList = this.notificationsList.filter(
-                item => item.id !== change.doc.id
-              );
-            }
-          });
+    //         if (change.type === "removed") {
+    //           this.notificationsList = this.notificationsList.filter(
+    //             item => item.id !== change.doc.id
+    //           );
+    //         }
+    //       });
 
-          const totalOfNotifications = querySnapshot.size;
+    //       const totalOfNotifications = querySnapshot.size;
 
-          for (let i = 1; i <= totalOfNotifications; i++) {
-            setTimeout(() => {
-              if (this.notificationsList[i - 1]) {
-                this.notificationsList[i - 1].show = true;
-              }
-            }, i * 100);
-          }
-        });
-    };
+    //       for (let i = 1; i <= totalOfNotifications; i++) {
+    //         setTimeout(() => {
+    //           if (this.notificationsList[i - 1]) {
+    //             this.notificationsList[i - 1].show = true;
+    //           }
+    //         }, i * 100);
+    //       }
+    //     });
+    // };
 
-    const getPlaceData = placeId => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(placeId)
-          .get()
-          .then(doc => {
-            resolve(Object.assign(doc.data(), { id: doc.id }));
-          });
-      });
-    };
+    // const getRealTimeTowerData = (placeId, towerId) => {
+    //   firebase
+    //     .firestore()
+    //     .collection("places")
+    //     .doc(placeId)
+    //     .collection("towers")
+    //     .doc(towerId)
+    //     .onSnapshot(snapshot => {
+    //       this.tower = Object.assign(this.tower, snapshot.data());
+    //       this.gettingTowerData = false;
+    //     });
+    // };
 
-    const getOwnerData = ownerId => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("users_profile")
-          .doc(ownerId)
-          .get()
-          .then(doc => {
-            resolve(Object.assign(doc.data(), { id: doc.id }));
-          });
-      });
-    };
+    // const getRealTimeTowerStats = (placeId, towerId) => {
+    //   firebase
+    //     .firestore()
+    //     .collection("places")
+    //     .doc(placeId)
+    //     .collection("towers")
+    //     .doc(towerId)
+    //     .collection("stats")
+    //     .orderBy("datetime")
+    //     .limit(10000)
+    //     .onSnapshot(queryStatsSnapshot => {
+    //       this.gettingTowerStats = true;
+    //       let statsCharts = [];
 
-    const getRealTimeTowerData = (placeId, towerId) => {
-      firebase
-        .firestore()
-        .collection("places")
-        .doc(placeId)
-        .collection("towers")
-        .doc(towerId)
-        .onSnapshot(snapshot => {
-          this.tower = Object.assign(this.tower, snapshot.data());
-          this.gettingTowerData = false;
-        });
-    };
+    //       queryStatsSnapshot.forEach(doc => {
+    //         let statsCardsData = [];
+    //         const d = new Date(doc.data().datetime * 1000);
 
-    const getRealTimeTowerStats = (placeId, towerId) => {
-      firebase
-        .firestore()
-        .collection("places")
-        .doc(placeId)
-        .collection("towers")
-        .doc(towerId)
-        .collection("stats")
-        .orderBy("datetime")
-        .limit(10000)
-        .onSnapshot(queryStatsSnapshot => {
-          this.gettingTowerStats = true;
-          let statsCharts = [];
+    //         const date = `${d.getDate()}/${d.getMonth() +
+    //           1}/${d.getFullYear()} ${d.getHours()}h${leftZero(
+    //           d.getMinutes().toString()
+    //         )}`;
 
-          queryStatsSnapshot.forEach(doc => {
-            let statsCardsData = [];
-            const d = new Date(doc.data().datetime * 1000);
+    //         statsCardsData.push({
+    //           title: "Planta",
+    //           icon: "thermometer-full",
+    //           number: doc.data().ground_temperature || 0,
+    //           sign: "°",
+    //           date
+    //         });
 
-            const date = `${d.getDate()}/${d.getMonth() +
-              1}/${d.getFullYear()} ${d.getHours()}h${leftZero(
-              d.getMinutes().toString()
-            )}`;
+    //         statsCardsData.push({
+    //           title: "Ambiente",
+    //           icon: "thermometer-full",
+    //           number: doc.data().environment_temperature || 0,
+    //           sign: "°",
+    //           date
+    //         });
 
-            statsCardsData.push({
-              title: "Planta",
-              icon: "thermometer-full",
-              number: doc.data().ground_temperature || 0,
-              sign: "°",
-              date
-            });
+    //         statsCardsData.push({
+    //           title: "Planta",
+    //           icon: "umbrella",
+    //           number: doc.data().ground_humidity || 0,
+    //           sign: "%",
+    //           date
+    //         });
 
-            statsCardsData.push({
-              title: "Ambiente",
-              icon: "thermometer-full",
-              number: doc.data().environment_temperature || 0,
-              sign: "°",
-              date
-            });
+    //         statsCardsData.push({
+    //           title: "Ambiente",
+    //           icon: "umbrella",
+    //           number: doc.data().environment_humidity || 0,
+    //           sign: "%",
+    //           date
+    //         });
 
-            statsCardsData.push({
-              title: "Planta",
-              icon: "umbrella",
-              number: doc.data().ground_humidity || 0,
-              sign: "%",
-              date
-            });
+    //         this.tower = Object.assign(this.tower, {
+    //           last_upload: this.getLastUpload(
+    //             doc.data().datetime * 1000 || Date.now().getTime()
+    //           ),
+    //           stats_cards: statsCardsData
+    //         });
 
-            statsCardsData.push({
-              title: "Ambiente",
-              icon: "umbrella",
-              number: doc.data().environment_humidity || 0,
-              sign: "%",
-              date
-            });
+    //         statsCharts.push(
+    //           Object.assign(doc.data(), {
+    //             id: doc.id,
+    //             datetime: doc.data().datetime * 1000
+    //           })
+    //         );
+    //       });
 
-            this.tower = Object.assign(this.tower, {
-              last_upload: this.getLastUpload(
-                doc.data().datetime * 1000 || Date.now().getTime()
-              ),
-              stats_cards: statsCardsData
-            });
+    //       this.tower.stats.length = statsCharts.length;
+    //       this.gettingTowerStats = false;
+    //       buildStatsCharts(statsCharts);
+    //     });
+    // };
 
-            statsCharts.push(
-              Object.assign(doc.data(), {
-                id: doc.id,
-                datetime: doc.data().datetime * 1000
-              })
-            );
-          });
+    const place = await placesService.get(this.$route.params.placeId);
+    this.gettingPlaceData = false;
+    this.place = data;
 
-          this.tower.stats.length = statsCharts.length;
-          this.gettingTowerStats = false;
-          buildStatsCharts(statsCharts);
-        });
-    };
+    // getRealTimeTowerData(
+    //   this.$route.params.placeId,
+    //   this.$route.params.towerId
+    // );
 
-    getPlaceData(this.$route.params.placeId).then(data => {
-      this.gettingPlaceData = false;
-      this.place = data;
-    });
+    // getRealTimeTowerStats(
+    //   this.$route.params.placeId,
+    //   this.$route.params.towerId
+    // );
 
-    getRealTimeTowerData(
-      this.$route.params.placeId,
-      this.$route.params.towerId
-    );
-
-    getRealTimeNotificationsList(
-      this.$route.params.placeId,
-      this.$route.params.towerId
-    );
-
-    getRealTimeTowerStats(
-      this.$route.params.placeId,
-      this.$route.params.towerId
-    );
+    // getRealTimeNotificationsList(
+    //   this.$route.params.placeId,
+    //   this.$route.params.towerId
+    // );
 
     const buildStatsCharts = stats => {
       const last24hStats = mapTowerStats.getOnlyLast24hStats(stats);
@@ -525,24 +503,22 @@ export default {
     onGoBack() {
       this.$router.push("../../towers/list");
     },
-    onCloseNotification(notification) {
+    async onCloseNotification(notification) {
       notification.show = false;
 
-      firebase
-        .firestore()
-        .collection("notifications")
-        .doc(notification.id)
-        .delete()
-        .then()
-        .catch(e => {
-          logService.logError(
-            new Date().getTime(),
-            `A Notificação não pode ser excluída: ${e.message}`,
-            "onCloseNotification",
-            "tower details",
-            this.stateUid
-          );
-        });
+      try {
+        await notificationsService.delete(notification.id);
+      } catch (e) {
+        console.error(e.message);
+
+        logService.logError(
+          new Date().getTime(),
+          `A Notificação não pode ser excluída: ${e.message}`,
+          "onCloseNotification",
+          "tower details",
+          this.stateUid
+        );
+      }
     },
     bringToTop(targetElement) {
       this.$nextTick(() => {
@@ -564,14 +540,14 @@ export default {
           ground_temperature: Math.floor(Math.random() * 18) + 30
         };
 
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(this.$route.params.placeId)
-          .collection("towers")
-          .doc(this.$route.params.towerId)
-          .collection("stats")
-          .add(newData);
+        // firebase
+        //   .firestore()
+        //   .collection("places")
+        //   .doc(this.$route.params.placeId)
+        //   .collection("towers")
+        //   .doc(this.$route.params.towerId)
+        //   .collection("stats")
+        //   .add(newData);
       }
     },
     bringSeriesToTop(serie) {

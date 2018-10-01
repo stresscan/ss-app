@@ -212,20 +212,23 @@
 
 <script>
 import { Card, StatsCard } from "@/components/index";
-import firebase from "firebase";
 import { mapState } from "vuex";
-import basePage from "@/mixins/BasePage.js";
+import basicPageMixin from "@/mixins/BasicPage";
 import { required, minLength, maxLength } from "vuelidate/lib/validators";
 import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
-import getLastUploadMixin from "@/mixins/PlacesAndTowers/GetLastUploadInfo.js";
+import getLastUploadMixin from "@/mixins/PlacesAndTowers/GetLastUploadInfo";
+
+import placesService from "@/services/PlacesService";
+import towersService from "@/services/TowersService";
+import clientsService from "@/services/ClientsService";
 
 const touchMap = new WeakMap();
 
 export default {
   directives: { mask },
-  mixins: [validationMixin, basePage, getLastUploadMixin],
+  mixins: [basicPageMixin, validationMixin, getLastUploadMixin],
   components: {
     Card,
     StatsCard
@@ -338,121 +341,69 @@ export default {
       stateIsAdmin: state => state.users.user.isAdmin
     })
   },
-  created() {
-    const getPlaceData = placeId => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(placeId)
-          .get()
-          .then(doc => {
-            resolve(doc.data());
-          });
-      });
-    };
-
-    const getTowersList = (placeId, includeDisables) => {
-      return new Promise(resolve => {
-        const collectionRef = firebase
-          .firestore()
-          .collection("places")
-          .doc(placeId)
-          .collection("towers");
-
-        let query = collectionRef;
-
-        if (!includeDisables) {
-          query = query.where("disabled", "==", false);
-        }
-
-        query.get().then(towersQuerySnapshot => {
-          let towers = [];
-          towersQuerySnapshot.forEach(towerDocSnapshot => {
-            let towerData = Object.assign(towerDocSnapshot.data(), {
-              id: towerDocSnapshot.id
-            });
-            towers.push(towerData);
-          });
-          resolve(towers);
-        });
-      });
-    };
-
-    const getTowerLastStats = (placeId, towerId) => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(placeId)
-          .collection("towers")
-          .doc(towerId)
-          .collection("stats")
-          .orderBy("datetime", "desc")
-          .limit(1)
-          .get()
-          .then(querySnapshot => {
-            let last_stat;
-            querySnapshot.forEach(doc => {
-              last_stat = doc.data();
-            });
-            resolve(last_stat || {});
-          });
-      });
-    };
-
-    getPlaceData(this.$route.params.placeId).then(placeData => {
-      this.place = placeData;
-      this.place.owner = { id: placeData.owner };
-
+  async created() {
+    try {
+      const place = await placesService.get(this.$route.params.placeId);
+      this.place = place;
+      this.place.owner = { id: place.owner };
       this.loadingPlaceData = false;
 
       if (this.stateIsAdmin) {
-        firebase
-          .firestore()
-          .collection("users_profile")
-          .doc(placeData.owner.id)
-          .get()
-          .then(doc => {
-            this.place.owner.name = doc.data().name;
-            this.loadingOwnerData = false;
-          });
-      }
-    });
-
-    getTowersList(this.$route.params.placeId, this.stateIsAdmin).then(
-      towersList => {
-        this.loading = false;
-        this.qntTowers = towersList.length;
-
-        if (this.qntTowers == 0) {
-          this.noTowersFound = true;
-        } else {
-          towersList.map(tower => {
-            getTowerLastStats(this.$route.params.placeId, tower.id).then(
-              last_stats => {
-                this.towersList.push(
-                  Object.assign(tower, {
-                    last_stats: last_stats || {},
-                    last_upload: this.getLastUpload(last_stats.datetime || 0),
-                    showSuspendedMenu: false
-                  })
-                );
-              }
-            );
-          });
+        try {
+          const client = await clientsService.get(this.place.owner.id);
+          this.place.owner.name = client.name;
+          this.loadingOwnerData = false;
+        } catch (e) {
+          console.error(e.message);
         }
       }
-    );
+    } catch (e) {
+      console.error(e.message);
+    }
+
+    try {
+      const towers = await towersService.list(
+        this.$route.params.placeId,
+        this.stateIsAdmin
+      );
+
+      this.loading = false;
+      this.qntTowers = towers.length;
+
+      if (towers.length == 0) {
+        this.noTowersFound = true;
+      } else {
+        towers.map(async tower => {
+          try {
+            const last_stats = await placesService.getLastStats(
+              this.$route.params.placeId,
+              tower.id
+            );
+
+            this.towersList.push(
+              Object.assign(tower, {
+                last_stats: last_stats || {},
+                last_upload: this.getLastUpload(last_stats.datetime || 0),
+                showSuspendedMenu: false
+              })
+            );
+          } catch (e) {
+            console.error(e.message);
+          }
+        });
+      }
+    } catch (e) {
+      console.error(e.message);
+    }
   },
   methods: {
-    onOutsideClick() {
-      this.closeAllSuspendedMenu();
-    },
     closeAllSuspendedMenu() {
       this.towersList.map(item => {
         item.showSuspendedMenu = false;
       });
+    },
+    onOutsideClick() {
+      this.closeAllSuspendedMenu();
     },
     onGoBack() {
       this.$router.push(
@@ -486,49 +437,51 @@ export default {
       }
       touchMap.set($v, setTimeout($v.$touch, 1000));
     },
-    onEditFormSubmit() {
+    async onEditFormSubmit() {
       if (this.stateIsAdmin) {
         this.editingPlace = true;
         this.editingButtonText = "Editando...";
         this.$v.$touch();
 
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(this.$route.params.placeId)
-          .update({
-            name: this.place.name,
-            location: {
-              postalCode: this.place.location.postalCode,
-              city: this.place.location.city,
-              estate: this.place.location.estate.toUpperCase(),
-              address: this.place.location.address,
-              number: this.place.location.number,
-              district: this.place.location.district
-            }
-          })
-          .then(doc => {
-            this.editPlace = false;
-            this.editingPlace = false;
-            this.editingButtonText = "Editar local";
-          });
+        const place = {
+          id: this.place.id,
+          name: this.place.name,
+          location: {
+            postalCode: this.place.location.postalCode,
+            city: this.place.location.city,
+            estate: this.place.location.estate.toUpperCase(),
+            address: this.place.location.address,
+            number: this.place.location.number,
+            district: this.place.location.district
+          }
+        };
+
+        try {
+          await placesService.update(place);
+          this.editPlace = false;
+          this.editingPlace = false;
+          this.editingButtonText = "Editar local";
+        } catch (e) {
+          console.error(e.message);
+        }
       }
     },
-    onPlaceToggleDisabled() {
+    async onPlaceToggleDisabled() {
       if (this.stateIsAdmin) {
         this.togglingPlaceDisabled = true;
 
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(this.$route.params.placeId)
-          .update({
+        try {
+          await placesService.update({
+            id: this.place.id,
             disabled: !this.place.disabled
-          })
-          .then(doc => {
-            this.place.disabled = !this.place.disabled;
-            this.togglingPlaceDisabled = false;
           });
+
+          this.place.disabled = !this.place.disabled;
+          this.togglingPlaceDisabled = false;
+        } catch (e) {
+          console.error(e.message);
+          this.togglingPlaceDisabled = false;
+        }
       }
     },
     onNewTower() {
@@ -538,29 +491,26 @@ export default {
     },
     onTowerToggleSuspendedMenu(tower) {
       this.closeAllSuspendedMenu();
+
       this.towersList.map(item => {
         if (item.id === tower.id) {
           item.showSuspendedMenu = !tower.showSuspendedMenu;
         }
       });
     },
-    onTowerToggleDisabled(tower) {
+    async onTowerToggleDisabled(tower) {
       if (this.stateIsAdmin) {
         this.togglingTowerDisabled = true;
 
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(this.$route.params.placeId)
-          .collection("towers")
-          .doc(tower.id)
-          .update({
-            disabled: !tower.disabled
-          })
-          .then(doc => {
-            tower.disabled = !tower.disabled;
-            this.togglingTowerDisabled = false;
-          });
+        tower.disabled = !tower.disabled;
+
+        try {
+          await towersService.update(this.place.id, tower);
+          this.togglingTowerDisabled = false;
+        } catch (e) {
+          console.error(e.message);
+          this.togglingTowerDisabled = false;
+        }
       }
     },
     onTowerEdit(tower) {

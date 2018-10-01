@@ -20,7 +20,7 @@
         </div>
       </div>
       <div class="row" v-else>
-        <paper-table :clickable="true" @openData="onEdit" :showheaders="false" :toggleCheckbox="true" @click="onEdit" @toggleCheckbox="onToggleEnable" :data="alertsTable.data" :columns="alertsTable.columns" type="hover"></paper-table>
+        <paper-table :clickable="true" :showheaders="false" :toggleCheckbox="true" @click="onOpenEditForm" @toggleCheckbox="onToggleEnable" :data="alertsTable.data" :columns="alertsTable.columns" type="hover"></paper-table>
       </div>
     </div>
     <p-button type="success" class="mg-tp-md" round @click.native.prevent="onAddNewAlert">
@@ -98,16 +98,20 @@
 </template>
 
 <script>
-import firebase from "firebase";
+// import firebase from "firebase/app";
+// import "firebase/firestore";
+
 import { mapState } from "vuex";
-import basePage from "@/mixins/BasePage.js";
-import logService from "@/services/LogService.js";
+import basicPageMixin from "@/mixins/BasicPage";
+import { notifyMixin } from "@/mixins/Notify";
 import { PaperTable } from "@/components";
-import placesService from "@/services/PlacesService.js";
-import alertsService from "@/services/AlertsSevice.js";
+import logService from "@/services/LogService";
+import placesService from "@/services/PlacesService";
+import towersService from "@/services/TowersService";
+import alertsService from "@/services/AlertsSevice";
 
 export default {
-  mixins: [basePage],
+  mixins: [basicPageMixin, notifyMixin],
   components: {
     PaperTable
   },
@@ -140,93 +144,86 @@ export default {
       stateUid: state => state.users.user.uid
     })
   },
-  created() {
-    const getTotalOfAlerts = (placeId, towerId) => {
-      const ref = firebase
-        .firestore()
-        .collection("places")
-        .doc(placeId)
-        .collection("towers")
-        .doc(towerId)
-        .collection("alerts");
+  async created() {
+    // const getRealtimeAlertsList = (placeId, towerId) => {
+    //   firebase
+    //     .firestore()
+    //     .collection("places")
+    //     .doc(placeId)
+    //     .collection("towers")
+    //     .doc(towerId)
+    //     .collection("alerts")
+    //     .orderBy("datetime", "desc")
+    //     .onSnapshot(querySnapshot => {
+    //       this.gettingAlerts = false;
 
-      return new Promise(resolve => {
-        ref.get().then(alertsList => {
-          resolve(alertsList.size);
-        });
-      });
-    };
+    //       querySnapshot.docChanges().forEach(change => {
+    //         const data = change.doc.data();
+    //         const itemChanged = {
+    //           id: change.doc.id,
+    //           enabled: data.enabled,
+    //           alert: `${
+    //             data.metric === "temperature" ? "Temperatura" : "Umidade"
+    //           } ${data.for === "ground" ? "da planta" : "do ambiente"} ${
+    //             data.when === "high" ? "maior" : "menor"
+    //           } que ${data.value}`
+    //         };
 
-    const getRealtimeAlertsList = (placeId, towerId) => {
-      firebase
-        .firestore()
-        .collection("places")
-        .doc(placeId)
-        .collection("towers")
-        .doc(towerId)
-        .collection("alerts")
-        .orderBy("datetime", "desc")
-        .onSnapshot(querySnapshot => {
-          this.gettingAlerts = false;
+    //         if (change.type === "added") {
+    //           this.alertsTable.data.unshift(itemChanged);
+    //           this.tower.totalOfAlerts++;
+    //         }
 
-          querySnapshot.docChanges().forEach(change => {
-            const data = change.doc.data();
-            const itemChanged = {
-              id: change.doc.id,
-              enabled: data.enabled,
-              alert: `${
-                data.metric === "temperature" ? "Temperatura" : "Umidade"
-              } ${data.for === "ground" ? "da planta" : "do ambiente"} ${
-                data.when === "high" ? "maior" : "menor"
-              } que ${data.value}`
-            };
+    //         if (change.type === "modified") {
+    //           this.alertsTable.data = this.alertsTable.data.map(item => {
+    //             if (item.id === change.doc.id) {
+    //               return itemChanged;
+    //             } else {
+    //               return item;
+    //             }
+    //           });
+    //         }
 
-            if (change.type === "added") {
-              this.alertsTable.data.unshift(itemChanged);
-              this.tower.totalOfAlerts++;
-            }
+    //         if (change.type === "removed") {
+    //           this.alertsTable.data = this.alertsTable.data.filter(
+    //             item => item.id !== change.doc.id
+    //           );
 
-            if (change.type === "modified") {
-              this.alertsTable.data = this.alertsTable.data.map(item => {
-                if (item.id === change.doc.id) {
-                  return itemChanged;
-                } else {
-                  return item;
-                }
-              });
-            }
+    //           this.tower.totalOfAlerts--;
+    //         }
+    //       });
+    //     });
+    // };
 
-            if (change.type === "removed") {
-              this.alertsTable.data = this.alertsTable.data.filter(
-                item => item.id !== change.doc.id
-              );
+    try {
+      const tower = await towersService.get(
+        this.$route.params.placeId,
+        this.$route.params.towerId
+      );
 
-              this.tower.totalOfAlerts--;
-            }
-          });
-        });
-    };
+      this.gettingTowerData = false;
+      this.tower = Object.assign(this.tower, tower);
+    } catch (e) {
+      console.error(e.message);
+    }
 
-    placesService
-      .getTowerData(this.$route.params.placeId, this.$route.params.towerId)
-      .then(data => {
-        this.gettingTowerData = false;
-        this.tower = Object.assign(this.tower, data);
-      });
+    // getRealtimeAlertsList(
+    //   this.$route.params.placeId,
+    //   this.$route.params.towerId
+    // );
 
-    getRealtimeAlertsList(
-      this.$route.params.placeId,
-      this.$route.params.towerId
-    );
+    try {
+      const alertsList = await alertsService.list(
+        this.$route.params.placeId,
+        this.$route.params.towerId
+      );
 
-    getTotalOfAlerts(
-      this.$route.params.placeId,
-      this.$route.params.towerId
-    ).then(qnt => {
       Object.assign(this.tower, {
-        totalOfAlerts: qnt
+        totalOfAlerts: alertsList.length()
       });
-    });
+    } catch (e) {
+      console.error(e.message);
+    }
 
     this.$nextTick(() => {
       document.querySelector(".main-panel").classList.remove("overflow-hidden");
@@ -270,168 +267,118 @@ export default {
         value: 0
       };
     },
-    onAlertFormSubmit() {
-      const ref = firebase
-        .firestore()
-        .collection("places")
-        .doc(this.$route.params.placeId)
-        .collection("towers")
-        .doc(this.$route.params.towerId)
-        .collection("alerts");
+    async onAlertFormSubmit() {
+      const placeId = this.$route.params.placeId;
+      const towerId = this.$route.params.towerId;
 
       if (!this.alertForm.id) {
-        ref
-          .add(
+        try {
+          await alertsService.create(
+            placeId,
+            towerId,
             Object.assign(this.alertForm, {
               datetime: Date.now(),
               enabled: true
             })
-          )
-          .then(doc => {
-            this.notifyVue(
-              "bottom",
-              "right",
-              "success",
-              "Alerta criado com sucesso",
-              "ti-thumb-up"
-            );
-          })
-          .catch(e => {
-            this.notifyVue(
-              "bottom",
-              "right",
-              "danger",
-              "O alerta não pode ser criado: erro inesperado",
-              "ti-thumb-down"
-            );
-
-            logService.logError(
-              new Date().getTime(),
-              `O alerta não pode ser criado: ${e.message}`,
-              "createAlert",
-              "create Alert",
-              this.stateUid
-            );
+          );
+          this.notifySuccess({
+            msg: `Alerta criado com sucesso`
           });
+        } catch (e) {
+          this.notifyError({
+            msg: `O alerta não pode ser criado: erro inesperado`
+          });
+
+          logService.logError(
+            new Date().getTime(),
+            `O alerta não pode ser criado: ${e.message}`,
+            "createAlert",
+            "create Alert",
+            this.stateUid
+          );
+        }
       } else {
-        ref
-          .doc(this.alertForm.id)
-          .update({
-            metric: this.alertForm.metric,
-            for: this.alertForm.for,
-            when: this.alertForm.when,
-            value: this.alertForm.value
-          })
-          .catch(e => {
-            this.notifyVue(
-              "bottom",
-              "right",
-              "danger",
-              "O alerta não pode ser editado: erro inesperado",
-              "ti-thumb-down"
-            );
-
-            logService.logError(
-              new Date().getTime(),
-              `O alerta não pode ser editado: ${e.message}`,
-              "createUser",
-              "create user account",
-              this.stateUid
-            );
-          });
+        this.updateAlert(placeId, towerId, this.alertForm);
       }
 
       this.onHideAlertForm();
     },
-    onEdit(id) {
+    async onOpenEditForm(id) {
       this.gettingAlertData = true;
 
-      alertsService
-        .getAlertData(
+      try {
+        const alert = await alertsService.get(
           this.$route.params.placeId,
           this.$route.params.towerId,
           id
-        )
-        .then(data => {
-          this.alertForm = data;
-          this.gettingAlertData = false;
-        });
+        );
+
+        this.alertForm = alert;
+        this.gettingAlertData = false;
+      } catch (e) {
+        console.error(e.message);
+      }
 
       this.onShowAlertForm(false);
     },
-    onRemove(id) {
-      this.$dialog
-        .confirm("Deseja realmente excluir esse alerta?")
-        .then(dialog => {
-          firebase
-            .firestore()
-            .collection("places")
-            .doc(this.$route.params.placeId)
-            .collection("towers")
-            .doc(this.$route.params.towerId)
-            .collection("alerts")
-            .doc(id)
-            .delete()
-            .then(() => {
-              this.onHideAlertForm();
+    async onRemove(id) {
+      try {
+        await this.$dialog.confirm("Deseja realmente excluir esse alerta?");
 
-              this.notifyVue(
-                "bottom",
-                "right",
-                "success",
-                "Alerta excluído com sucesso",
-                "ti-thumb-up"
-              );
-            })
-            .catch(e => {
-              this.notifyError(
-                "O alerta não pode ser excluído: erro inesperado"
-              );
+        try {
+          await alertsService.delete(
+            this.$route.params.placeId,
+            this.$route.params.towerId,
+            id
+          );
 
-              logService.logError(
-                new Date().getTime(),
-                `O alerta não pode ser excluído: ${e.message}`,
-                "createUser",
-                "create user account",
-                this.stateUid
-              );
-            });
-        });
-    },
-    onToggleEnable(alert) {
-      firebase
-        .firestore()
-        .collection("places")
-        .doc(this.$route.params.placeId)
-        .collection("towers")
-        .doc(this.$route.params.towerId)
-        .collection("alerts")
-        .doc(alert.id)
-        .update({
-          enabled: alert.enabled
-        })
-        .catch(e => {
+          this.onHideAlertForm();
+
+          this.notifySuccess({
+            msg: `Alerta excluído com sucesso`
+          });
+        } catch (e) {
+          this.notifyError({
+            msg: `O alerta não pode ser excluído: erro inesperado`
+          });
+
           logService.logError(
             new Date().getTime(),
-            `Erro ao tentar habilitar/desabilitar o alerta ${
-              alert.id
-            } da torre ${this.$route.params.towerId} do local ${
-              this.$route.params.placeId
-            }: ${e.message}`,
-            "Alerts",
-            "onToggleEnable",
+            `O alerta não pode ser excluído: ${e.message}`,
+            "createUser",
+            "create user account",
             this.stateUid
           );
-        });
+        }
+      } catch (e) {}
     },
-    notifyVue(verticalAlign, horizontalAlign, type, message, icon) {
-      this.$notify({
-        message,
-        icon,
-        horizontalAlign,
-        verticalAlign,
-        type
-      });
+    async updateAlert(alert) {
+      try {
+        await alertsService.update(
+          this.$route.params.placeId,
+          this.$route.params.towerId,
+          alert
+        );
+      } catch (e) {
+        this.notifyError({
+          msg: `O alerta não pode ser editado: erro inesperado`
+        });
+
+        logService.logError(
+          new Date().getTime(),
+          `O alerta ${alert.id} da torre ${
+            this.$route.params.towerId
+          } do local ${this.$route.params.placeId} não pode ser editado: ${
+            e.message
+          }`,
+          "createUser",
+          "create user account",
+          this.stateUid
+        );
+      }
+    },
+    onToggleEnable(alert) {
+      this.updateAlert(alert);
     }
   }
 };

@@ -4,6 +4,8 @@
   "background_color": "#F4F3EF",
   "theme_color": "#3EC579",
   "display": "standalone",
+  "start_url": "index.html?utm_source=homescreen",
+  "gcm_sender_id": "103953800507",
   "icons": [
     {
       "src": "/img/icons/icon-72x72.png",
@@ -45,7 +47,5 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ],
-  "start_url": "index.html?utm_source=homescreen",
-  "gcm_sender_id": "103953800507"
+  ]
 }

@@ -1,31 +1,27 @@
 <template>
   <div>
     <h3>Configurações</h3>
-    <toggle-button @change="onTogglePushNotifications" v-model="pushNotificationsEnable" />
+    <ss-toggle-button :sync="true" v-model="pushNotificationsEnable" @change="onTogglePushNotifications" />
     <span class="d-inline-block position-relative mg-lf-xxs" style="top: -2px">Receber Push Notifications</span>
   </div>
 </template>
 
 <script>
-import {
-  askForPermissioToReceiveNotifications,
-  saveUserPermissionToken,
-  savePushNotificationEnable
-} from "@/services/PushNotificationsService.js";
+import service from "@/services/PushNotificationsService.js";
 
 import { mapState, mapActions } from "vuex";
-import basePage from "@/mixins/BasePage.js";
+import basicPageMixin from "@/mixins/BasicPage.js";
 import logService from "@/services/LogService.js";
-import ToggleButton from "vue-js-toggle-button/src/Button";
 
 export default {
+  mixins: [basicPageMixin],
   data() {
     return {
       pushNotificationsEnable: false
     };
   },
   components: {
-    ToggleButton
+    //ToggleButton
   },
   computed: {
     ...mapState({
@@ -38,29 +34,39 @@ export default {
     this.pushNotificationsEnable = this.statePushNotificationsEnable;
   },
   methods: {
-    ...mapActions(["updatePushNotificationsEnable"]),
-    async onTogglePushNotifications() {
-      savePushNotificationEnable(this.stateUid, this.pushNotificationsEnable);
-      this.updatePushNotificationsEnable(this.pushNotificationsEnable);
-
-      if (this.pushNotificationsEnable) {
+    ...mapActions(["updateStatePushNotificationsEnable"]),
+    setPushNotificationsEnable(uid, value) {
+      this.pushNotificationsEnable = value;
+      this.updateStatePushNotificationsEnable(value);
+      service.updatePushNotificationEnable(uid, value);
+    },
+    async onTogglePushNotifications(toggle) {
+      console.log("this.pushNotificationsEnable", this.pushNotificationsEnable);
+      console.log("toggle.value", toggle.value);
+      if (toggle.value) {
         // const currentToken = await askForPermissioToReceiveNotifications();
-        askForPermissioToReceiveNotifications()
-          .then(currentToken => {
-            console.log("askForPermissioToReceiveNotifications", currentToken);
+        service.authorizeNotification();
+        // .then(currentToken => {
+        //   console.log("authorizeNotification", currentToken);
 
-            if (currentToken) {
-              saveUserPermissionToken(this.stateUid, currentToken);
-            } else {
-              this.pushNotificationsEnable = false;
-              this.updatePushNotificationsEnable(this.pushNotificationsEnable);
-              // Show permission request.
-              console.log(
-                "No Instance ID token available. Request permission to generate one."
-              );
-            }
-          })
-          .catch(err => console.log({ err }));
+        //   if (currentToken) {
+        //     this.setPushNotificationsEnable(this.stateUid, true);
+        //     service.updateUserPermissionToken(this.stateUid, currentToken);
+        //   } else {
+        //     this.setPushNotificationsEnable(this.stateUid, false);
+        //     console.log(
+        //       `No Instance ID token available. Request permission to generate one.`
+        //     );
+        //     console.log(
+        //       "this.pushNotificationsEnable",
+        //       this.pushNotificationsEnable
+        //     );
+        //   }
+        // })
+        // .catch(err => {
+        //   console.log({ err });
+        //   this.setPushNotificationsEnable(this.stateUid, false);
+        // });
       }
     }
   }

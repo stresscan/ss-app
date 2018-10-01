@@ -9,7 +9,7 @@
       <tr v-for="(item, index) in data" :key="index">
         <slot :row="item">
           <td v-if="toggleCheckbox" class="custom-toggle-button">
-            <toggle-button @change="onToggleCheckbox(item)" v-model="item.enabled" />
+            <ss-toggle-button @change="onToggleCheckbox(item)" v-model="item.enabled" />
           </td>
           <td v-for="(column, index) in columns" :key="index" v-if="hasValue(item, column)" :class="{ clickable }" @click="onOpenData(item.id)">
             {{itemValue(item, column)}}
@@ -28,12 +28,12 @@
   </table>
 </template>
 <script>
-import ToggleButton from "vue-js-toggle-button/src/Button";
+//import ToggleButton from "vue-js-toggle-button/src/Button";
 
 export default {
   name: "paper-table",
   components: {
-    ToggleButton
+    //ToggleButton
   },
   props: {
     editButton: {

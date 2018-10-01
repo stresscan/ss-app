@@ -131,19 +131,22 @@
 </template>
 
 <script>
-import firebase from "firebase";
 import { required, minLength, maxLength } from "vuelidate/lib/validators";
 import { validationMixin } from "vuelidate";
 import axios from "axios";
 import { mask } from "vue-the-mask";
-import basePage from "@/mixins/BasePage.js";
-import { LocationMap } from "@/components/index";
+import basicPageMixin from "@/mixins/BasicPage";
+import { LocationMap } from "@/components";
+
+import placesService from "@/services/PlacesService";
+import towersService from "@/services/TowersService";
+import clientsService from "@/services/ClientsService";
 
 const touchMap = new WeakMap();
 
 export default {
   directives: { mask },
-  mixins: [validationMixin, basePage],
+  mixins: [basicPageMixin, validationMixin],
   components: {
     LocationMap
   },
@@ -207,33 +210,7 @@ export default {
       }
     }
   },
-  created() {
-    const getPlaceData = placeId => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("places")
-          .doc(placeId)
-          .get()
-          .then(doc => {
-            resolve(Object.assign(doc.data(), { id: doc.id }));
-          });
-      });
-    };
-
-    const getOwnerData = ownerId => {
-      return new Promise(resolve => {
-        firebase
-          .firestore()
-          .collection("users_profile")
-          .doc(ownerId)
-          .get()
-          .then(doc => {
-            resolve(Object.assign(doc.data(), { id: doc.id }));
-          });
-      });
-    };
-
+  async created() {
     const getAddressLatLng = location => {
       const gMapsKey = "AIzaSyAamVCoyQ4AuvBpxVRMs9P-HFkfPVQj0Kw";
       const address = `${location.postalCode},${location.address.replace(
@@ -260,29 +237,35 @@ export default {
       });
     };
 
-    getPlaceData(this.$route.params.placeId).then(data => {
+    try {
+      const place = await placesService.get(this.$route.params.placeId);
       this.gettingPlaceData = false;
-      this.place = data;
+      this.place = place;
 
-      getOwnerData(data.owner).then(ownerData => {
+      try {
+        const owner = await clientsService.get(data.owner);
         this.gettingOwnerData = false;
-        this.place.owner = ownerData;
-      });
+        this.place.owner = owner;
+      } catch (e) {
+        console.error(e.message);
+      }
 
-      getAddressLatLng(data.location).then(
-        geolocation => {
-          this.tower.geolocation.lat = String(
-            geolocation.data.results[0].geometry.location.lat
-          );
-          this.tower.geolocation.lng = String(
-            geolocation.data.results[0].geometry.location.lng
-          );
+      try {
+        const geolocation = await getAddressLatLng(place.location);
+        this.tower.geolocation.lat = String(
+          geolocation.data.results[0].geometry.location.lat
+        );
+        this.tower.geolocation.lng = String(
+          geolocation.data.results[0].geometry.location.lng
+        );
 
-          this.gettingLatLng = false;
-        },
-        e => console.log(e)
-      );
-    });
+        this.gettingLatLng = false;
+      } catch (e) {
+        console.error(e.message);
+      }
+    } catch (e) {
+      console.error(e.message);
+    }
   },
   methods: {
     onGoBack() {
@@ -300,67 +283,36 @@ export default {
       this.tower.geolocation.lat = String(latlng.lat);
       this.tower.geolocation.lng = String(latlng.lng);
     },
-    onFormSubmit() {
+    async onFormSubmit() {
       this.buttonText = "Cadastrando torre...";
       this.creatingTower = true;
       this.$v.$touch();
 
-      const newTower = {
+      const newTower = Object.assign(this.tower, {
         date: Date.now(),
-        name: this.tower.name,
-        culture: this.tower.culture,
-        geolocation: {
-          lat: this.tower.geolocation.lat,
-          lng: this.tower.geolocation.lng
-        },
         disabled: false
-      };
+      });
 
-      firebase
-        .firestore()
-        .collection("places")
-        .doc(this.place.id)
-        .collection("towers")
-        .doc(this.tower.id)
-        .set(newTower)
-        .then(() => {
-          this.towerCreated = true;
-
-          firebase
-            .firestore()
-            .collection("places")
-            .doc(this.place.id)
-            .collection("towers")
-            .doc(this.tower.id)
-            .collection("stats")
-            .add({
-              datetime: 0,
-              environment_temperature: 0,
-              environment_humidity: 0,
-              ground_temperature: 0,
-              ground_humidity: 0
-            });
-        })
-        .catch(e => {
-          console.log(`tower couldn't be created ${e}`);
-          this.buttonText = "Cadastrar torre";
-          this.creatingTower = false;
-
-          this.notifyVue(
-            "bottom",
-            "right",
-            "danger",
-            "A torre não pode ser criada: erro desconhecido",
-            "ti-thumb-down"
-          );
+      try {
+        await towersService.create(this.place.id, newTower);
+        this.towerCreated = true;
+        this.notifySuccess({
+          msg: `Torre criada com sucesso`
         });
+      } catch (e) {
+        console.log(`tower couldn't be created ${e}`);
+        this.buttonText = "Cadastrar torre";
+        this.creatingTower = false;
+        this.notifyError({
+          msg: `A torre não pode ser criada: erro desconhecido`
+        });
+      }
     },
     resetForm() {
       this.tower.id = "";
       this.tower.name = "";
       this.tower.culture = "";
-      this.tower.geolocation.lat = 0;
-      this.tower.geolocation.lng = 0;
+      this.tower.geolocation = { lat: 0, lng: 0 };
 
       this.buttonText = "Cadastrar local";
       this.creatingTower = false;
@@ -368,15 +320,6 @@ export default {
 
       this.$nextTick(() => {
         this.$v.$reset();
-      });
-    },
-    notifyVue(verticalAlign, horizontalAlign, type, message, icon) {
-      this.$notify({
-        message,
-        icon,
-        horizontalAlign,
-        verticalAlign,
-        type
       });
     }
   }

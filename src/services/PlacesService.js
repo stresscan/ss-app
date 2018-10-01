@@ -1,7 +1,13 @@
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/firestore";
+
+const _placesRef = firebase.firestore().collection("places");
 
 export default {
-  getPlacesListByOwner: (uid, includeDisables) => {
+  create: place => {
+    _placesRef.add(place);
+  },
+  listByOwner: async (uid, includeDisables) => {
     //console.log(firebase.database.ServerValue.TIMESTAMP);
     const collectionRef = firebase.firestore().collection("places");
     let query = collectionRef;
@@ -12,75 +18,32 @@ export default {
       query = query.where("disabled", "==", false);
     }
 
-    return new Promise(resolve => {
-      query.get().then(placesQuerySnapshot => {
-        let places = [];
+    //return new Promise(resolve => {
+    query.get().then(placesQuerySnapshot => {
+      let places = [];
 
-        placesQuerySnapshot.forEach(doc => {
-          places.push(
-            Object.assign(doc.data(), {
-              id: doc.id
-            })
-          );
-        });
-
-        resolve(places);
+      placesQuerySnapshot.forEach(doc => {
+        places.push(
+          Object.assign(doc.data(), {
+            id: doc.id
+          })
+        );
       });
+
+      return places;
     });
+    // });
   },
-  getPlaceTowersQnt: (placeId, includeDisables) => {
-    const collectionRef = firebase
-      .firestore()
-      .collection("places")
-      .doc(placeId)
-      .collection("towers");
-
-    let query = collectionRef;
-
-    if (!includeDisables) {
-      query = query.where("disabled", "==", false);
-    }
-
-    return new Promise(resolve => {
-      query.get().then(towersQuerySnapshot => {
-        resolve(towersQuerySnapshot.size);
-      });
-    });
+  get: async id => {
+    _placesRef
+      .doc(id)
+      .get()
+      .then(doc => Object.assign({ id: doc.id }, doc.data()));
   },
-  getClientsList: () => {
-    return new Promise(resolve => {
-      firebase
-        .firestore()
-        .collection("users_profile")
-        .where("isAdmin", "==", false)
-        .get()
-        .then(clientsQuerySnapshot => {
-          let clients = [];
-
-          clientsQuerySnapshot.forEach(doc => {
-            clients.push(
-              Object.assign(doc.data(), {
-                id: doc.id
-              })
-            );
-          });
-
-          resolve(clients);
-        });
-    });
-  },
-  getTowerData: (placeId, towerId) => {
-    const ref = firebase
-      .firestore()
-      .collection("places")
-      .doc(placeId)
-      .collection("towers")
-      .doc(towerId);
-
-    return new Promise(resolve => {
-      ref.get().then(doc => {
-        resolve(Object.assign(doc.data(), { id: doc.id }));
-      });
-    });
+  update: async place => {
+    _placesRef
+      .doc(place.id)
+      .update(delete place.id)
+      .then(() => true);
   }
 };
