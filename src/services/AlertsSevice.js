@@ -1,23 +1,21 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
 
-const placesRef = firebase.firestore().collection("places");
+const _alertsRef = (placeId, towerId) =>
+  firebase
+    .firestore()
+    .collection("places")
+    .doc(placeId)
+    .collection("towers")
+    .doc(towerId)
+    .collection("alerts");
 
 export default {
   create: (placeId, towerId, newAlert) => {
-    placesRef
-      .doc(placeId)
-      .collection("towers")
-      .doc(towerId)
-      .collection("alerts")
-      .add(newAlert);
+    _alertsRef(placeId, towerId).add(newAlert);
   },
   list: async (placeId, towerId) => {
-    placesRef
-      .doc(placeId)
-      .collection("towers")
-      .doc(towerId)
-      .collection("alerts")
+    _alertsRef(placeId, towerId)
       .get()
       .then(querySnapshot => {
         let list = [];
@@ -29,11 +27,7 @@ export default {
       });
   },
   update: (placeId, towerId, alert) => {
-    placesRef
-      .doc(placeId)
-      .collection("towers")
-      .doc(towerId)
-      .collection("alerts")
+    _alertsRef(placeId, towerId)
       .doc(alert.id)
       .update({
         metric: alert.metric,
@@ -43,11 +37,7 @@ export default {
       });
   },
   get: (placeId, towerId, id) => {
-    placesRef
-      .doc(placeId)
-      .collection("towers")
-      .doc(towerId)
-      .collection("alerts")
+    _alertsRef(placeId, towerId)
       .doc(id)
       .get()
       .then(doc => {
@@ -55,11 +45,7 @@ export default {
       });
   },
   delete: (placeId, towerId, id) => {
-    placesRef
-      .doc(placeId)
-      .collection("towers")
-      .doc(towerId)
-      .collection("alerts")
+    _alertsRef(placeId, towerId)
       .doc(id)
       .delete();
   }

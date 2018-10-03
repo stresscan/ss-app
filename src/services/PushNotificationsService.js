@@ -4,13 +4,13 @@ import "firebase/messaging";
 // to get  subscriptions information:
 // https://developers.google.com/instance-id/reference/server#get_information_about_app_instances
 
-const messaging = firebase.messaging();
+const _messaging = () => firebase.messaging();
 
 console.log("instaciado o objeto messaging");
 
 const onTokenRefresh = () => {
-  messaging.onTokenRefresh(function() {
-    messaging
+  _messaging().onTokenRefresh(function() {
+    _messaging()
       .getToken()
       .then(function(refreshedToken) {
         console.log("Token refreshed.");
@@ -31,7 +31,7 @@ const onTokenRefresh = () => {
 };
 
 const onMessage = () => {
-  messaging.onMessage(payload => {
+  _messaging().onMessage(payload => {
     // Quando seu app estiver em primeiro plano (o usuário está visualizando a página da Web)
     console.log("Message received. ", payload);
   });
@@ -43,12 +43,12 @@ export default {
   authorizeNotification: () => {
     console.log("requesting permission");
 
-    messaging.usePublicVapidKey(
+    _messaging().usePublicVapidKey(
       "BIX_wCrbMqbVZRfupoheB4E236rjwCGuE0bqzIS83dKriuZqG6SyCJM3H1n2L7Y8nQo1IsNn9pzBbjzuUYbPaM4"
     );
     console.log("configurado PublicVapidKey");
 
-    messaging
+    _messaging()
       .requestPermission()
       .then(function(auth) {
         console.log("Notification permission granted.");
@@ -62,7 +62,7 @@ export default {
   getAuthorizationToken: () => {
     console.log("getting authorization token");
 
-    messaging
+    _messaging()
       .getToken()
       .then(function(currentToken) {
         if (currentToken) {

@@ -14,16 +14,15 @@
   </div>
 </template>
 <script>
-import firebase from "firebase/app";
-import "firebase/storage";
 import VueCropper from "vue-cropper";
 import Modal from "@/components/Modal";
 import { isOnline } from "@/services/offline/isOnlineService.js";
 import { emitNotifyMixin } from "@/mixins/Notify";
+import storageService from "@/services/StorageService";
 
 export default {
   mixins: [emitNotifyMixin],
-  components: {
+  component: {
     VueCropper,
     Modal
   },
@@ -84,60 +83,58 @@ export default {
         console.log("uploading", `${this.folder}/${this.fileName}`);
         this.$emit("uploading", { uploading: true, fileName: this.fileName });
 
-        const stRef = firebase
-          .storage()
-          .ref()
-          .child(`${this.folder}/${this.fileName}`);
+        try {
+          const uploadedFileRef = await storageService.uploadFile(
+            this.folder,
+            this.fileName,
+            file
+          );
 
-        stRef
-          .put(file)
-          .then(snapshot => {
-            this.$emit("uploading", {
-              uploading: false,
-              fileName: this.fileName
+          this.$emit("uploading", {
+            uploading: false,
+            fileName: this.fileName
+          });
+
+          this.emitNotify({
+            type: "Success",
+            msg: "Imagem eviada com sucesso"
+          });
+
+          try {
+            storageService.updateFileMetadata(uploadedFileRef, {
+              cacheControl: "public,max-age=300"
             });
-
-            this.emitNotify({
-              type: "Success",
-              msg: "Imagem eviada com sucesso"
-            });
-
-            snapshot.ref
-              .updateMetadata({
-                cacheControl: "public,max-age=300"
-              })
-              .catch(error => {
-                console.error("Error trying to update image metadata", error);
-
-                logService.logError(
-                  new Date().getTime(),
-                  `Erro ao tentar atualizar o metadata da imagem ${
-                    this.folder
-                  }/${this.fileName}: ${e.message}`,
-                  "updateMetadata",
-                  "UpdateImage.vue",
-                  this.uid
-                );
-              });
-          })
-          .catch(e => {
-            this.emitNotify({
-              type: "Error",
-              msg: `Ocorreu um erro ao tentar enviar a imagem. Por favor tente novamente`
-            });
-
-            console.error("Error trying to upload image", error);
+          } catch (e) {
+            console.error("Error trying to update image metadata", { e });
 
             logService.logError(
               new Date().getTime(),
-              `Erro ao tentar fazer upload da imagem ${this.folder}/${
+              `Erro ao tentar atualizar o metadata da imagem ${this.folder}/${
                 this.fileName
               }: ${e.message}`,
-              "upload",
+              "updateMetadata",
               "UpdateImage.vue",
               this.uid
             );
+          }
+        } catch (e) {
+          this.emitNotify({
+            type: "Error",
+            msg: `Ocorreu um erro ao tentar enviar a imagem. Por favor tente novamente`
           });
+
+          console.error("Error trying to upload image", { e });
+
+          logService.logError(
+            new Date().getTime(),
+            `Erro ao tentar fazer upload da imagem ${this.folder}/${
+              this.fileName
+            }: ${e.message}`,
+            "upload",
+            "UpdateImage.vue",
+            this.uid
+          );
+        }
       } else {
         this.emitNotify({
           type: "Network",

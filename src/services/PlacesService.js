@@ -1,18 +1,15 @@
-import firebase from "firebase/app";
-import "firebase/firestore";
+// import firebase from "firebase/app";
+// import "firebase/firestore";
 
-const _placesRef = firebase.firestore().collection("places");
+const _placesRef = () => firebase.firestore().collection("places");
 
 export default {
   create: place => {
-    _placesRef.add(place);
+    _placesRef().add(place);
   },
   listByOwner: async (uid, includeDisables) => {
     //console.log(firebase.database.ServerValue.TIMESTAMP);
-    const collectionRef = firebase.firestore().collection("places");
-    let query = collectionRef;
-
-    query = uid ? query.where("owner", "==", uid) : query;
+    let query = uid ? _placesRef().where("owner", "==", uid) : _placesRef();
 
     if (!includeDisables) {
       query = query.where("disabled", "==", false);

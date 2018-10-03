@@ -10,30 +10,18 @@ import localforage from "localforage";
 import PaperDashboard from "./plugins/paperDashboard";
 import "vue-notifyjs/themes/default.css";
 
-console.log("firebase config");
+console.log("main config");
 
-// import firebase from "firebase";
+import { initializeFirebase } from "./config/firebaseConfig";
+import { registerServiceWorkers } from "./serviceWorkersRegistration";
 
-// var config = {
-//   apiKey: "AIzaSyDUC-1jgGVRbBsByLvbGJrtkO_R5pjxJ70",
-//   databaseURL: "https://ss-beta.firebaseio.com",
-//   projectId: "ss-beta",
-//   storageBucket: "ss-beta.appspot.com",
-//   messagingSenderId: "742012394729"
-// };
+console.log("environment", process.env.NODE_ENV);
 
-// firebase.initializeApp(config);
+if (process.env.NODE_ENV === "production") {
+  registerServiceWorkers();
+}
 
-// import { initializeFirebase } from "./config/firebaseConfig";
-// import { registerServiceWorkers } from "./serviceWorkersRegistration";
-
-// console.log("environment", process.env.NODE_ENV);
-
-// if (process.env.NODE_ENV === "production") {
-//   registerServiceWorkers();
-// }
-
-// initializeFirebase();
+initializeFirebase();
 
 localforage.config({
   name: "stresscan"
@@ -61,10 +49,3 @@ new Vue({
   store,
   render: h => h(App)
 }).$mount("#app");
-
-// Vue.use(PaperDashboard);
-
-// new Vue({
-//   router,
-//   render: h => h(App)
-// }).$mount("#app");

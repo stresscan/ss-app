@@ -23,9 +23,8 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/auth";
 import { emitNotifyMixin } from "@/mixins/Notify";
+import authService from "@/services/AuthService";
 
 export default {
   mixins: [emitNotifyMixin],
@@ -39,33 +38,29 @@ export default {
     email: String
   },
   methods: {
-    onChangePassword() {
+    async onChangePassword() {
       this.sendingEmail = true;
 
-      firebase.auth().languageCode = "pt-br";
+      try {
+        await authService.sendPasswordResetEmail(this.email);
+        console.log("email sent");
 
-      firebase
-        .auth()
-        .sendPasswordResetEmail(this.email)
-        .then(() => {
-          console.log("email sent");
+        this.emailSent = true;
+        this.sendingEmail = false;
 
-          this.emailSent = true;
-          this.sendingEmail = false;
-
-          this.emitNotify({
-            type: "Success",
-            msg: "E-mail com instruções foi enviado com sucesso"
-          });
-        })
-        .catch(e => {
-          this.sendingEmail = false;
-
-          this.emitNotify({
-            type: "Error",
-            msg: "Ocorreu um erro inesperado, por favor tente novamente"
-          });
+        this.emitNotify({
+          type: "Success",
+          msg: "E-mail com instruções foi enviado com sucesso"
         });
+      } catch (e) {
+        console.error({ e });
+        this.sendingEmail = false;
+
+        this.emitNotify({
+          type: "Error",
+          msg: "Ocorreu um erro inesperado, por favor tente novamente"
+        });
+      }
     },
     onResendEmail() {
       this.emailSent = false;

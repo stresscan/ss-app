@@ -123,8 +123,6 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/firestore";
 import ChangePassword from "./ChangePassword.vue";
 import {
   email,
@@ -137,9 +135,11 @@ import { validationMixin } from "vuelidate";
 import { mask } from "vue-the-mask";
 import axios from "axios";
 import { emitNotifyMixin } from "@/mixins/Notify";
-import usersProfileService from "@/services/UsersProfileService.js";
-import offlineUserService from "@/services/offline/OfflineUsersService.js";
-import { isOnline } from "@/services/offline/isOnlineService.js";
+import usersProfileService from "@/services/UsersProfileService";
+import offlineUserService from "@/services/offline/OfflineUsersService";
+import storageService from "@/services/StorageService";
+import { isOnline } from "@/services/offline/isOnlineService";
+import logService from "@/services/LogService";
 
 const touchMap = new WeakMap();
 
@@ -239,35 +239,6 @@ export default {
     }
   },
   async created() {
-    const getUserData = uid => {
-      return new Promise((resolve, reject) => {
-        firebase
-          .firestore()
-          .collection("users_profile")
-          .doc(uid)
-          .get()
-          .then(userSnapShot => resolve(userSnapShot.data()))
-          .catch(e => {
-            console.log(`user profile couldn't be find ${e.message}`);
-
-            if (e.message.includes("offline")) {
-              this.offlineData = true;
-              this.emitNotify({
-                type: "Network",
-                msg: `Parece que você está offline ou com uma conexão lenta. Alteração de dados está limitada.`
-              });
-            } else {
-              this.emitNotify({
-                type: "Error",
-                msg: `Não foi possível recuperar os seus dados, por favor tente novamente.`
-              });
-            }
-
-            reject();
-          });
-      });
-    };
-
     let userData = {};
 
     const isOnline = await isOnline();
@@ -286,8 +257,31 @@ export default {
       });
     } else {
       try {
-        userData = await getUserData(this.uid);
+        userData = await usersProfileService.get(this.uid);
       } catch (e) {
+        console.error(`online user profile couldn't be find ${e.message}`);
+
+        if (e.message.includes("offline")) {
+          this.offlineData = true;
+          this.emitNotify({
+            type: "Network",
+            msg: `Parece que você está offline ou com uma conexão lenta. Alteração de dados está limitada.`
+          });
+        } else {
+          this.emitNotify({
+            type: "Error",
+            msg: `Não foi possível recuperar os seus dados, por favor tente novamente.`
+          });
+
+          logService.logError(
+            new Date().getTime(),
+            `Não foi possível recuperar os dados do usuário ${e.message}`,
+            "EditProfileForm",
+            "created",
+            this.stateUid
+          );
+        }
+
         userData = null;
       }
     }
@@ -309,7 +303,7 @@ export default {
 
     if (!this.coverPictureUrl) {
       try {
-        this.coverPictureUrl = await usersProfileService.getImageUrl(
+        this.coverPictureUrl = await storageService.getImageUrl(
           this.uid,
           "cover.jpg"
         );
@@ -322,7 +316,7 @@ export default {
 
     if (!this.profilePictureUrl) {
       try {
-        this.profilePictureUrl = await usersProfileService.getImageUrl(
+        this.profilePictureUrl = await storageService.getImageUrl(
           this.uid,
           "profile.jpg"
         );
@@ -354,12 +348,13 @@ export default {
       }
       touchMap.set($v, setTimeout($v.$touch, 1000));
     },
-    onUpdateProfile() {
+    async onUpdateProfile() {
       this.buttonText = "Atualizando dados...";
       this.updatingUserProfile = true;
       this.$v.$touch();
 
-      const updatedData = {
+      const userProfile = {
+        id: this.uid,
         name: this.name,
         surname: this.surname,
         number: this.number,
@@ -367,55 +362,47 @@ export default {
         phoneNumberTwo: this.phoneNumberTwo
       };
 
-      firebase
-        .firestore()
-        .collection("users_profile")
-        .doc(this.uid)
-        .update(updatedData)
-        .then(() => {
-          offlineUserService.persiste(updatedData);
+      // the initial value of the postalcode is always empty
+      // the value filled up in the form is a mock value
+      // because of that only update this if the user change the value
+      if (this.postalCode) {
+        userProfile.postalCode = this.postalCode;
+        userProfile.address = this.address;
+        userProfile.city = this.city;
+        userProfile.estate = this.estate;
+        userProfile.district = this.district;
+      }
 
-          // the initial value of the postalcode is always empty
-          // the value filled up in the form is a mock value
-          // because of that only update this if the user change the value
-          if (this.postalCode) {
-            const postalCode = {
-              postalCode: this.postalCode,
-              address: this.address,
-              city: this.city,
-              estate: this.estate,
-              district: this.district
-            };
+      try {
+        await usersProfileService.update(userProfile);
+        offlineUserService.persiste(userProfile);
 
-            firebase
-              .firestore()
-              .collection("users_profile")
-              .doc(this.uid)
-              .update(postalCode)
-              .then(() => {
-                offlineUserService.persiste(postalCode);
-              });
-          }
+        this.buttonText = "Atualizar dados";
+        this.updatingUserProfile = false;
 
-          this.buttonText = "Atualizar dados";
-          this.updatingUserProfile = false;
-
-          this.emitNotify({
-            type: "Success",
-            msg: `Seus dados foram atualizados com sucesso`
-          });
-        })
-        .catch(e => {
-          console.log(`user profile couldn't be updated by the user ${e}`);
-
-          this.buttonText = "Atualizar dados";
-          this.updatingUserProfile = false;
-
-          this.emitNotify({
-            type: "Error",
-            msg: `Ocorreu um erro inesperado na tentativa de atualizar os seus dados, por favor tente novamente`
-          });
+        this.emitNotify({
+          type: "Success",
+          msg: `Seus dados foram atualizados com sucesso`
         });
+      } catch (e) {
+        console.error(`user profile couldn't be updated by the user ${e}`);
+
+        this.buttonText = "Atualizar dados";
+        this.updatingUserProfile = false;
+
+        this.emitNotify({
+          type: "Error",
+          msg: `Ocorreu um erro inesperado na tentativa de atualizar os seus dados, por favor tente novamente`
+        });
+
+        logService.logError(
+          new Date().getTime(),
+          `User profile couldn't be updated by the user ${e.message}`,
+          "EditProfileForm",
+          "onUpdateProfile",
+          this.stateUid
+        );
+      }
     }
   }
 };

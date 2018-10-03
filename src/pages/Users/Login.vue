@@ -16,16 +16,15 @@
 </template>
 
 <script>
-import firebase from "firebase/app";
-import "firebase/firestore";
-import "firebase/auth";
-
 import offlineUserService from "@/services/offline/OfflineUsersService";
+import authService from "@/services/AuthService";
+import usersProfileService from "@/services/UsersProfileService";
 import basicPageMixin from "@/mixins/BasicPage";
 import authPageMixin from "@/mixins/Auth/AuthPage";
+import { notifyMixin } from "@/mixins/Notify";
 
 export default {
-  mixins: [basicPageMixin, authPageMixin],
+  mixins: [basicPageMixin, authPageMixin, notifyMixin],
   data() {
     return {
       email: "",
@@ -36,36 +35,26 @@ export default {
     };
   },
   async created() {
-    const getUser = () => {
-      return new Promise(resolve => {
-        firebase.auth().onAuthStateChanged(fbuser => {
-          if (!fbuser) resolve(null);
+    const connectedUser = await authService.getCurrentUserObservable();
 
-          if (fbuser) {
-            firebase
-              .firestore()
-              .collection("users_profile")
-              .doc(fbuser.uid)
-              .get()
-              .then(docSnapshot => {
-                const currentUser = Object.assign(docSnapshot.data(), {
-                  id: docSnapshot.id
-                });
+    let user = null;
 
-                offlineUserService.persiste(currentUser);
-                resolve(currentUser);
-              })
-              .catch(err => {
-                offlineUserService
-                  .getUser()
-                  .then(localUser => resolve(localUser));
-              });
+    if (connectedUser) {
+      try {
+        user = await usersProfileService.get(connectedUser.id);
+        offlineUserService.persiste(user);
+      } catch (e) {
+        console.error({ e });
+
+        if (!user) {
+          try {
+            user = await offlineUserService.getUser();
+          } catch (e) {
+            console.error({ e });
           }
-        });
-      });
-    };
-
-    const user = await getUser();
+        }
+      }
+    }
 
     console.log({ loginPage_user: user });
 
@@ -73,59 +62,53 @@ export default {
       this.updateUserState(user);
       this.$router.replace("/dashboard");
     } else {
-      console.error("Perfil de usuário não encontrado");
+      console.log("Perfil de usuário não encontrado");
       this.updateUserState({});
       this.loading = false;
     }
   },
   methods: {
-    onLogin() {
+    async onLogin() {
       this.authenticating = true;
 
-      firebase
-        .auth()
-        .signInWithEmailAndPassword(this.email, this.password)
-        .then(
-          userSnapshot => {
-            firebase
-              .firestore()
-              .collection("users_profile")
-              .doc(userSnapshot.user.uid)
-              .get()
-              .then(docSnapshot => {
-                if (docSnapshot.exists) {
-                  this.updateUserState({
-                    id: userSnapshot.user.uid,
-                    isAdmin: docSnapshot.data().isAdmin,
-                    username: docSnapshot.data().username,
-                    push_notifications_enable: docSnapshot.data()
-                      .push_notifications_enable
-                  });
-                  this.$router.replace("/dashboard");
-                } else {
-                  this.authenticating = false;
-                  this.errorMessage = "Perfil de usuário não encontrado";
-                }
-              });
-          },
-          err => {
-            console.log(err.message);
-            if (err.message.includes("network error")) {
-              this.$notify({
-                message:
-                  "Parece que você está sem internet ou com uma conexão ruim",
-                icon: "ti-thumb-down",
-                verticalAlign: "bottom",
-                horizontalAlign: "center",
-                type: "info"
-              });
-            } else {
-              this.errorMessage = "Usuário ou senha inválidos";
-            }
-
-            this.authenticating = false;
-          }
+      try {
+        const connectedUser = await authService.signInWithEmailAndPassword(
+          this.email,
+          this.password
         );
+
+        try {
+          const user = usersProfileService.get(connectedUser.uid);
+
+          if (user) {
+            this.updateUserState({
+              id: user.uid,
+              isAdmin: user.isAdmin,
+              username: unregisterModule.username,
+              push_notifications_enable: user.push_notifications_enable
+            });
+
+            this.$router.replace("/dashboard");
+          } else {
+            this.authenticating = false;
+            this.errorMessage = "Perfil de usuário não encontrado";
+          }
+        } catch (e) {
+          console.error({ e });
+        }
+      } catch (e) {
+        console.error({ e });
+
+        if (e.message.includes("network error")) {
+          this.NotifyInfo({
+            msg: `Parece que você está sem internet ou com uma conexão ruim`
+          });
+        } else {
+          this.errorMessage = "Usuário ou senha inválidos";
+        }
+
+        this.authenticating = false;
+      }
     }
   }
 };

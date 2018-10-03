@@ -1,15 +1,16 @@
 import firebase from "firebase/app";
 import "firebase/firestore";
 
-const clientsRef = firebase
-  .firestore()
-  .collection("users_profile")
-  .where("isAdmin", "==", false);
+const _clientsRef = () =>
+  firebase
+    .firestore()
+    .collection("users_profile")
+    .where("isAdmin", "==", false);
 
 export default {
   list: async () => {
     //return new Promise(resolve => {
-    clientsRef
+    _clientsRef()
       .get()
       .then(clientsQuerySnapshot => {
         let clients = [];
@@ -31,7 +32,7 @@ export default {
     //});
   },
   get: async id => {
-    clientsRef
+    _clientsRef()
       .doc(id)
       .get()
       .then(doc => {
