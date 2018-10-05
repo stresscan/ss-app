@@ -1,7 +1,5 @@
 import firebase from "firebase/app";
 
-console.log("firebase config");
-
 export const initializeFirebase = () => {
   var config = {
     apiKey: "AIzaSyDUC-1jgGVRbBsByLvbGJrtkO_R5pjxJ70",
@@ -13,8 +11,8 @@ export const initializeFirebase = () => {
 
   firebase.initializeApp(config);
 
-  navigator.serviceWorker.register("/stresscan-sw.js").then(registration => {
-    console.log(registration);
-    firebase.messaging().useServiceWorker(registration);
-  });
+  // navigator.serviceWorker.register("/stresscan-sw.js").then(registration => {
+  //   console.log(registration);
+  //   firebase.messaging().useServiceWorker(registration);
+  // });
 };

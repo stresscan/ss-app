@@ -30,20 +30,22 @@ export default {
       .set(delete tower.id)
       .then(() => _setDefaultStats(placeId, newTower.id));
   },
-  list: (placeId, includeDisables) => {
-    const collectionRef = _placesRef.doc(placeId).collection("towers");
-
-    let query = collectionRef;
+  list: async (placeId, includeDisables) => {
+    let query = _towersRef(placeId);
 
     if (!includeDisables) {
       query = query.where("disabled", "==", false);
     }
 
-    return new Promise(resolve => {
-      query.get().then(towersQuerySnapshot => {
-        resolve(towersQuerySnapshot.size);
-      });
+    const towersQuerySnapshot = await query.get();
+
+    let towersList = [];
+
+    towersQuerySnapshot.forEach(doc => {
+      towersList.push(Object.assign({ id: doc.id }, doc.data()));
     });
+
+    return towersList;
   },
   get: async (placeId, towerId) => {
     _towersRef(placeId)

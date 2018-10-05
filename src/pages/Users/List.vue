@@ -57,8 +57,8 @@ export default {
     onNewUserClick() {
       this.$router.replace("create");
     },
-    onEditUserData(id) {
-      this.$router.push(id);
+    onEditUserData(uid) {
+      this.$router.push(uid);
     }
   }
 };

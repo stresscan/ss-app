@@ -1,4 +1,6 @@
 import { mapState, mapActions } from "vuex";
+import authService from "@/services/AuthService";
+import usersProfileService from "@/services/UsersProfileService";
 
 export default {
   computed: {
@@ -7,6 +9,10 @@ export default {
       stateIsAdmin: state => state.users.user.isAdmin,
       stateUid: state => state.users.user.uid
     })
+  },
+  async beforeCreate() {
+    const connectedUser = await authService.getCurrentUserObservable();
+    if (!connectedUser) this.$router.replace("/login");
   },
   methods: {
     isAdmin() {
@@ -21,7 +27,7 @@ export default {
     updateUserState(user) {
       this.updateState_UserLevel(user.isAdmin || false);
       this.updateState_Username(user.username || "");
-      this.updateState_UID(user.id || "");
+      this.updateState_UID(user.uid || "");
       this.updateState_PushNotificationsEnable(
         user.push_notifications_enable || false
       );

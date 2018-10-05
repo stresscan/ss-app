@@ -1,5 +1,5 @@
-// import firebase from "firebase/app";
-// import "firebase/firestore";
+import firebase from "firebase/app";
+import "firebase/firestore";
 
 const _placesRef = () => firebase.firestore().collection("places");
 
@@ -8,6 +8,7 @@ export default {
     _placesRef().add(place);
   },
   listByOwner: async (uid, includeDisables) => {
+    console.log("listing place by owner", uid, includeDisables);
     //console.log(firebase.database.ServerValue.TIMESTAMP);
     let query = uid ? _placesRef().where("owner", "==", uid) : _placesRef();
 
@@ -15,21 +16,14 @@ export default {
       query = query.where("disabled", "==", false);
     }
 
-    //return new Promise(resolve => {
-    query.get().then(placesQuerySnapshot => {
-      let places = [];
+    const placesQuerySnapshot = await query.get();
+    let placesList = [];
 
-      placesQuerySnapshot.forEach(doc => {
-        places.push(
-          Object.assign(doc.data(), {
-            id: doc.id
-          })
-        );
-      });
-
-      return places;
+    placesQuerySnapshot.forEach(doc => {
+      placesList.push(Object.assign({ id: doc.id }, doc.data()));
     });
-    // });
+
+    return placesList;
   },
   get: async id => {
     _placesRef

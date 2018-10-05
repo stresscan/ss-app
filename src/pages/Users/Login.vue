@@ -35,30 +35,32 @@ export default {
     };
   },
   async created() {
+    console.log("login");
     const connectedUser = await authService.getCurrentUserObservable();
+
+    console.log({ connectedUser });
 
     let user = null;
 
     if (connectedUser) {
       try {
-        user = await usersProfileService.get(connectedUser.id);
+        user = await usersProfileService.get(connectedUser.uid);
         offlineUserService.persiste(user);
       } catch (e) {
         console.error({ e });
 
-        if (!user) {
-          try {
-            user = await offlineUserService.getUser();
-          } catch (e) {
-            console.error({ e });
-          }
+        try {
+          user = await offlineUserService.getUser();
+        } catch (e) {
+          console.error({ e });
         }
       }
     }
 
-    console.log({ loginPage_user: user });
+    console.log({ user });
 
     if (user) {
+      console.log("redirecting to dashboard");
       this.updateUserState(user);
       this.$router.replace("/dashboard");
     } else {
@@ -78,13 +80,15 @@ export default {
         );
 
         try {
-          const user = usersProfileService.get(connectedUser.uid);
+          const user = await usersProfileService.get(connectedUser.uid);
+
+          console.log({ user });
 
           if (user) {
             this.updateUserState({
-              id: user.uid,
+              uid: user.uid,
               isAdmin: user.isAdmin,
-              username: unregisterModule.username,
+              username: user.username,
               push_notifications_enable: user.push_notifications_enable
             });
 

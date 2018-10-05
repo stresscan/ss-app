@@ -81,6 +81,8 @@ export default {
       this.getClientsList();
     }
 
+    console.log(this.stateUid);
+
     this.getPlacesListByOwner(this.isAdmin() ? "" : this.stateUid);
   },
   methods: {
@@ -102,7 +104,7 @@ export default {
         this.clientSelectValue = this.$route.query.clientId;
       }
     },
-    getPlacesListByOwner(ownerId) {
+    async getPlacesListByOwner(ownerId) {
       this.placesList = [];
       this.loadingPlacesList = true;
       this.noPlacesFound = false;
@@ -110,31 +112,43 @@ export default {
       if (!ownerId && !this.isAdmin()) {
         this.loadingPlacesList = false;
       } else {
-        placesService.listByOwner(ownerId, this.isAdmin()).then(placesList => {
+        try {
+          const placesList = await placesService.listByOwner(
+            ownerId,
+            this.isAdmin()
+          );
+
           if (placesList.length == 0) {
             this.loadingPlacesList = false;
             this.noPlacesFound = true;
           } else {
-            let i;
-            const placesListLength = placesList.length;
+            console.log({ placesList });
+            placesList.forEach(async (place, index) => {
+              try {
+                const towersOfThePlace = await towersService.list(
+                  place.id,
+                  this.isAdmin()
+                );
 
-            for (let i = 0; i < placesListLength; i++) {
-              towersService
-                .list(placesList[i].id, this.isAdmin())
-                .then(list => {
-                  this.placesList.push(
-                    Object.assign(placesList[i], {
-                      qntTowers: list.size()
-                    })
-                  );
+                console.log({ towersOfThePlace });
 
-                  if (i == placesListLength - 1) {
-                    this.loadingPlacesList = false;
-                  }
-                });
-            }
+                this.placesList.push(
+                  Object.assign(place, {
+                    qntTowers: towersOfThePlace.length
+                  })
+                );
+
+                if (index == placesList.length - 1) {
+                  this.loadingPlacesList = false;
+                }
+              } catch (e) {
+                console.log({ e });
+              }
+            });
           }
-        });
+        } catch (e) {
+          console.error({ e });
+        }
       }
     },
     onChangeClient() {

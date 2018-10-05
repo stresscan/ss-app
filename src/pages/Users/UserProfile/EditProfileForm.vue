@@ -354,7 +354,7 @@ export default {
       this.$v.$touch();
 
       const userProfile = {
-        id: this.uid,
+        uid: this.uid,
         name: this.name,
         surname: this.surname,
         number: this.number,

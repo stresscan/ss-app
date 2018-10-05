@@ -133,7 +133,7 @@ export default {
 
       try {
         await usersProfileService.update({
-          id: this.$route.params.id,
+          uid: this.$route.params.id,
           isAdmin: this.isAdmin
         });
 

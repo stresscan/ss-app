@@ -10,8 +10,6 @@ import localforage from "localforage";
 import PaperDashboard from "./plugins/paperDashboard";
 import "vue-notifyjs/themes/default.css";
 
-console.log("main config");
-
 import { initializeFirebase } from "./config/firebaseConfig";
 import { registerServiceWorkers } from "./serviceWorkersRegistration";
 

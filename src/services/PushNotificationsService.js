@@ -6,8 +6,6 @@ import "firebase/messaging";
 
 const _messaging = () => firebase.messaging();
 
-console.log("instaciado o objeto messaging");
-
 const onTokenRefresh = () => {
   _messaging().onTokenRefresh(function() {
     _messaging()

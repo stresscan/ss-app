@@ -1,23 +1,24 @@
 import firebase from "firebase/app";
 import "firebase/auth";
 
-console.log("auth service");
-
 const _auth = () => firebase.auth();
 
 export default {
-  getCurrentUser: async () => _auth.currentUser,
-  getCurrentUserObservable: async () => {
-    _auth().onAuthStateChanged(fbuser => {
-      return fbuser;
+  getCurrentUser: () => _auth().currentUser,
+  getCurrentUserObservable: () => {
+    return new Promise(resolve => {
+      _auth().onAuthStateChanged(fbuser => {
+        resolve(fbuser);
+      });
     });
   },
   signInWithEmailAndPassword: async (email, password) => {
-    _auth()
-      .signInWithEmailAndPassword(email, password)
-      .then(userSnapshot => {
-        return userSnapshot.user;
-      });
+    const userSnapshot = await _auth().signInWithEmailAndPassword(
+      email,
+      password
+    );
+
+    return userSnapshot.user;
   },
   signOut: async () => _auth().signOut(),
   createUserWithEmailAndPassword: async (email, password) =>

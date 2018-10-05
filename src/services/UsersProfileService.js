@@ -26,41 +26,40 @@ export default {
         return users;
       });
   },
-  get: async id => {
-    _usersRef
-      .doc(id)
-      .get()
-      .then(doc => {
-        if (!doc.exists) return null;
-        return Object.assign({ id: doc.id }, doc.data());
-      });
+  get: async uid => {
+    const userDoc = await _usersRef()
+      .doc(uid)
+      .get();
+
+    if (!userDoc.exists) return null;
+    return Object.assign({ uid: userDoc.id }, userDoc.data());
   },
   getByUsername: username => {
-    _usersRef
+    _usersRef()
       .where("username", "==", username)
       .get()
       .then(querySnapshot => {
         let users = [];
         querySnapshot.forEach(doc => {
-          users.push(Object.assign({ id: doc.id }, doc.data));
+          users.push(Object.assign({ uid: doc.id }, doc.data));
         });
         return users;
       });
   },
   getByEmail: email => {
-    _usersRef
+    _usersRef()
       .where("email", "==", email)
       .get()
       .then(querySnapshot => {
         let users = [];
         querySnapshot.forEach(doc => {
-          users.push(Object.assign({ id: doc.id }, doc.data));
+          users.push(Object.assign({ uid: doc.id }, doc.data));
         });
         return users;
       });
   },
   update: userProfile =>
     _usersRef()
-      .doc(userProfile.id)
-      .update(delete userProfile.id)
+      .doc(userProfile.uid)
+      .update(delete userProfile.uid)
 };
