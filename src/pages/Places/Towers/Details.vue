@@ -66,12 +66,14 @@
           <div class="col-sm-6 col-md-3" v-for="(stats, index) in tower.stats_cards" :key="index">
             <stats-card :title="stats.title" :subtitle="stats.subtitle">
               <div class="tower-data-card-content-wrapper" slot="raw-content">
-                <div class="tower-data-card-content-icon text-center" :class="{'icon-warning': stats.title === 'Planta', 'icon-info': stats.title === 'Ambiente'}">
-                  <i :class="`fa fa-${stats.icon}`"></i>
-                </div>
                 <div v-if="gettingTowerData" class="ss-inline-spinner mg-tp-md mg-lf-md"></div>
-                <div v-else class="tower-data-card-numbers">
-                  {{ stats.number }}{{ stats.sign }}
+                <div v-else class="tower-data-card-numbers" :class="stats.iconColor">
+                  <span class="tower-data-card-content-icon">
+                    <i :class="`fa fa-${stats.icon}`"></i>
+                  </span>
+                  <span class="text-black-50">
+                    {{ stats.number }}{{ stats.sign }}
+                  </span>
                 </div>
               </div>
               <div class="stats" slot="footer">
@@ -269,8 +271,9 @@ export default {
 
             statsCardsData.push({
               title: "Planta",
-              subtitle: "Temperatura da Planta",
+              subtitle: "Temperatura",
               icon: "leaf",
+              iconColor: "icon-warning",
               number: doc.data().ground_temperature || 0,
               sign: "°",
               date
@@ -278,8 +281,9 @@ export default {
 
             statsCardsData.push({
               title: "Ambiente",
-              subtitle: "Temperatura do Ambiente",
+              subtitle: "Temperatura",
               icon: "thermometer-full",
+              iconColor: "icon-info",
               number: doc.data().environment_temperature || 0,
               sign: "°",
               date
@@ -287,8 +291,9 @@ export default {
 
             statsCardsData.push({
               title: "Solo",
-              subtitle: "Umidade de Solo",
-              icon: "fill-drip",
+              subtitle: "Umidade",
+              icon: "umbrella",
+              iconColor: "icon-warning",
               number: doc.data().ground_humidity || 0,
               sign: "%",
               date
@@ -296,8 +301,9 @@ export default {
 
             statsCardsData.push({
               title: "Ambiente",
-              subtitle: "Umidade do Ambiente",
+              subtitle: "Umidade",
               icon: "umbrella",
+              iconColor: "icon-info",
               number: doc.data().environment_humidity || 0,
               sign: "%",
               date
@@ -586,33 +592,28 @@ export default {
   display: flex;
 
   .tower-data-card-content-icon {
-    flex-grow: 2;
-    font-size: 5em;
+    width: 105px;
 
     @media (min-width: 576px) {
-      font-size: 4em;
+      width: 75px;
     }
 
     @media (min-width: 768px) {
-      font-size: 3em;
-    }
-
-    @media (min-width: 991px) {
-      font-size: 2em;
+      width: 45px;
     }
 
     @media (min-width: 1100px) {
-      font-size: 3em;
+      width: 98px;
     }
   }
 
   .tower-data-card-numbers {
     flex-grow: 1;
     font-size: 4em;
-    margin-left: 10px;
     text-align: center;
     display: flex;
     align-items: center;
+    justify-content: center;
 
     @media (min-width: 576px) {
       font-size: 3em;
