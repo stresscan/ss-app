@@ -22,12 +22,16 @@ export const saveUserPermissionToken = (uid, token) => {
     .collection("users_profile")
     .doc(uid);
 
+  console.log("saving", { uid });
+
   docRef.get().then(user => {
     const tokens = (user.data().push_notifications_tokens || []).filter(
       item => item !== token
     );
 
     tokens.push(token);
+
+    console.log({ tokens });
 
     docRef.update({
       push_notifications_tokens: tokens

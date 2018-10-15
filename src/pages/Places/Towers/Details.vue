@@ -64,7 +64,7 @@
       <template v-else>
         <div class="row">
           <div class="col-sm-6 col-md-3" v-for="(stats, index) in tower.stats_cards" :key="index">
-            <stats-card :title="stats.title" subtitle="última medição recebida">
+            <stats-card :title="stats.title" :subtitle="stats.subtitle">
               <div class="tower-data-card-content-wrapper" slot="raw-content">
                 <div class="tower-data-card-content-icon text-center" :class="{'icon-warning': stats.title === 'Planta', 'icon-info': stats.title === 'Ambiente'}">
                   <i :class="`fa fa-${stats.icon}`"></i>
@@ -269,7 +269,8 @@ export default {
 
             statsCardsData.push({
               title: "Planta",
-              icon: "thermometer-full",
+              subtitle: "Temperatura da Planta",
+              icon: "leaf",
               number: doc.data().ground_temperature || 0,
               sign: "°",
               date
@@ -277,6 +278,7 @@ export default {
 
             statsCardsData.push({
               title: "Ambiente",
+              subtitle: "Temperatura do Ambiente",
               icon: "thermometer-full",
               number: doc.data().environment_temperature || 0,
               sign: "°",
@@ -284,8 +286,9 @@ export default {
             });
 
             statsCardsData.push({
-              title: "Planta",
-              icon: "umbrella",
+              title: "Solo",
+              subtitle: "Umidade de Solo",
+              icon: "fill-drip",
               number: doc.data().ground_humidity || 0,
               sign: "%",
               date
@@ -293,6 +296,7 @@ export default {
 
             statsCardsData.push({
               title: "Ambiente",
+              subtitle: "Umidade do Ambiente",
               icon: "umbrella",
               number: doc.data().environment_humidity || 0,
               sign: "%",
