@@ -523,7 +523,9 @@ export default {
     };
   },
   mounted() {
-    this.bringSeriesToTop("env");
+    setTimeout(() => {
+      this.bringSeriesToTop("env");
+    }, 200);
   },
   methods: {
     onGoBack() {
@@ -581,7 +583,7 @@ export default {
     },
     bringSeriesToTop(serie) {
       this.$nextTick(() => {
-        const serieCssClass = serie === "env" ? ".ct-series-b" : ".ct-series-a";
+        const serieCssClass = serie === "env" ? ".ct-series-a" : ".ct-series-b";
         console.log({ serieCssClass });
         this.bringToTop(document.querySelector(serieCssClass));
 
