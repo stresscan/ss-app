@@ -65,13 +65,13 @@
         <div class="row">
           <div class="col-sm-6 col-md-3" v-for="(stats, index) in tower.stats_cards" :key="index">
             <stats-card :title="stats.title" :subtitle="stats.subtitle">
-              <div class="tower-data-card-content-wrapper" slot="raw-content">
+              <div slot="raw-content">
                 <div v-if="gettingTowerData" class="ss-inline-spinner mg-tp-md mg-lf-md"></div>
                 <div v-else class="tower-data-card-numbers" :class="stats.iconColor">
-                  <span class="tower-data-card-content-icon">
+                  <span class="tower-data-card-content-icon" :class="stats.iconRatio">
                     <i :class="`fa fa-${stats.icon}`"></i>
                   </span>
-                  <span class="text-black-50">
+                  <span class="tower-data-card-content-data text-black-50">
                     {{ stats.number }}{{ stats.sign }}
                   </span>
                 </div>
@@ -94,10 +94,10 @@
                 <div class="mg-bt-sm">
                   <i class="fa fa-circle text-info"></i> Ambiente
                   <i class="fa fa-circle text-warning"></i> Planta
-                  <button v-if="areaChart.serieBOnTop" class="btn btn-sm mg-lf-xs" @click="bringSeriesToTop('.ct-series-a')">
+                  <button v-if="temperatureChartArea.groundSerieOnTop" class="btn btn-sm mg-lf-xs" @click="bringSeriesToTop('env')">
                     <i class="fa fa-exchange"></i>
                   </button>
-                  <button v-if="areaChart.serieAOnTop" class="btn btn-sm mg-lf-xs" @click="bringSeriesToTop('.ct-series-b')">
+                  <button v-if="temperatureChartArea.envSerieOnTop" class="btn btn-sm mg-lf-xs" @click="bringSeriesToTop('ground')">
                     <i class="fa fa-exchange"></i>
                   </button>
                 </div>
@@ -166,9 +166,9 @@ export default {
       showMap: false,
       temperatureChart: {},
       humidityChart: {},
-      areaChart: {
-        serieAOnTop: false,
-        serieBOnTop: true
+      temperatureChartArea: {
+        envSerieOnTop: true,
+        groundSerieOnTop: false
       }
     };
   },
@@ -274,6 +274,7 @@ export default {
               subtitle: "Temperatura",
               icon: "leaf",
               iconColor: "icon-warning",
+              iconRatio: "square",
               number: doc.data().ground_temperature || 0,
               sign: "°",
               date
@@ -284,6 +285,7 @@ export default {
               subtitle: "Temperatura",
               icon: "thermometer-full",
               iconColor: "icon-info",
+              iconRatio: "rectangle",
               number: doc.data().environment_temperature || 0,
               sign: "°",
               date
@@ -294,6 +296,7 @@ export default {
               subtitle: "Umidade",
               icon: "umbrella",
               iconColor: "icon-warning",
+              iconRatio: "square",
               number: doc.data().ground_humidity || 0,
               sign: "%",
               date
@@ -304,6 +307,7 @@ export default {
               subtitle: "Umidade",
               icon: "umbrella",
               iconColor: "icon-info",
+              iconRatio: "square",
               number: doc.data().environment_humidity || 0,
               sign: "%",
               date
@@ -518,6 +522,9 @@ export default {
       };
     };
   },
+  mounted() {
+    this.bringSeriesToTop("env");
+  },
   methods: {
     onGoBack() {
       this.$router.push("../../towers/list");
@@ -543,6 +550,7 @@ export default {
     },
     bringToTop(targetElement) {
       this.$nextTick(() => {
+        console.log({ targetElement });
         let parent = targetElement.parentNode;
         parent.appendChild(targetElement);
       });
@@ -573,58 +581,64 @@ export default {
     },
     bringSeriesToTop(serie) {
       this.$nextTick(() => {
-        this.bringToTop(document.querySelector(serie));
+        const serieCssClass = serie === "env" ? ".ct-series-b" : ".ct-series-a";
+        console.log({ serieCssClass });
+        this.bringToTop(document.querySelector(serieCssClass));
 
-        if (serie.includes("a")) {
-          this.areaChart.serieAOnTop = true;
-          this.areaChart.serieBOnTop = false;
+        if (serie === "env") {
+          this.temperatureChartArea.envSerieOnTop = true;
+          this.temperatureChartArea.groundSerieOnTop = false;
         } else {
-          this.areaChart.serieAOnTop = false;
-          this.areaChart.serieBOnTop = true;
+          this.temperatureChartArea.envSerieOnTop = false;
+          this.temperatureChartArea.groundSerieOnTop = true;
         }
       });
+
+      console.log("bring to top");
     }
   }
 };
 </script>
 <style lang="scss">
-.tower-data-card-content-wrapper {
-  display: flex;
+.tower-data-card-numbers {
+  font-size: 4em;
+  text-align: center;
 
-  .tower-data-card-content-icon {
-    width: 105px;
-
-    @media (min-width: 576px) {
-      width: 75px;
-    }
-
-    @media (min-width: 768px) {
-      width: 45px;
-    }
-
-    @media (min-width: 1100px) {
-      width: 98px;
-    }
+  @media (min-width: 576px) {
+    font-size: 3em;
   }
 
-  .tower-data-card-numbers {
-    flex-grow: 1;
-    font-size: 4em;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  @media (min-width: 768px) {
+    font-size: 2em;
+  }
+
+  @media (min-width: 1100px) {
+    font-size: 2.5em;
+  }
+
+  .tower-data-card-content-icon {
+    margin-right: 30px;
+
+    &.rectangle {
+      margin-right: 10px;
+      @media (min-width: 576px) {
+        margin-right: 5px;
+      }
+      @media (min-width: 768px) {
+        margin-right: 0;
+      }
+    }
 
     @media (min-width: 576px) {
-      font-size: 3em;
+      margin-right: 15px;
     }
 
     @media (min-width: 768px) {
-      font-size: 2em;
+      margin-right: 5px;
     }
 
     @media (min-width: 1100px) {
-      font-size: 3em;
+      margin-right: 15px;
     }
   }
 }
