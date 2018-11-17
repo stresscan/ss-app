@@ -35,8 +35,8 @@
               <a href="#" v-else @click.prevent="onGoBack">{{ place.name }}</a>
               <br />Cultura: {{ tower.culture }}
               <div class="stats mg-tp-sm d-block">
-                <i :class="tower.last_upload.icon"></i> {{
-                tower.last_upload.text }}
+                <i :class="tower.last_update.icon"></i> {{
+                tower.last_update.text }}
               </div>
               <span v-if="!showMap" class="stats mg-tp-md d-block">
                 <i class="ti-map-alt"></i>
@@ -85,7 +85,7 @@
                 </div>
               </div>
               <div class="stats" slot="footer">
-                <i :class="tower.last_upload.icon"></i> {{ stats.date }}
+                <i :class="tower.last_update.icon"></i> {{ stats.date }}
               </div>
             </stats-card>
           </div>
@@ -99,8 +99,8 @@
               :chart-data="temperatureChart.data" :chart-options="temperatureChart.options"
               :chart-responsive-options="temperatureChart.responsiveOptions">
               <span slot="footer">
-                <i :class="tower.last_upload.icon"></i> {{
-                tower.last_upload.text }}
+                <i :class="tower.last_update.icon"></i> {{
+                tower.last_update.text }}
               </span>
               <div slot="legend">
                 <div class="mg-bt-sm">
@@ -125,8 +125,8 @@
               :chart-data="humidityChart.data" :chart-options="humidityChart.options"
               :chart-responsive-options="humidityChart.responsiveOptions">
               <span slot="footer">
-                <i :class="tower.last_upload.icon"></i> {{
-                tower.last_upload.text }}
+                <i :class="tower.last_update.icon"></i> {{
+                tower.last_update.text }}
               </span>
               <div slot="legend">
                 <i class="fa fa-circle text-info"></i> Ambiente
@@ -176,7 +176,7 @@ export default {
         stats: {
           length: 0
         },
-        last_upload: {
+        last_update: {
           icon: "",
           text: ""
         }
@@ -332,7 +332,7 @@ export default {
             });
 
             this.tower = Object.assign(this.tower, {
-              last_upload: this.getLastUpload(
+              last_update: this.getLastUpload(
                 doc.data().datetime || Date.now()
               ),
               stats_cards: statsCardsData.map(item => {
