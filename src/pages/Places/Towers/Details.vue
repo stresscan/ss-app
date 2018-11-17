@@ -333,7 +333,7 @@ export default {
 
             this.tower = Object.assign(this.tower, {
               last_upload: this.getLastUpload(
-                doc.data().datetime || Date.now().getTime()
+                doc.data().datetime || Date.now()
               ),
               stats_cards: statsCardsData.map(item => {
                 return Object.assign(item, { number: Math.round(item.number) });
