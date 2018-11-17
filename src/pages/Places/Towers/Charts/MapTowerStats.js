@@ -31,29 +31,33 @@ const getOnlyLast24hStats = stats => {
   return only24h;
 };
 
-const groupStatsByHour = last24hStats => {
+const groupStatsByDayAndHour = last24hStats => {
   let currentGroup = [];
   let finalGroup = [];
-  let indexs = [];
+  let indexes = [];
 
   if (last24hStats.length) {
-    let currentDay = last24hStats[0].date.day;
-    let currentTime = last24hStats[0].time.hour;
+    const firtStat = last24hStats[0];
+    let currentStatDay = firtStat.date.day;
+    let currentStatHour = firtStat.time.hour;
 
     last24hStats.forEach(element => {
-      if (element.date.day == currentDay && element.time.hour == currentTime) {
+      const day = element.date.day;
+      const hour = element.time.hour;
+
+      if (day == currentStatDay && hour == currentStatHour) {
         currentGroup.push(element);
       } else {
-        finalGroup[`${currentDay}_${currentTime}`] = currentGroup;
-        indexs.push(`${currentDay}_${currentTime}`);
+        finalGroup[`${currentStatDay}_${currentStatHour}`] = currentGroup;
+        indexes.push(`${currentStatDay}_${currentStatHour}`);
         currentGroup = [];
-        currentDay = element.date.day;
-        currentTime = element.time.hour;
+        currentStatDay = day;
+        currentStatHour = hour;
       }
     });
   }
 
-  return { stats: finalGroup, index: indexs };
+  return { stats: finalGroup, indexes: indexes };
 };
 
 const getLabels = (statsGroupedByDayAndHour, index) => {
@@ -91,7 +95,7 @@ const getSeries = (data, index, values) => {
 
 export default {
   getOnlyLast24hStats,
-  groupStatsByHour,
+  groupStatsByDayAndHour,
   getAverage,
   getLabels,
   getSeries

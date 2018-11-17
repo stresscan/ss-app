@@ -3,11 +3,15 @@
     <a class="back-link" href="#" @click.prevent="onAddData">
       Inserir dados aleatórios
     </a>
-    <div class="alert alert-warning alert-dismissible fade show" v-for="(item, index) in notificationsList" :key="index" v-if="item.show" role="alert">
-      <button type="button" class="close" @click.prevent="onCloseNotification(item)" aria-label="Close">
+    <div class="alert alert-warning alert-dismissible fade show" v-for="(item, index) in notificationsList"
+      :key="index" v-if="item.show" role="alert">
+      <button type="button" class="close" @click.prevent="onCloseNotification(item)"
+        aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
-      <small>{{ item.datetime.getDate() + '/' + item.datetime.getMonth() + 1 + "/" + item.datetime.getFullYear() + ' ' + item.datetime.getHours() + 'h' + item.datetime.getMinutes()}}</small><br />
+      <small>{{ item.datetime.getDate() + '/' + item.datetime.getMonth() + 1 +
+        "/" + item.datetime.getFullYear() + ' ' + item.datetime.getHours() +
+        'h' + item.datetime.getMinutes()}}</small><br />
       <strong>Atenção!</strong> {{ item.msg }}.
     </div>
 
@@ -31,17 +35,20 @@
               <a href="#" v-else @click.prevent="onGoBack">{{ place.name }}</a>
               <br />Cultura: {{ tower.culture }}
               <div class="stats mg-tp-sm d-block">
-                <i :class="tower.last_upload.icon"></i> {{ tower.last_upload.text }}
+                <i :class="tower.last_upload.icon"></i> {{
+                tower.last_upload.text }}
               </div>
               <span v-if="!showMap" class="stats mg-tp-md d-block">
                 <i class="ti-map-alt"></i>
                 <a href="#" @click="showMap = !showMap">Mostrar no mapa</a>
               </span>
               <transition name="fade">
-                <LocationMap v-if="showMap" :zoom="16" :title="tower.name" :draggable="false" :lat="tower.geolocation.lat" :lng="tower.geolocation.lng" />
+                <LocationMap v-if="showMap" :zoom="16" :title="tower.name"
+                  :draggable="false" :lat="tower.geolocation.lat" :lng="tower.geolocation.lng" />
               </transition>
               <transition name="fade">
-                <a href="#" @click="showMap = !showMap" v-if="showMap" style="margin-top: 20px" class="btn btn-round btn-danger">
+                <a href="#" @click="showMap = !showMap" v-if="showMap" style="margin-top: 20px"
+                  class="btn btn-round btn-danger">
                   <i class="ti ti-close" /> Fechar Mapa
                 </a>
               </transition>
@@ -63,7 +70,8 @@
       </template>
       <template v-else>
         <div class="row">
-          <div class="col-sm-6 col-md-3" v-for="(stats, index) in tower.stats_cards" :key="index">
+          <div class="col-sm-6 col-md-3" v-for="(stats, index) in tower.stats_cards"
+            :key="index">
             <stats-card :title="stats.title" :subtitle="stats.subtitle">
               <div slot="raw-content">
                 <div v-if="gettingTowerData" class="ss-inline-spinner mg-tp-md mg-lf-md"></div>
@@ -86,18 +94,24 @@
         <!--Charts-->
         <div class="row">
           <div class="col-12">
-            <chart-card class="chart-temperature" :cardBodyNegativeTop="true" title="Média de Temperatura por Hora" :sub-title="`${last24hStatsLength} medições recebidas nas últimas 24 Horas`" :chart-data="temperatureChart.data" :chart-options="temperatureChart.options" :chart-responsive-options="temperatureChart.responsiveOptions">
+            <chart-card class="chart-temperature" :cardBodyNegativeTop="true"
+              title="Média de Temperatura por Hora" :sub-title="`${last24hStatsLength} medições recebidas nas últimas 24 Horas`"
+              :chart-data="temperatureChart.data" :chart-options="temperatureChart.options"
+              :chart-responsive-options="temperatureChart.responsiveOptions">
               <span slot="footer">
-                <i :class="tower.last_upload.icon"></i> {{ tower.last_upload.text }}
+                <i :class="tower.last_upload.icon"></i> {{
+                tower.last_upload.text }}
               </span>
               <div slot="legend">
                 <div class="mg-bt-sm">
                   <i class="fa fa-circle text-info"></i> Ambiente
                   <i class="fa fa-circle text-warning"></i> Planta
-                  <button v-if="temperatureChartArea.groundSerieOnTop" class="btn btn-sm mg-lf-xs" @click="bringSeriesToTop('env')">
+                  <button v-if="temperatureChartArea.groundSerieOnTop" class="btn btn-sm mg-lf-xs"
+                    @click="bringSeriesToTop('env')">
                     <i class="fa fa-exchange"></i>
                   </button>
-                  <button v-if="temperatureChartArea.envSerieOnTop" class="btn btn-sm mg-lf-xs" @click="bringSeriesToTop('ground')">
+                  <button v-if="temperatureChartArea.envSerieOnTop" class="btn btn-sm mg-lf-xs"
+                    @click="bringSeriesToTop('ground')">
                     <i class="fa fa-exchange"></i>
                   </button>
                 </div>
@@ -106,9 +120,13 @@
           </div>
 
           <div class="col-12">
-            <chart-card class="chart-humidity" :cardBodyNegativeTop="true" title="Média de Umidade por Hora" :sub-title="`${last24hStatsLength} medições recebidas nas últimas 24 Horas`" :chart-data="humidityChart.data" :chart-options="humidityChart.options" :chart-responsive-options="humidityChart.responsiveOptions">
+            <chart-card class="chart-humidity" :cardBodyNegativeTop="true"
+              title="Média de Umidade por Hora" :sub-title="`${last24hStatsLength} medições recebidas nas últimas 24 Horas`"
+              :chart-data="humidityChart.data" :chart-options="humidityChart.options"
+              :chart-responsive-options="humidityChart.responsiveOptions">
               <span slot="footer">
-                <i :class="tower.last_upload.icon"></i> {{ tower.last_upload.text }}
+                <i :class="tower.last_upload.icon"></i> {{
+                tower.last_upload.text }}
               </span>
               <div slot="legend">
                 <i class="fa fa-circle text-info"></i> Ambiente
@@ -317,7 +335,9 @@ export default {
               last_upload: this.getLastUpload(
                 doc.data().datetime || Date.now().getTime()
               ),
-              stats_cards: statsCardsData
+              stats_cards: statsCardsData.map(item => {
+                return Object.assign(item, { number: Math.round(item.number) });
+              })
             });
 
             statsCharts.push(Object.assign(doc.data(), { id: doc.id }));
@@ -353,25 +373,25 @@ export default {
       const last24hStats = mapTowerStats.getOnlyLast24hStats(stats);
       this.last24hStatsLength = last24hStats.length;
 
-      const statsGroupedByDayAndHour = mapTowerStats.groupStatsByHour(
+      const statsGroupedByDayAndHour = mapTowerStats.groupStatsByDayAndHour(
         last24hStats
       );
 
       const labels = mapTowerStats.getLabels(
         statsGroupedByDayAndHour.stats,
-        statsGroupedByDayAndHour.index
+        statsGroupedByDayAndHour.indexes
       );
 
       buildTemperatureChart(
         labels,
         statsGroupedByDayAndHour.stats,
-        statsGroupedByDayAndHour.index
+        statsGroupedByDayAndHour.indexes
       );
 
       buildHumidityChart(
         labels,
         statsGroupedByDayAndHour.stats,
-        statsGroupedByDayAndHour.index
+        statsGroupedByDayAndHour.indexes
       );
     };
 
@@ -551,11 +571,12 @@ export default {
         });
     },
     bringToTop(targetElement) {
-      this.$nextTick(() => {
-        console.log({ targetElement });
-        let parent = targetElement.parentNode;
-        parent.appendChild(targetElement);
-      });
+      if (targetElement) {
+        this.$nextTick(() => {
+          let parent = targetElement.parentNode;
+          parent.appendChild(targetElement);
+        });
+      }
     },
     onAddData() {
       let d = new Date();
@@ -584,7 +605,6 @@ export default {
     bringSeriesToTop(serie) {
       this.$nextTick(() => {
         const serieCssClass = serie === "env" ? ".ct-series-a" : ".ct-series-b";
-        console.log({ serieCssClass });
         this.bringToTop(document.querySelector(serieCssClass));
 
         if (serie === "env") {
@@ -595,8 +615,6 @@ export default {
           this.temperatureChartArea.groundSerieOnTop = true;
         }
       });
-
-      console.log("bring to top");
     }
   }
 };
