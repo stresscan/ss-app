@@ -11,8 +11,8 @@ export const initializeFirebase = () => {
 
   firebase.initializeApp(config);
 
-  // navigator.serviceWorker.register("/stresscan-sw.js").then(registration => {
-  //   console.log(registration);
-  //   firebase.messaging().useServiceWorker(registration);
-  // });
+  navigator.serviceWorker.register("/stresscan-sw.js").then(registration => {
+    console.log(registration);
+    firebase.messaging().useServiceWorker(registration);
+  });
 };

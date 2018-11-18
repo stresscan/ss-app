@@ -29,6 +29,7 @@ exports.sendNotificationOnAddNewTowerStats = functions.firestore
           const toLow = alert.when.includes("low") && newValue < alert.value;
 
           if (toHigh || toLow) {
+            console.log({ toLow, toHigh });
             sendPushNotification(place, tower, alert, newStats.datetime);
           }
         });
@@ -38,6 +39,7 @@ exports.sendNotificationOnAddNewTowerStats = functions.firestore
       .catch(e => console.log(e.message));
 
     const sendPushNotification = (placeId, towerId, alert, datetime) => {
+      console.log("enviar notification");
       const msg = `${
         alert.metric === "temperature" ? "Temperatura" : "Umidade"
       } ${alert.for === "environment" ? "do ambiente" : "da planta"} está ${
@@ -67,6 +69,13 @@ exports.sendNotificationOnAddNewTowerStats = functions.firestore
               if (tokens && userDoc.data().push_notifications_enable) {
                 tokens.forEach(token => {
                   console.log({ token });
+                  console.log("enviando push", {
+                    title: "Stresscan",
+                    body: `${msg} na torre ${towerId.substring(0, 8)}`,
+                    click_action: url + route,
+                    icon
+                  });
+
                   admin.messaging().sendToDevice(token, {
                     notification: {
                       title: "Stresscan",
@@ -75,8 +84,19 @@ exports.sendNotificationOnAddNewTowerStats = functions.firestore
                       icon
                     }
                   });
+
+                  console.log("push enviado");
                 });
               }
+
+              console.log("armazenando notification", {
+                msg,
+                route,
+                datetime,
+                owner: userDoc.id,
+                place,
+                tower
+              });
 
               admin
                 .firestore()
@@ -89,6 +109,8 @@ exports.sendNotificationOnAddNewTowerStats = functions.firestore
                   place,
                   tower
                 });
+
+              console.log("notificacao armazenada");
 
               return true;
             })

@@ -1,7 +1,10 @@
 <template>
   <div>
-    <a class="back-link" href="#" @click.prevent="onAddData">
+    <!-- <a class="back-link" href="#" @click.prevent="onAddData">
       Inserir dados aleatórios
+    </a> -->
+    <a class="back-link" href="#" @click.prevent="onAddDataHigherThan30">
+      Inserir dados maiores que 30
     </a>
     <div class="alert alert-warning alert-dismissible fade show" v-for="(item, index) in notificationsList"
       :key="index" v-if="item.show" role="alert">
@@ -577,6 +580,25 @@ export default {
           parent.appendChild(targetElement);
         });
       }
+    },
+    onAddDataHigherThan30() {
+      console.log("adding data");
+      const newData = {
+        datetime: new Date(),
+        environment_humidity: 31,
+        environment_temperature: 31,
+        ground_humidity: 31,
+        ground_temperature: 31
+      };
+
+      firebase
+        .firestore()
+        .collection("places")
+        .doc(this.$route.params.placeId)
+        .collection("towers")
+        .doc(this.$route.params.towerId)
+        .collection("stats")
+        .add(newData);
     },
     onAddData() {
       let d = new Date();
