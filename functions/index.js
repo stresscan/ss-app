@@ -48,8 +48,7 @@ exports.sendNotificationOnAddNewTowerStats = functions.firestore
 
       const url = "https://app.stresscan.com";
       const route = `/dashboard/index/places/${placeId}/tower/${towerId}/details`;
-      const icon =
-        "http://res.cloudinary.com/dwtuxv53y/image/upload/v1536530915/face-1_thhyxw.jpg";
+      const icon = "https://app.stresscan.com/img/logo.3cc98cff.png";
 
       admin
         .firestore()
